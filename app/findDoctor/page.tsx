@@ -10,6 +10,7 @@ function findDoctor() {
                     <h1 className="text-4xl font-bold mb-4">Your home for health</h1>
                     <p className="mb-8 text-lg">Find and book doctors near you</p>
 
+
                     {/* Search Bar */}
                     <div className="flex w-full max-w-3xl mx-auto bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden">
                         <input
