@@ -22,10 +22,10 @@ export default function Header() {
   // These arrays are your "Static Data"
   // TypeScript will now infer they match the NavItem structure
   const navItems: NavItem[] = [
-    { label: "Find Doctors", href: "/findDoctor" },
-    { label: "Video Consult", href: "/viewConsult" },
-    { label: "Lab Tests", href: "/labTests" },
-    { label: "Surgeries", href: "/surgeries" },
+    { label: "Find Doctors", href: "/" },
+    { label: "Video Consult", href: "/videoConsult/viewConsult" },
+    { label: "Lab Tests", href: "/lab/labTest" },
+    { label: "Surgeries", href: "/sur/surgery" },
   ]
 
   const corporateItems: NavItem[] = [
@@ -49,10 +49,10 @@ export default function Header() {
   // 3. Apply the type to the component props here: ({ label, items }: NavDropdownProps)
   const NavDropdown = ({ label, items }: NavDropdownProps) => (
     <div className="dropdown d-inline-block">
-      <button 
-        className="btn btn-link text-decoration-none text-secondary fw-medium d-flex align-items-center gap-1 p-0 border-0 bg-transparent" 
-        type="button" 
-        data-bs-toggle="dropdown" 
+      <button
+        className="btn btn-link text-decoration-none text-secondary fw-medium d-flex align-items-center gap-1 p-0 border-0 bg-transparent"
+        type="button"
+        data-bs-toggle="dropdown"
         aria-expanded="false"
       >
         {label}
@@ -80,7 +80,7 @@ export default function Header() {
     <header className="sticky-top bg-white border-bottom shadow-sm">
       <nav className="container py-3">
         <div className="d-flex align-items-center justify-content-between">
-          
+
           {/* Logo */}
           <Link href="/" className="text-decoration-none">
             <div className="d-flex align-items-center gap-2">
@@ -127,15 +127,15 @@ export default function Header() {
               NEW
             </span>
 
-            <button className="btn btn-primary btn-sm fw-medium px-3">
+            <Link href="/login" className="btn btn-primary btn-sm fw-medium px-3 text-decoration-none">
               Login / Signup
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            className="btn btn-light d-md-none border-0 bg-transparent p-0" 
-            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          <button
+            className="btn btn-light d-md-none border-0 bg-transparent p-0"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
             {isMenuOpen ? <X className="text-dark" /> : <Menu className="text-dark" />}
@@ -143,7 +143,7 @@ export default function Header() {
         </div>
       </nav>
 
-          {/* Mobile Menu */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="d-md-none border-top bg-white">
           <div className="p-3 d-flex flex-column gap-2">
@@ -167,7 +167,7 @@ export default function Header() {
               )
             ))}
             <hr className="my-2" />
-            
+
             {/* We can also reuse static data here for cleaner code */}
             {[...corporateItems, ...providerItems, ...securityItems].map((item) => (
               item.href.startsWith('/') ? (
@@ -180,11 +180,11 @@ export default function Header() {
                 </a>
               )
             ))}
-            
+
             <hr className="my-2" />
-            <button className="btn btn-primary w-100 fw-medium">
+            <Link href="/login" className="btn btn-primary w-100 fw-medium text-decoration-none">
               Login / Signup
-            </button>
+            </Link>
           </div>
         </div>
       )}

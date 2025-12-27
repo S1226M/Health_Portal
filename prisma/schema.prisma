@@ -1,0 +1,1039 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model hop_appointment {
+  AppointmentID                                       Int         @id @default(autoincrement())
+  AppointmentNo                                       String      @db.VarChar(50)
+  PatientID                                           Int
+  DoctorID                                            Int
+  AppointmentDate                                     DateTime    @db.DateTime(0)
+  Status                                              String      @db.VarChar(50)
+  Reason                                              String?     @db.VarChar(250)
+  Created                                             DateTime    @default(now()) @db.DateTime(0)
+  Modified                                            DateTime    @default(now()) @db.DateTime(0)
+  CreatedByUserID                                     Int
+  ModifiedByUserID                                    Int?
+  IsDeleted                                           Boolean     @default(false)
+  sec_user_hop_appointment_CreatedByUserIDTosec_user  sec_user    @relation("hop_appointment_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_CreatedBy")
+  sec_user_hop_appointment_ModifiedByUserIDTosec_user sec_user?   @relation("hop_appointment_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_ModifiedBy")
+  hop_patient                                         hop_patient @relation(fields: [PatientID], references: [PatientID], onDelete: NoAction, onUpdate: NoAction, map: "hop_appointment_ibfk_1")
+  hop_doctor                                          hop_doctor  @relation(fields: [DoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "hop_appointment_ibfk_2")
+  hop_opd                                             hop_opd[]
+
+  @@index([DoctorID], map: "DoctorID")
+  @@index([CreatedByUserID], map: "FK_HOP_Appt_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Appt_ModifiedBy")
+  @@index([PatientID], map: "PatientID")
+}
+
+model hop_diagnosistype {
+  DiagnosisTypeID                                       Int                    @id @default(autoincrement())
+  DiagnosisTypeName                                     String                 @db.VarChar(250)
+  DiagnosisTypeShortName                                String?                @db.VarChar(50)
+  IsActive                                              Boolean                @default(true)
+  HospitalID                                            Int
+  Description                                           String?                @db.VarChar(250)
+  UserID                                                Int
+  Created                                               DateTime               @default(now()) @db.DateTime(0)
+  Modified                                              DateTime               @default(now()) @db.DateTime(0)
+  CreatedByUserID                                       Int
+  ModifiedByUserID                                      Int?
+  IsDeleted                                             Boolean                @default(false)
+  sec_user_hop_diagnosistype_CreatedByUserIDTosec_user  sec_user               @relation("hop_diagnosistype_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_DiagType_CreatedBy")
+  sec_user_hop_diagnosistype_ModifiedByUserIDTosec_user sec_user?              @relation("hop_diagnosistype_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_DiagType_ModifiedBy")
+  hop_hospital                                          hop_hospital           @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "hop_diagnosistype_ibfk_1")
+  sec_user_hop_diagnosistype_UserIDTosec_user           sec_user               @relation("hop_diagnosistype_UserIDTosec_user", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "hop_diagnosistype_ibfk_2")
+  hop_opddiagnosistype                                  hop_opddiagnosistype[]
+
+  @@index([CreatedByUserID], map: "FK_HOP_DiagType_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_DiagType_ModifiedBy")
+  @@index([HospitalID], map: "HospitalID")
+  @@index([UserID], map: "UserID")
+}
+
+model hop_doctor {
+  DoctorID                                       Int                  @id @default(autoincrement())
+  DoctorName                                     String               @db.VarChar(250)
+  HospitalID                                     Int
+  SpecializationID                               Int?
+  Description                                    String?              @db.VarChar(250)
+  UserID                                         Int
+  Created                                        DateTime             @default(now()) @db.DateTime(0)
+  Modified                                       DateTime             @default(now()) @db.DateTime(0)
+  CreatedByUserID                                Int
+  ModifiedByUserID                               Int?
+  IsDeleted                                      Boolean              @default(false)
+  hop_appointment                                hop_appointment[]
+  sec_user_hop_doctor_CreatedByUserIDTosec_user  sec_user             @relation("hop_doctor_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_CreatedBy")
+  sec_user_hop_doctor_ModifiedByUserIDTosec_user sec_user?            @relation("hop_doctor_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_ModifiedBy")
+  hop_hospital                                   hop_hospital         @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_1")
+  sec_user_hop_doctor_UserIDTosec_user           sec_user             @relation("hop_doctor_UserIDTosec_user", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_2")
+  hop_specialization                             hop_specialization?  @relation(fields: [SpecializationID], references: [SpecializationID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_3")
+  hop_doctorreview                               hop_doctorreview[]
+  hop_opd                                        hop_opd[]
+  sur_surgerybooking                             sur_surgerybooking[]
+
+  @@index([CreatedByUserID], map: "FK_HOP_Doctor_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Doctor_ModifiedBy")
+  @@index([HospitalID], map: "HospitalID")
+  @@index([SpecializationID], map: "SpecializationID")
+  @@index([UserID], map: "UserID")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model hop_doctorreview {
+  DoctorReviewID                                       Int         @id @default(autoincrement())
+  DoctorID                                             Int
+  PatientID                                            Int
+  Rating                                               Int
+  ReviewText                                           String?     @db.VarChar(500)
+  Created                                              DateTime    @default(now()) @db.DateTime(0)
+  Modified                                             DateTime    @default(now()) @db.DateTime(0)
+  CreatedByUserID                                      Int
+  ModifiedByUserID                                     Int?
+  IsDeleted                                            Boolean     @default(false)
+  sec_user_hop_doctorreview_CreatedByUserIDTosec_user  sec_user    @relation("hop_doctorreview_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Review_CreatedBy")
+  sec_user_hop_doctorreview_ModifiedByUserIDTosec_user sec_user?   @relation("hop_doctorreview_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Review_ModifiedBy")
+  hop_doctor                                           hop_doctor  @relation(fields: [DoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctorreview_ibfk_1")
+  hop_patient                                          hop_patient @relation(fields: [PatientID], references: [PatientID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctorreview_ibfk_2")
+
+  @@index([DoctorID], map: "DoctorID")
+  @@index([CreatedByUserID], map: "FK_HOP_Review_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Review_ModifiedBy")
+  @@index([PatientID], map: "PatientID")
+}
+
+model hop_hospital {
+  HospitalID                                       Int                     @id @default(autoincrement())
+  HospitalName                                     String                  @db.VarChar(250)
+  DefaultPaymentModeID                             Int?
+  RegistrationCharge                               Decimal?                @db.Decimal(18, 2)
+  OpeningDate                                      DateTime                @db.Date
+  Address                                          String?                 @db.VarChar(500)
+  CityID                                           Int?
+  UserID                                           Int
+  Created                                          DateTime                @default(now()) @db.DateTime(0)
+  Modified                                         DateTime                @default(now()) @db.DateTime(0)
+  CreatedByUserID                                  Int
+  ModifiedByUserID                                 Int?
+  IsDeleted                                        Boolean                 @default(false)
+  hop_diagnosistype                                hop_diagnosistype[]
+  hop_doctor                                       hop_doctor[]
+  sec_user_hop_hospital_CreatedByUserIDTosec_user  sec_user                @relation("hop_hospital_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Hospital_CreatedBy")
+  sec_user_hop_hospital_ModifiedByUserIDTosec_user sec_user?               @relation("hop_hospital_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Hospital_ModifiedBy")
+  sec_user_hop_hospital_UserIDTosec_user           sec_user                @relation("hop_hospital_UserIDTosec_user", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "hop_hospital_ibfk_1")
+  pay_paymentmode                                  pay_paymentmode?        @relation(fields: [DefaultPaymentModeID], references: [PaymentModeID], onDelete: NoAction, onUpdate: NoAction, map: "hop_hospital_ibfk_2")
+  loc_city                                         loc_city?               @relation(fields: [CityID], references: [CityID], onDelete: NoAction, onUpdate: NoAction, map: "hop_hospital_ibfk_3")
+  hop_hospitaltreatment                            hop_hospitaltreatment[]
+  sur_surgery                                      sur_surgery[]
+  sur_surgerybooking                               sur_surgerybooking[]
+
+  @@index([CityID], map: "CityID")
+  @@index([DefaultPaymentModeID], map: "DefaultPaymentModeID")
+  @@index([CreatedByUserID], map: "FK_HOP_Hospital_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Hospital_ModifiedBy")
+  @@index([UserID], map: "UserID")
+}
+
+model hop_hospitaltreatment {
+  HospitalTreatmentID Int               @id @default(autoincrement())
+  HospitalID          Int
+  TreatmentTypeID     Int
+  IsDeleted           Boolean           @default(false)
+  hop_hospital        hop_hospital      @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "hop_hospitaltreatment_ibfk_1")
+  hop_treatmenttype   hop_treatmenttype @relation(fields: [TreatmentTypeID], references: [TreatmentTypeID], onDelete: NoAction, onUpdate: NoAction, map: "hop_hospitaltreatment_ibfk_2")
+
+  @@unique([HospitalID, TreatmentTypeID], map: "HospitalID")
+  @@index([TreatmentTypeID], map: "TreatmentTypeID")
+}
+
+model hop_log_appointment {
+  AppointmentLOGID Int      @id @default(autoincrement())
+  AppointmentID    Int
+  IUD              String   @db.VarChar(1)
+  Created          DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID  Int
+}
+
+model hop_log_diagnosistype {
+  DiagnosisTypeLOGID Int      @id @default(autoincrement())
+  DiagnosisTypeID    Int
+  IUD                String   @db.VarChar(1)
+  Created            DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID    Int
+}
+
+model hop_log_doctor {
+  DoctorLOGID     Int      @id @default(autoincrement())
+  DoctorID        Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+  sec_user        sec_user @relation(fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOG_Doctor_CreatedBy")
+
+  @@index([CreatedByUserID], map: "FK_LOG_Doctor_CreatedBy")
+}
+
+model hop_log_doctorreview {
+  DoctorReviewLOGID Int      @id @default(autoincrement())
+  DoctorReviewID    Int
+  IUD               String   @db.VarChar(1)
+  Created           DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID   Int
+}
+
+model hop_log_hospital {
+  HospitalLOGID   Int      @id @default(autoincrement())
+  HospitalID      Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model hop_log_hospitaltreatment {
+  HospitalTreatmentLOGID Int      @id @default(autoincrement())
+  HospitalTreatmentID    Int
+  IUD                    String   @db.VarChar(1)
+  Created                DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID        Int
+}
+
+model hop_log_opd {
+  OPDLOGID        Int      @id @default(autoincrement())
+  OPDID           Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model hop_log_opddiagnosistype {
+  OPDDiagnosisTypeLOGID Int      @id @default(autoincrement())
+  OPDDiagnosisTypeID    Int
+  IUD                   String   @db.VarChar(1)
+  Created               DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID       Int
+}
+
+model hop_log_patient {
+  PatientLOGID    Int      @id @default(autoincrement())
+  PatientID       Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+  sec_user        sec_user @relation(fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOG_Patient_CreatedBy")
+
+  @@index([CreatedByUserID], map: "FK_LOG_Patient_CreatedBy")
+}
+
+model hop_log_receipt {
+  ReceiptLOGID    Int      @id @default(autoincrement())
+  ReceiptID       Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model hop_log_receipttran {
+  ReceiptTranLOGID Int      @id @default(autoincrement())
+  ReceiptTranID    Int
+  IUD              String   @db.VarChar(1)
+  Created          DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID  Int
+}
+
+model hop_log_specialization {
+  SpecializationLOGID Int      @id @default(autoincrement())
+  SpecializationID    Int
+  IUD                 String   @db.VarChar(1)
+  Created             DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID     Int
+}
+
+model hop_log_subtreatmenttype {
+  SubTreatmentTypeLOGID Int      @id @default(autoincrement())
+  SubTreatmentTypeID    Int
+  IUD                   String   @db.VarChar(1)
+  Created               DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID       Int
+}
+
+model hop_log_treatmenttype {
+  TreatmentTypeLOGID Int      @id @default(autoincrement())
+  TreatmentTypeID    Int
+  IUD                String   @db.VarChar(1)
+  Created            DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID    Int
+}
+
+model hop_opd {
+  OPDID                                       Int                    @id @default(autoincrement())
+  OPDDateTime                                 DateTime               @db.DateTime(0)
+  PatientID                                   Int
+  IsFollowUpCase                              Boolean
+  TreatedByDoctorID                           Int
+  DiagnosisTypeID                             Int?
+  OtherDiagnosis                              String?                @db.Text
+  RegistrationFee                             Decimal                @db.Decimal(18, 2)
+  AppointmentID                               Int?
+  Description                                 String?                @db.VarChar(250)
+  UserID                                      Int
+  Created                                     DateTime               @default(now()) @db.DateTime(0)
+  Modified                                    DateTime               @default(now()) @db.DateTime(0)
+  CreatedByUserID                             Int
+  ModifiedByUserID                            Int?
+  IsDeleted                                   Boolean                @default(false)
+  sec_user_hop_opd_CreatedByUserIDTosec_user  sec_user               @relation("hop_opd_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_OPD_CreatedBy")
+  sec_user_hop_opd_ModifiedByUserIDTosec_user sec_user?              @relation("hop_opd_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_OPD_ModifiedBy")
+  hop_patient                                 hop_patient            @relation(fields: [PatientID], references: [PatientID], onDelete: NoAction, onUpdate: NoAction, map: "hop_opd_ibfk_1")
+  hop_doctor                                  hop_doctor             @relation(fields: [TreatedByDoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "hop_opd_ibfk_2")
+  hop_appointment                             hop_appointment?       @relation(fields: [AppointmentID], references: [AppointmentID], onDelete: NoAction, onUpdate: NoAction, map: "hop_opd_ibfk_3")
+  hop_opddiagnosistype                        hop_opddiagnosistype[]
+  hop_receipt                                 hop_receipt[]
+
+  @@index([AppointmentID], map: "AppointmentID")
+  @@index([CreatedByUserID], map: "FK_HOP_OPD_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_OPD_ModifiedBy")
+  @@index([PatientID], map: "PatientID")
+  @@index([TreatedByDoctorID], map: "TreatedByDoctorID")
+}
+
+model hop_opddiagnosistype {
+  OPDDiagnosisTypeID                                       Int               @id @default(autoincrement())
+  OPDID                                                    Int
+  DiagnosisTypeID                                          Int
+  Description                                              String?           @db.VarChar(250)
+  UserID                                                   Int
+  Created                                                  DateTime          @default(now()) @db.DateTime(0)
+  Modified                                                 DateTime          @default(now()) @db.DateTime(0)
+  CreatedByUserID                                          Int
+  ModifiedByUserID                                         Int?
+  IsDeleted                                                Boolean           @default(false)
+  sec_user_hop_opddiagnosistype_CreatedByUserIDTosec_user  sec_user          @relation("hop_opddiagnosistype_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_OPDDiag_CreatedBy")
+  sec_user_hop_opddiagnosistype_ModifiedByUserIDTosec_user sec_user?         @relation("hop_opddiagnosistype_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_OPDDiag_ModifiedBy")
+  hop_opd                                                  hop_opd           @relation(fields: [OPDID], references: [OPDID], onDelete: NoAction, onUpdate: NoAction, map: "hop_opddiagnosistype_ibfk_1")
+  hop_diagnosistype                                        hop_diagnosistype @relation(fields: [DiagnosisTypeID], references: [DiagnosisTypeID], onDelete: NoAction, onUpdate: NoAction, map: "hop_opddiagnosistype_ibfk_2")
+
+  @@index([DiagnosisTypeID], map: "DiagnosisTypeID")
+  @@index([CreatedByUserID], map: "FK_HOP_OPDDiag_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_OPDDiag_ModifiedBy")
+  @@index([OPDID], map: "OPDID")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model hop_patient {
+  PatientID                                       Int                  @id @default(autoincrement())
+  PatientName                                     String               @db.VarChar(250)
+  PatientNo                                       Int
+  RegistrationDateTime                            DateTime             @db.DateTime(0)
+  Age                                             Int?
+  BloodGroup                                      String?              @db.VarChar(20)
+  Gender                                          String               @db.VarChar(10)
+  CityID                                          Int?
+  MobileNo                                        String               @db.VarChar(20)
+  Address                                         String?              @db.VarChar(250)
+  UserID                                          Int
+  Created                                         DateTime             @default(now()) @db.DateTime(0)
+  Modified                                        DateTime             @default(now()) @db.DateTime(0)
+  CreatedByUserID                                 Int
+  ModifiedByUserID                                Int?
+  IsDeleted                                       Boolean              @default(false)
+  hop_appointment                                 hop_appointment[]
+  hop_doctorreview                                hop_doctorreview[]
+  hop_opd                                         hop_opd[]
+  sec_user_hop_patient_CreatedByUserIDTosec_user  sec_user             @relation("hop_patient_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Patient_CreatedBy")
+  sec_user_hop_patient_ModifiedByUserIDTosec_user sec_user?            @relation("hop_patient_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Patient_ModifiedBy")
+  loc_city                                        loc_city?            @relation(fields: [CityID], references: [CityID], onDelete: NoAction, onUpdate: NoAction, map: "hop_patient_ibfk_1")
+  lab_labtestorder                                lab_labtestorder[]
+  sur_surgerybooking                              sur_surgerybooking[]
+
+  @@index([CityID], map: "CityID")
+  @@index([CreatedByUserID], map: "FK_HOP_Patient_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Patient_ModifiedBy")
+}
+
+model hop_receipt {
+  ReceiptID                                       Int               @id @default(autoincrement())
+  ReceiptNo                                       String?           @db.VarChar(250)
+  ReceiptDate                                     DateTime          @db.DateTime(0)
+  OPDID                                           Int
+  AmountPaid                                      Decimal           @db.Decimal(18, 2)
+  PaymentModeID                                   Int
+  ReferenceNo                                     String?           @db.VarChar(250)
+  Description                                     String?           @db.VarChar(250)
+  UserID                                          Int
+  Created                                         DateTime          @default(now()) @db.DateTime(0)
+  Modified                                        DateTime          @default(now()) @db.DateTime(0)
+  CreatedByUserID                                 Int
+  ModifiedByUserID                                Int?
+  IsDeleted                                       Boolean           @default(false)
+  sec_user_hop_receipt_CreatedByUserIDTosec_user  sec_user          @relation("hop_receipt_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Receipt_CreatedBy")
+  sec_user_hop_receipt_ModifiedByUserIDTosec_user sec_user?         @relation("hop_receipt_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Receipt_ModifiedBy")
+  hop_opd                                         hop_opd           @relation(fields: [OPDID], references: [OPDID], onDelete: NoAction, onUpdate: NoAction, map: "hop_receipt_ibfk_1")
+  pay_paymentmode                                 pay_paymentmode   @relation(fields: [PaymentModeID], references: [PaymentModeID], onDelete: NoAction, onUpdate: NoAction, map: "hop_receipt_ibfk_2")
+  hop_receipttran                                 hop_receipttran[]
+
+  @@index([CreatedByUserID], map: "FK_HOP_Receipt_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Receipt_ModifiedBy")
+  @@index([OPDID], map: "OPDID")
+  @@index([PaymentModeID], map: "PaymentModeID")
+}
+
+model hop_receipttran {
+  ReceiptTranID                                       Int                   @id @default(autoincrement())
+  ReceiptID                                           Int
+  SubTreatmentTypeID                                  Int?
+  MedicineID                                          Int?
+  LabTestID                                           Int?
+  AmountTotal                                         Decimal               @db.Decimal(18, 2)
+  Description                                         String?               @db.VarChar(250)
+  UserID                                              Int
+  Created                                             DateTime              @default(now()) @db.DateTime(0)
+  Modified                                            DateTime              @default(now()) @db.DateTime(0)
+  CreatedByUserID                                     Int
+  ModifiedByUserID                                    Int?
+  IsDeleted                                           Boolean               @default(false)
+  sec_user_hop_receipttran_CreatedByUserIDTosec_user  sec_user              @relation("hop_receipttran_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_ReceiptTran_CreatedBy")
+  sec_user_hop_receipttran_ModifiedByUserIDTosec_user sec_user?             @relation("hop_receipttran_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_ReceiptTran_ModifiedBy")
+  hop_receipt                                         hop_receipt           @relation(fields: [ReceiptID], references: [ReceiptID], onDelete: NoAction, onUpdate: NoAction, map: "hop_receipttran_ibfk_1")
+  hop_subtreatmenttype                                hop_subtreatmenttype? @relation(fields: [SubTreatmentTypeID], references: [SubTreatmentTypeID], onDelete: NoAction, onUpdate: NoAction, map: "hop_receipttran_ibfk_2")
+  phm_medicine                                        phm_medicine?         @relation(fields: [MedicineID], references: [MedicineID], onDelete: NoAction, onUpdate: NoAction, map: "hop_receipttran_ibfk_3")
+  lab_labtest                                         lab_labtest?          @relation(fields: [LabTestID], references: [LabTestID], onDelete: NoAction, onUpdate: NoAction, map: "hop_receipttran_ibfk_4")
+
+  @@index([CreatedByUserID], map: "FK_HOP_ReceiptTran_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_ReceiptTran_ModifiedBy")
+  @@index([LabTestID], map: "LabTestID")
+  @@index([MedicineID], map: "MedicineID")
+  @@index([ReceiptID], map: "ReceiptID")
+  @@index([SubTreatmentTypeID], map: "SubTreatmentTypeID")
+}
+
+model hop_specialization {
+  SpecializationID                                       Int          @id @default(autoincrement())
+  SpecializationName                                     String       @db.VarChar(100)
+  Description                                            String?      @db.VarChar(250)
+  Created                                                DateTime     @default(now()) @db.DateTime(0)
+  Modified                                               DateTime     @default(now()) @db.DateTime(0)
+  CreatedByUserID                                        Int
+  ModifiedByUserID                                       Int?
+  IsDeleted                                              Boolean      @default(false)
+  hop_doctor                                             hop_doctor[]
+  sec_user_hop_specialization_CreatedByUserIDTosec_user  sec_user     @relation("hop_specialization_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Specialization_CreatedBy")
+  sec_user_hop_specialization_ModifiedByUserIDTosec_user sec_user?    @relation("hop_specialization_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Specialization_ModifiedBy")
+
+  @@index([CreatedByUserID], map: "FK_HOP_Specialization_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_Specialization_ModifiedBy")
+}
+
+model hop_subtreatmenttype {
+  SubTreatmentTypeID                                       Int               @id @default(autoincrement())
+  SubTreatmentTypeName                                     String            @db.VarChar(250)
+  TreatmentTypeID                                          Int
+  Rate                                                     Decimal           @db.Decimal(18, 2)
+  IsActive                                                 Boolean           @default(true)
+  Description                                              String?           @db.VarChar(250)
+  UserID                                                   Int
+  Created                                                  DateTime          @default(now()) @db.DateTime(0)
+  Modified                                                 DateTime          @default(now()) @db.DateTime(0)
+  CreatedByUserID                                          Int
+  ModifiedByUserID                                         Int?
+  IsDeleted                                                Boolean           @default(false)
+  hop_receipttran                                          hop_receipttran[]
+  sec_user_hop_subtreatmenttype_CreatedByUserIDTosec_user  sec_user          @relation("hop_subtreatmenttype_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_SubTreat_CreatedBy")
+  sec_user_hop_subtreatmenttype_ModifiedByUserIDTosec_user sec_user?         @relation("hop_subtreatmenttype_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_SubTreat_ModifiedBy")
+  hop_treatmenttype                                        hop_treatmenttype @relation(fields: [TreatmentTypeID], references: [TreatmentTypeID], onDelete: NoAction, onUpdate: NoAction, map: "hop_subtreatmenttype_ibfk_1")
+  sur_surgeryitem                                          sur_surgeryitem[]
+
+  @@index([CreatedByUserID], map: "FK_HOP_SubTreat_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_SubTreat_ModifiedBy")
+  @@index([TreatmentTypeID], map: "TreatmentTypeID")
+}
+
+model hop_treatmenttype {
+  TreatmentTypeID                                       Int                     @id @default(autoincrement())
+  TreatmentTypeName                                     String                  @db.VarChar(250)
+  TreatmentTypeShortName                                String?                 @db.VarChar(50)
+  Description                                           String?                 @db.VarChar(250)
+  UserID                                                Int
+  Created                                               DateTime                @default(now()) @db.DateTime(0)
+  Modified                                              DateTime                @default(now()) @db.DateTime(0)
+  CreatedByUserID                                       Int
+  ModifiedByUserID                                      Int?
+  IsDeleted                                             Boolean                 @default(false)
+  hop_hospitaltreatment                                 hop_hospitaltreatment[]
+  hop_subtreatmenttype                                  hop_subtreatmenttype[]
+  sec_user_hop_treatmenttype_CreatedByUserIDTosec_user  sec_user                @relation("hop_treatmenttype_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_TreatmentType_CreatedBy")
+  sec_user_hop_treatmenttype_ModifiedByUserIDTosec_user sec_user?               @relation("hop_treatmenttype_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_TreatmentType_ModifiedBy")
+  sec_user_hop_treatmenttype_UserIDTosec_user           sec_user                @relation("hop_treatmenttype_UserIDTosec_user", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "hop_treatmenttype_ibfk_1")
+
+  @@index([CreatedByUserID], map: "FK_HOP_TreatmentType_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_HOP_TreatmentType_ModifiedBy")
+  @@index([UserID], map: "UserID")
+}
+
+model lab_labtest {
+  LabTestID                                       Int                @id @default(autoincrement())
+  TestName                                        String             @db.VarChar(150)
+  TestCode                                        String?            @db.VarChar(50)
+  Price                                           Decimal            @db.Decimal(18, 2)
+  Created                                         DateTime           @default(now()) @db.DateTime(0)
+  Modified                                        DateTime           @default(now()) @db.DateTime(0)
+  CreatedByUserID                                 Int
+  ModifiedByUserID                                Int?
+  IsDeleted                                       Boolean            @default(false)
+  hop_receipttran                                 hop_receipttran[]
+  sec_user_lab_labtest_CreatedByUserIDTosec_user  sec_user           @relation("lab_labtest_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LAB_LabTest_CreatedBy")
+  sec_user_lab_labtest_ModifiedByUserIDTosec_user sec_user?          @relation("lab_labtest_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LAB_LabTest_ModifiedBy")
+  lab_labtestorder                                lab_labtestorder[]
+  sur_surgeryitem                                 sur_surgeryitem[]
+
+  @@index([CreatedByUserID], map: "FK_LAB_LabTest_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_LAB_LabTest_ModifiedBy")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model lab_labtestorder {
+  LabTestOrderID                                       Int             @id @default(autoincrement())
+  PatientID                                            Int
+  LabTestTypeID                                        Int
+  LabTestID                                            Int?
+  PaymentStatus                                        Boolean         @default(true)
+  OrderDateTime                                        DateTime        @default(now()) @db.DateTime(0)
+  Created                                              DateTime        @default(now()) @db.DateTime(0)
+  Modified                                             DateTime        @default(now()) @db.DateTime(0)
+  CreatedByUserID                                      Int
+  ModifiedByUserID                                     Int?
+  IsDeleted                                            Boolean         @default(false)
+  sec_user_lab_labtestorder_CreatedByUserIDTosec_user  sec_user        @relation("lab_labtestorder_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LAB_Order_CreatedBy")
+  sec_user_lab_labtestorder_ModifiedByUserIDTosec_user sec_user?       @relation("lab_labtestorder_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LAB_Order_ModifiedBy")
+  hop_patient                                          hop_patient     @relation(fields: [PatientID], references: [PatientID], onDelete: NoAction, onUpdate: NoAction, map: "lab_labtestorder_ibfk_1")
+  lab_labtesttype                                      lab_labtesttype @relation(fields: [LabTestTypeID], references: [LabTestTypeID], onDelete: NoAction, onUpdate: NoAction, map: "lab_labtestorder_ibfk_2")
+  lab_labtest                                          lab_labtest?    @relation(fields: [LabTestID], references: [LabTestID], onDelete: NoAction, onUpdate: NoAction, map: "lab_labtestorder_ibfk_3")
+
+  @@index([CreatedByUserID], map: "FK_LAB_Order_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_LAB_Order_ModifiedBy")
+  @@index([LabTestID], map: "LabTestID")
+  @@index([LabTestTypeID], map: "LabTestTypeID")
+  @@index([PatientID], map: "PatientID")
+}
+
+model lab_labtesttype {
+  LabTestTypeID                                       Int                @id @default(autoincrement())
+  LabTestTypeName                                     String             @db.VarChar(50)
+  Created                                             DateTime           @default(now()) @db.DateTime(0)
+  Modified                                            DateTime           @default(now()) @db.DateTime(0)
+  CreatedByUserID                                     Int
+  ModifiedByUserID                                    Int?
+  IsDeleted                                           Boolean            @default(false)
+  lab_labtestorder                                    lab_labtestorder[]
+  sec_user_lab_labtesttype_CreatedByUserIDTosec_user  sec_user           @relation("lab_labtesttype_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LAB_LabTestType_CreatedBy")
+  sec_user_lab_labtesttype_ModifiedByUserIDTosec_user sec_user?          @relation("lab_labtesttype_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LAB_LabTestType_ModifiedBy")
+
+  @@index([CreatedByUserID], map: "FK_LAB_LabTestType_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_LAB_LabTestType_ModifiedBy")
+}
+
+model lab_log_labtest {
+  LabTestLOGID    Int      @id @default(autoincrement())
+  LabTestID       Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model lab_log_labtestorder {
+  LabTestOrderLOGID Int      @id @default(autoincrement())
+  LabTestOrderID    Int
+  IUD               String   @db.VarChar(1)
+  Created           DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID   Int
+}
+
+model lab_log_labtesttype {
+  LabTestTypeLOGID Int      @id @default(autoincrement())
+  LabTestTypeID    Int
+  IUD              String   @db.VarChar(1)
+  Created          DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID  Int
+}
+
+model loc_city {
+  CityID                                       Int            @id @default(autoincrement())
+  CityName                                     String         @db.VarChar(100)
+  StateID                                      Int
+  PinCode                                      String?        @db.VarChar(10)
+  Created                                      DateTime       @default(now()) @db.DateTime(0)
+  Modified                                     DateTime       @default(now()) @db.DateTime(0)
+  CreatedByUserID                              Int
+  ModifiedByUserID                             Int?
+  IsDeleted                                    Boolean        @default(false)
+  hop_hospital                                 hop_hospital[]
+  hop_patient                                  hop_patient[]
+  sec_user_loc_city_CreatedByUserIDTosec_user  sec_user       @relation("loc_city_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOC_City_CreatedBy")
+  sec_user_loc_city_ModifiedByUserIDTosec_user sec_user?      @relation("loc_city_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOC_City_ModifiedBy")
+  loc_state                                    loc_state      @relation(fields: [StateID], references: [StateID], onDelete: NoAction, onUpdate: NoAction, map: "loc_city_ibfk_1")
+
+  @@index([CreatedByUserID], map: "FK_LOC_City_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_LOC_City_ModifiedBy")
+  @@index([StateID], map: "StateID")
+}
+
+model loc_country {
+  CountryID                                       Int         @id @default(autoincrement())
+  CountryName                                     String      @unique(map: "CountryName") @db.VarChar(100)
+  CountryCode                                     String?     @db.VarChar(10)
+  Created                                         DateTime    @default(now()) @db.DateTime(0)
+  Modified                                        DateTime    @default(now()) @db.DateTime(0)
+  CreatedByUserID                                 Int
+  ModifiedByUserID                                Int?
+  IsDeleted                                       Boolean     @default(false)
+  sec_user_loc_country_CreatedByUserIDTosec_user  sec_user    @relation("loc_country_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOC_Country_CreatedBy")
+  sec_user_loc_country_ModifiedByUserIDTosec_user sec_user?   @relation("loc_country_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOC_Country_ModifiedBy")
+  loc_state                                       loc_state[]
+
+  @@index([CreatedByUserID], map: "FK_LOC_Country_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_LOC_Country_ModifiedBy")
+}
+
+model loc_log_city {
+  CityLOGID       Int      @id @default(autoincrement())
+  CityID          Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model loc_log_country {
+  CountryLOGID    Int      @id @default(autoincrement())
+  CountryID       Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model loc_log_state {
+  StateLOGID      Int      @id @default(autoincrement())
+  StateID         Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model loc_state {
+  StateID                                       Int         @id @default(autoincrement())
+  StateName                                     String      @db.VarChar(100)
+  CountryID                                     Int
+  Created                                       DateTime    @default(now()) @db.DateTime(0)
+  Modified                                      DateTime    @default(now()) @db.DateTime(0)
+  CreatedByUserID                               Int
+  ModifiedByUserID                              Int?
+  IsDeleted                                     Boolean     @default(false)
+  loc_city                                      loc_city[]
+  sec_user_loc_state_CreatedByUserIDTosec_user  sec_user    @relation("loc_state_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOC_State_CreatedBy")
+  sec_user_loc_state_ModifiedByUserIDTosec_user sec_user?   @relation("loc_state_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOC_State_ModifiedBy")
+  loc_country                                   loc_country @relation(fields: [CountryID], references: [CountryID], onDelete: NoAction, onUpdate: NoAction, map: "loc_state_ibfk_1")
+
+  @@index([CountryID], map: "CountryID")
+  @@index([CreatedByUserID], map: "FK_LOC_State_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_LOC_State_ModifiedBy")
+}
+
+model pay_log_medicineorderpaymenttype {
+  MedicineOrderPaymentTypeLOGID Int      @id @default(autoincrement())
+  MedicineOrderPaymentTypeID    Int
+  IUD                           String   @db.VarChar(1)
+  Created                       DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID               Int
+}
+
+model pay_log_paymentmode {
+  PaymentModeLOGID Int      @id @default(autoincrement())
+  PaymentModeID    Int
+  IUD              String   @db.VarChar(1)
+  Created          DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID  Int
+}
+
+model pay_medicineorderpaymenttype {
+  MedicineOrderPaymentTypeID                                       Int       @id @default(autoincrement())
+  MedicineOrderPaymentTypeName                                     String    @db.VarChar(50)
+  Created                                                          DateTime  @default(now()) @db.DateTime(0)
+  Modified                                                         DateTime  @default(now()) @db.DateTime(0)
+  CreatedByUserID                                                  Int
+  ModifiedByUserID                                                 Int?
+  IsDeleted                                                        Boolean   @default(false)
+  sec_user_pay_medicineorderpaymenttype_CreatedByUserIDTosec_user  sec_user  @relation("pay_medicineorderpaymenttype_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PAY_MedOrderPay_CreatedBy")
+  sec_user_pay_medicineorderpaymenttype_ModifiedByUserIDTosec_user sec_user? @relation("pay_medicineorderpaymenttype_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PAY_MedOrderPay_ModifiedBy")
+
+  @@index([CreatedByUserID], map: "FK_PAY_MedOrderPay_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_PAY_MedOrderPay_ModifiedBy")
+}
+
+model pay_paymentmode {
+  PaymentModeID                                       Int                  @id @default(autoincrement())
+  PaymentModeName                                     String               @unique(map: "PaymentModeName") @db.VarChar(50)
+  Created                                             DateTime             @default(now()) @db.DateTime(0)
+  Modified                                            DateTime             @default(now()) @db.DateTime(0)
+  CreatedByUserID                                     Int
+  ModifiedByUserID                                    Int?
+  IsDeleted                                           Boolean              @default(false)
+  hop_hospital                                        hop_hospital[]
+  hop_receipt                                         hop_receipt[]
+  sec_user_pay_paymentmode_CreatedByUserIDTosec_user  sec_user             @relation("pay_paymentmode_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PAY_PaymentMode_CreatedBy")
+  sec_user_pay_paymentmode_ModifiedByUserIDTosec_user sec_user?            @relation("pay_paymentmode_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PAY_PaymentMode_ModifiedBy")
+  sur_surgerybooking                                  sur_surgerybooking[]
+
+  @@index([CreatedByUserID], map: "FK_PAY_PaymentMode_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_PAY_PaymentMode_ModifiedBy")
+}
+
+model phm_log_medicine {
+  MedicineLOGID   Int      @id @default(autoincrement())
+  MedicineID      Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model phm_log_medicinecategory {
+  MedicineCategoryLOGID Int      @id @default(autoincrement())
+  MedicineCategoryID    Int
+  IUD                   String   @db.VarChar(1)
+  Created               DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID       Int
+}
+
+model phm_log_medicineorderpaymenttype {
+  MedicineOrderPaymentTypeLOGID Int      @id @default(autoincrement())
+  MedicineOrderPaymentTypeID    Int
+  IUD                           String   @db.VarChar(1)
+  Created                       DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID               Int
+}
+
+model phm_log_orderofmedicine {
+  OrderOfMedicineLOGID Int      @id @default(autoincrement())
+  OrderOfMedicineID    Int
+  IUD                  String   @db.VarChar(1)
+  Created              DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID      Int
+}
+
+model phm_medicine {
+  MedicineID                                       Int                   @id @default(autoincrement())
+  MedicineName                                     String                @db.VarChar(150)
+  MedicineCategoryID                               Int
+  Price                                            Decimal               @db.Decimal(18, 2)
+  Manufacturer                                     String?               @db.VarChar(150)
+  Created                                          DateTime              @default(now()) @db.DateTime(0)
+  Modified                                         DateTime              @default(now()) @db.DateTime(0)
+  CreatedByUserID                                  Int
+  ModifiedByUserID                                 Int?
+  IsDeleted                                        Boolean               @default(false)
+  hop_receipttran                                  hop_receipttran[]
+  sec_user_phm_medicine_CreatedByUserIDTosec_user  sec_user              @relation("phm_medicine_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_Medicine_CreatedBy")
+  sec_user_phm_medicine_ModifiedByUserIDTosec_user sec_user?             @relation("phm_medicine_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_Medicine_ModifiedBy")
+  phm_medicinecategory                             phm_medicinecategory  @relation(fields: [MedicineCategoryID], references: [MedicineCategoryID], onDelete: NoAction, onUpdate: NoAction, map: "phm_medicine_ibfk_1")
+  phm_orderofmedicine                              phm_orderofmedicine[]
+  sur_surgeryitem                                  sur_surgeryitem[]
+
+  @@index([CreatedByUserID], map: "FK_PHM_Medicine_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_PHM_Medicine_ModifiedBy")
+  @@index([MedicineCategoryID], map: "MedicineCategoryID")
+}
+
+model phm_medicinecategory {
+  MedicineCategoryID                                       Int            @id @default(autoincrement())
+  CategoryName                                             String         @db.VarChar(100)
+  Created                                                  DateTime       @default(now()) @db.DateTime(0)
+  Modified                                                 DateTime       @default(now()) @db.DateTime(0)
+  CreatedByUserID                                          Int
+  ModifiedByUserID                                         Int?
+  IsDeleted                                                Boolean        @default(false)
+  phm_medicine                                             phm_medicine[]
+  sec_user_phm_medicinecategory_CreatedByUserIDTosec_user  sec_user       @relation("phm_medicinecategory_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_MedCat_CreatedBy")
+  sec_user_phm_medicinecategory_ModifiedByUserIDTosec_user sec_user?      @relation("phm_medicinecategory_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_MedCat_ModifiedBy")
+
+  @@index([CreatedByUserID], map: "FK_PHM_MedCat_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_PHM_MedCat_ModifiedBy")
+}
+
+model phm_medicineorderpaymenttype {
+  MedicineOrderPaymentTypeID   Int                   @id @default(autoincrement())
+  MedicineOrderPaymentTypeName String                @db.VarChar(50)
+  Created                      DateTime              @default(now()) @db.DateTime(0)
+  Modified                     DateTime              @default(now()) @db.DateTime(0)
+  CreatedByUserID              Int
+  ModifiedByUserID             Int?
+  IsDeleted                    Boolean               @default(false)
+  phm_orderofmedicine          phm_orderofmedicine[]
+}
+
+model phm_orderofmedicine {
+  OrderOfMedicineID                                       Int                          @id @default(autoincrement())
+  MedicineID                                              Int
+  MedicineOrderPaymentTypeID                              Int
+  Quantity                                                Int
+  OrderDateTime                                           DateTime                     @default(now()) @db.DateTime(0)
+  Created                                                 DateTime                     @default(now()) @db.DateTime(0)
+  Modified                                                DateTime                     @default(now()) @db.DateTime(0)
+  CreatedByUserID                                         Int
+  ModifiedByUserID                                        Int?
+  IsDeleted                                               Boolean                      @default(false)
+  sec_user_phm_orderofmedicine_CreatedByUserIDTosec_user  sec_user                     @relation("phm_orderofmedicine_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_OrderMed_CreatedBy")
+  sec_user_phm_orderofmedicine_ModifiedByUserIDTosec_user sec_user?                    @relation("phm_orderofmedicine_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_OrderMed_ModifiedBy")
+  phm_medicine                                            phm_medicine                 @relation(fields: [MedicineID], references: [MedicineID], onDelete: NoAction, onUpdate: NoAction, map: "phm_orderofmedicine_ibfk_1")
+  phm_medicineorderpaymenttype                            phm_medicineorderpaymenttype @relation(fields: [MedicineOrderPaymentTypeID], references: [MedicineOrderPaymentTypeID], onDelete: NoAction, onUpdate: NoAction, map: "phm_orderofmedicine_ibfk_2")
+
+  @@index([CreatedByUserID], map: "FK_PHM_OrderMed_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_PHM_OrderMed_ModifiedBy")
+  @@index([MedicineID], map: "MedicineID")
+  @@index([MedicineOrderPaymentTypeID], map: "MedicineOrderPaymentTypeID")
+}
+
+model sec_log_role {
+  RoleLOGID       Int      @id @default(autoincrement())
+  RoleID          Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+  sec_user        sec_user @relation(fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SEC_LOG_Role_CreatedBy")
+
+  @@index([CreatedByUserID], map: "FK_SEC_LOG_Role_CreatedBy")
+}
+
+model sec_log_user {
+  UserLOGID       Int      @id @default(autoincrement())
+  UserID          Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+  sec_user        sec_user @relation(fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_LOG_User_CreatedBy")
+
+  @@index([CreatedByUserID], map: "FK_LOG_User_CreatedBy")
+}
+
+model sec_role {
+  RoleID                                       Int        @id @default(autoincrement())
+  RoleName                                     String     @unique(map: "RoleName") @db.VarChar(100)
+  Description                                  String?    @db.VarChar(250)
+  Created                                      DateTime   @default(now()) @db.DateTime(0)
+  Modified                                     DateTime   @default(now()) @db.DateTime(0)
+  CreatedByUserID                              Int
+  ModifiedByUserID                             Int?
+  IsDeleted                                    Boolean    @default(false)
+  sec_user_sec_role_CreatedByUserIDTosec_user  sec_user   @relation("sec_role_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SEC_Role_CreatedBy")
+  sec_user_sec_role_ModifiedByUserIDTosec_user sec_user?  @relation("sec_role_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SEC_Role_ModifiedBy")
+  sec_user_sec_user_RoleIDTosec_role           sec_user[] @relation("sec_user_RoleIDTosec_role")
+
+  @@index([CreatedByUserID], map: "FK_SEC_Role_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_SEC_Role_ModifiedBy")
+}
+
+model sec_user {
+  UserID                                                                               Int                            @id @default(autoincrement())
+  UserName                                                                             String                         @unique(map: "UserName") @db.VarChar(100)
+  FullName                                                                             String                         @db.VarChar(250)
+  Password                                                                             String                         @db.VarChar(250)
+  RoleID                                                                               Int
+  Email                                                                                String?                        @db.VarChar(250)
+  MobileNo                                                                             String?                        @db.VarChar(20)
+  IsActive                                                                             Boolean                        @default(true)
+  Created                                                                              DateTime                       @default(now()) @db.DateTime(0)
+  Modified                                                                             DateTime                       @default(now()) @db.DateTime(0)
+  CreatedByUserID                                                                      Int
+  ModifiedByUserID                                                                     Int?
+  IsDeleted                                                                            Boolean                        @default(false)
+  hop_appointment_hop_appointment_CreatedByUserIDTosec_user                            hop_appointment[]              @relation("hop_appointment_CreatedByUserIDTosec_user")
+  hop_appointment_hop_appointment_ModifiedByUserIDTosec_user                           hop_appointment[]              @relation("hop_appointment_ModifiedByUserIDTosec_user")
+  hop_diagnosistype_hop_diagnosistype_CreatedByUserIDTosec_user                        hop_diagnosistype[]            @relation("hop_diagnosistype_CreatedByUserIDTosec_user")
+  hop_diagnosistype_hop_diagnosistype_ModifiedByUserIDTosec_user                       hop_diagnosistype[]            @relation("hop_diagnosistype_ModifiedByUserIDTosec_user")
+  hop_diagnosistype_hop_diagnosistype_UserIDTosec_user                                 hop_diagnosistype[]            @relation("hop_diagnosistype_UserIDTosec_user")
+  hop_doctor_hop_doctor_CreatedByUserIDTosec_user                                      hop_doctor[]                   @relation("hop_doctor_CreatedByUserIDTosec_user")
+  hop_doctor_hop_doctor_ModifiedByUserIDTosec_user                                     hop_doctor[]                   @relation("hop_doctor_ModifiedByUserIDTosec_user")
+  hop_doctor_hop_doctor_UserIDTosec_user                                               hop_doctor[]                   @relation("hop_doctor_UserIDTosec_user")
+  hop_doctorreview_hop_doctorreview_CreatedByUserIDTosec_user                          hop_doctorreview[]             @relation("hop_doctorreview_CreatedByUserIDTosec_user")
+  hop_doctorreview_hop_doctorreview_ModifiedByUserIDTosec_user                         hop_doctorreview[]             @relation("hop_doctorreview_ModifiedByUserIDTosec_user")
+  hop_hospital_hop_hospital_CreatedByUserIDTosec_user                                  hop_hospital[]                 @relation("hop_hospital_CreatedByUserIDTosec_user")
+  hop_hospital_hop_hospital_ModifiedByUserIDTosec_user                                 hop_hospital[]                 @relation("hop_hospital_ModifiedByUserIDTosec_user")
+  hop_hospital_hop_hospital_UserIDTosec_user                                           hop_hospital[]                 @relation("hop_hospital_UserIDTosec_user")
+  hop_log_doctor                                                                       hop_log_doctor[]
+  hop_log_patient                                                                      hop_log_patient[]
+  hop_opd_hop_opd_CreatedByUserIDTosec_user                                            hop_opd[]                      @relation("hop_opd_CreatedByUserIDTosec_user")
+  hop_opd_hop_opd_ModifiedByUserIDTosec_user                                           hop_opd[]                      @relation("hop_opd_ModifiedByUserIDTosec_user")
+  hop_opddiagnosistype_hop_opddiagnosistype_CreatedByUserIDTosec_user                  hop_opddiagnosistype[]         @relation("hop_opddiagnosistype_CreatedByUserIDTosec_user")
+  hop_opddiagnosistype_hop_opddiagnosistype_ModifiedByUserIDTosec_user                 hop_opddiagnosistype[]         @relation("hop_opddiagnosistype_ModifiedByUserIDTosec_user")
+  hop_patient_hop_patient_CreatedByUserIDTosec_user                                    hop_patient[]                  @relation("hop_patient_CreatedByUserIDTosec_user")
+  hop_patient_hop_patient_ModifiedByUserIDTosec_user                                   hop_patient[]                  @relation("hop_patient_ModifiedByUserIDTosec_user")
+  hop_receipt_hop_receipt_CreatedByUserIDTosec_user                                    hop_receipt[]                  @relation("hop_receipt_CreatedByUserIDTosec_user")
+  hop_receipt_hop_receipt_ModifiedByUserIDTosec_user                                   hop_receipt[]                  @relation("hop_receipt_ModifiedByUserIDTosec_user")
+  hop_receipttran_hop_receipttran_CreatedByUserIDTosec_user                            hop_receipttran[]              @relation("hop_receipttran_CreatedByUserIDTosec_user")
+  hop_receipttran_hop_receipttran_ModifiedByUserIDTosec_user                           hop_receipttran[]              @relation("hop_receipttran_ModifiedByUserIDTosec_user")
+  hop_specialization_hop_specialization_CreatedByUserIDTosec_user                      hop_specialization[]           @relation("hop_specialization_CreatedByUserIDTosec_user")
+  hop_specialization_hop_specialization_ModifiedByUserIDTosec_user                     hop_specialization[]           @relation("hop_specialization_ModifiedByUserIDTosec_user")
+  hop_subtreatmenttype_hop_subtreatmenttype_CreatedByUserIDTosec_user                  hop_subtreatmenttype[]         @relation("hop_subtreatmenttype_CreatedByUserIDTosec_user")
+  hop_subtreatmenttype_hop_subtreatmenttype_ModifiedByUserIDTosec_user                 hop_subtreatmenttype[]         @relation("hop_subtreatmenttype_ModifiedByUserIDTosec_user")
+  hop_treatmenttype_hop_treatmenttype_CreatedByUserIDTosec_user                        hop_treatmenttype[]            @relation("hop_treatmenttype_CreatedByUserIDTosec_user")
+  hop_treatmenttype_hop_treatmenttype_ModifiedByUserIDTosec_user                       hop_treatmenttype[]            @relation("hop_treatmenttype_ModifiedByUserIDTosec_user")
+  hop_treatmenttype_hop_treatmenttype_UserIDTosec_user                                 hop_treatmenttype[]            @relation("hop_treatmenttype_UserIDTosec_user")
+  lab_labtest_lab_labtest_CreatedByUserIDTosec_user                                    lab_labtest[]                  @relation("lab_labtest_CreatedByUserIDTosec_user")
+  lab_labtest_lab_labtest_ModifiedByUserIDTosec_user                                   lab_labtest[]                  @relation("lab_labtest_ModifiedByUserIDTosec_user")
+  lab_labtestorder_lab_labtestorder_CreatedByUserIDTosec_user                          lab_labtestorder[]             @relation("lab_labtestorder_CreatedByUserIDTosec_user")
+  lab_labtestorder_lab_labtestorder_ModifiedByUserIDTosec_user                         lab_labtestorder[]             @relation("lab_labtestorder_ModifiedByUserIDTosec_user")
+  lab_labtesttype_lab_labtesttype_CreatedByUserIDTosec_user                            lab_labtesttype[]              @relation("lab_labtesttype_CreatedByUserIDTosec_user")
+  lab_labtesttype_lab_labtesttype_ModifiedByUserIDTosec_user                           lab_labtesttype[]              @relation("lab_labtesttype_ModifiedByUserIDTosec_user")
+  loc_city_loc_city_CreatedByUserIDTosec_user                                          loc_city[]                     @relation("loc_city_CreatedByUserIDTosec_user")
+  loc_city_loc_city_ModifiedByUserIDTosec_user                                         loc_city[]                     @relation("loc_city_ModifiedByUserIDTosec_user")
+  loc_country_loc_country_CreatedByUserIDTosec_user                                    loc_country[]                  @relation("loc_country_CreatedByUserIDTosec_user")
+  loc_country_loc_country_ModifiedByUserIDTosec_user                                   loc_country[]                  @relation("loc_country_ModifiedByUserIDTosec_user")
+  loc_state_loc_state_CreatedByUserIDTosec_user                                        loc_state[]                    @relation("loc_state_CreatedByUserIDTosec_user")
+  loc_state_loc_state_ModifiedByUserIDTosec_user                                       loc_state[]                    @relation("loc_state_ModifiedByUserIDTosec_user")
+  pay_medicineorderpaymenttype_pay_medicineorderpaymenttype_CreatedByUserIDTosec_user  pay_medicineorderpaymenttype[] @relation("pay_medicineorderpaymenttype_CreatedByUserIDTosec_user")
+  pay_medicineorderpaymenttype_pay_medicineorderpaymenttype_ModifiedByUserIDTosec_user pay_medicineorderpaymenttype[] @relation("pay_medicineorderpaymenttype_ModifiedByUserIDTosec_user")
+  pay_paymentmode_pay_paymentmode_CreatedByUserIDTosec_user                            pay_paymentmode[]              @relation("pay_paymentmode_CreatedByUserIDTosec_user")
+  pay_paymentmode_pay_paymentmode_ModifiedByUserIDTosec_user                           pay_paymentmode[]              @relation("pay_paymentmode_ModifiedByUserIDTosec_user")
+  phm_medicine_phm_medicine_CreatedByUserIDTosec_user                                  phm_medicine[]                 @relation("phm_medicine_CreatedByUserIDTosec_user")
+  phm_medicine_phm_medicine_ModifiedByUserIDTosec_user                                 phm_medicine[]                 @relation("phm_medicine_ModifiedByUserIDTosec_user")
+  phm_medicinecategory_phm_medicinecategory_CreatedByUserIDTosec_user                  phm_medicinecategory[]         @relation("phm_medicinecategory_CreatedByUserIDTosec_user")
+  phm_medicinecategory_phm_medicinecategory_ModifiedByUserIDTosec_user                 phm_medicinecategory[]         @relation("phm_medicinecategory_ModifiedByUserIDTosec_user")
+  phm_orderofmedicine_phm_orderofmedicine_CreatedByUserIDTosec_user                    phm_orderofmedicine[]          @relation("phm_orderofmedicine_CreatedByUserIDTosec_user")
+  phm_orderofmedicine_phm_orderofmedicine_ModifiedByUserIDTosec_user                   phm_orderofmedicine[]          @relation("phm_orderofmedicine_ModifiedByUserIDTosec_user")
+  sec_log_role                                                                         sec_log_role[]
+  sec_log_user                                                                         sec_log_user[]
+  sec_role_sec_role_CreatedByUserIDTosec_user                                          sec_role[]                     @relation("sec_role_CreatedByUserIDTosec_user")
+  sec_role_sec_role_ModifiedByUserIDTosec_user                                         sec_role[]                     @relation("sec_role_ModifiedByUserIDTosec_user")
+  sec_user_sec_user_CreatedByUserIDTosec_user                                          sec_user                       @relation("sec_user_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SEC_User_CreatedBy")
+  other_sec_user_sec_user_CreatedByUserIDTosec_user                                    sec_user[]                     @relation("sec_user_CreatedByUserIDTosec_user")
+  sec_user_sec_user_ModifiedByUserIDTosec_user                                         sec_user?                      @relation("sec_user_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SEC_User_ModifiedBy")
+  other_sec_user_sec_user_ModifiedByUserIDTosec_user                                   sec_user[]                     @relation("sec_user_ModifiedByUserIDTosec_user")
+  sec_role_sec_user_RoleIDTosec_role                                                   sec_role                       @relation("sec_user_RoleIDTosec_role", fields: [RoleID], references: [RoleID], onDelete: NoAction, onUpdate: NoAction, map: "sec_user_ibfk_1")
+  sur_surgery_sur_surgery_CreatedByUserIDTosec_user                                    sur_surgery[]                  @relation("sur_surgery_CreatedByUserIDTosec_user")
+  sur_surgery_sur_surgery_ModifiedByUserIDTosec_user                                   sur_surgery[]                  @relation("sur_surgery_ModifiedByUserIDTosec_user")
+  sur_surgerybooking_sur_surgerybooking_CreatedByUserIDTosec_user                      sur_surgerybooking[]           @relation("sur_surgerybooking_CreatedByUserIDTosec_user")
+  sur_surgerybooking_sur_surgerybooking_ModifiedByUserIDTosec_user                     sur_surgerybooking[]           @relation("sur_surgerybooking_ModifiedByUserIDTosec_user")
+  sur_surgeryitem_sur_surgeryitem_CreatedByUserIDTosec_user                            sur_surgeryitem[]              @relation("sur_surgeryitem_CreatedByUserIDTosec_user")
+  sur_surgeryitem_sur_surgeryitem_ModifiedByUserIDTosec_user                           sur_surgeryitem[]              @relation("sur_surgeryitem_ModifiedByUserIDTosec_user")
+
+  @@index([CreatedByUserID], map: "FK_SEC_User_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_SEC_User_ModifiedBy")
+  @@index([RoleID], map: "RoleID")
+}
+
+model sur_log_surgery {
+  SurgeryLOGID    Int      @id @default(autoincrement())
+  SurgeryID       Int
+  IUD             String   @db.VarChar(1)
+  Created         DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID Int
+}
+
+model sur_log_surgerybooking {
+  SurgeryBookingLOGID Int      @id @default(autoincrement())
+  SurgeryBookingID    Int
+  IUD                 String   @db.VarChar(1)
+  Created             DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID     Int
+}
+
+model sur_log_surgeryitem {
+  SurgeryItemLOGID Int      @id @default(autoincrement())
+  SurgeryItemID    Int
+  IUD              String   @db.VarChar(1)
+  Created          DateTime @default(now()) @db.DateTime(0)
+  CreatedByUserID  Int
+}
+
+model sur_surgery {
+  SurgeryID                                       Int                  @id @default(autoincrement())
+  SurgeryName                                     String               @db.VarChar(250)
+  SurgeryCode                                     String?              @db.VarChar(50)
+  HospitalID                                      Int?
+  BasePrice                                       Decimal?             @db.Decimal(18, 2)
+  Description                                     String?              @db.VarChar(500)
+  IsActive                                        Boolean              @default(true)
+  Created                                         DateTime             @default(now()) @db.DateTime(0)
+  Modified                                        DateTime             @default(now()) @db.DateTime(0)
+  CreatedByUserID                                 Int
+  ModifiedByUserID                                Int?
+  IsDeleted                                       Boolean              @default(false)
+  sec_user_sur_surgery_CreatedByUserIDTosec_user  sec_user             @relation("sur_surgery_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUR_Surgery_CreatedBy")
+  sec_user_sur_surgery_ModifiedByUserIDTosec_user sec_user?            @relation("sur_surgery_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUR_Surgery_ModifiedBy")
+  hop_hospital                                    hop_hospital?        @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgery_ibfk_1")
+  sur_surgerybooking                              sur_surgerybooking[]
+
+  @@index([CreatedByUserID], map: "FK_SUR_Surgery_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_SUR_Surgery_ModifiedBy")
+  @@index([HospitalID], map: "HospitalID")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model sur_surgerybooking {
+  SurgeryBookingID                                       Int               @id @default(autoincrement())
+  SurgeryID                                              Int
+  PatientID                                              Int
+  PrimaryDoctorID                                        Int
+  HospitalID                                             Int
+  BookingNo                                              String            @db.VarChar(50)
+  BookingDateTime                                        DateTime          @db.DateTime(0)
+  SurgeryDateTime                                        DateTime?         @db.DateTime(0)
+  Status                                                 String            @db.VarChar(50)
+  EstimatedCost                                          Decimal?          @db.Decimal(18, 2)
+  FinalCost                                              Decimal?          @db.Decimal(18, 2)
+  PaymentModeID                                          Int?
+  Notes                                                  String?           @db.VarChar(500)
+  Created                                                DateTime          @default(now()) @db.DateTime(0)
+  Modified                                               DateTime          @default(now()) @db.DateTime(0)
+  CreatedByUserID                                        Int
+  ModifiedByUserID                                       Int?
+  IsDeleted                                              Boolean           @default(false)
+  sec_user_sur_surgerybooking_CreatedByUserIDTosec_user  sec_user          @relation("sur_surgerybooking_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUR_Booking_CreatedBy")
+  sec_user_sur_surgerybooking_ModifiedByUserIDTosec_user sec_user?         @relation("sur_surgerybooking_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUR_Booking_ModifiedBy")
+  sur_surgery                                            sur_surgery       @relation(fields: [SurgeryID], references: [SurgeryID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgerybooking_ibfk_1")
+  hop_patient                                            hop_patient       @relation(fields: [PatientID], references: [PatientID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgerybooking_ibfk_2")
+  hop_doctor                                             hop_doctor        @relation(fields: [PrimaryDoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgerybooking_ibfk_3")
+  hop_hospital                                           hop_hospital      @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgerybooking_ibfk_4")
+  pay_paymentmode                                        pay_paymentmode?  @relation(fields: [PaymentModeID], references: [PaymentModeID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgerybooking_ibfk_5")
+  sur_surgeryitem                                        sur_surgeryitem[]
+
+  @@index([CreatedByUserID], map: "FK_SUR_Booking_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_SUR_Booking_ModifiedBy")
+  @@index([HospitalID], map: "HospitalID")
+  @@index([PatientID], map: "PatientID")
+  @@index([PaymentModeID], map: "PaymentModeID")
+  @@index([PrimaryDoctorID], map: "PrimaryDoctorID")
+  @@index([SurgeryID], map: "SurgeryID")
+}
+
+model sur_surgeryitem {
+  SurgeryItemID                                       Int                   @id @default(autoincrement())
+  SurgeryBookingID                                    Int
+  SubTreatmentTypeID                                  Int?
+  LabTestID                                           Int?
+  MedicineID                                          Int?
+  Quantity                                            Int                   @default(1)
+  Amount                                              Decimal               @db.Decimal(18, 2)
+  Description                                         String?               @db.VarChar(250)
+  Created                                             DateTime              @default(now()) @db.DateTime(0)
+  Modified                                            DateTime              @default(now()) @db.DateTime(0)
+  CreatedByUserID                                     Int
+  ModifiedByUserID                                    Int?
+  IsDeleted                                           Boolean               @default(false)
+  sec_user_sur_surgeryitem_CreatedByUserIDTosec_user  sec_user              @relation("sur_surgeryitem_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUR_Item_CreatedBy")
+  sec_user_sur_surgeryitem_ModifiedByUserIDTosec_user sec_user?             @relation("sur_surgeryitem_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUR_Item_ModifiedBy")
+  sur_surgerybooking                                  sur_surgerybooking    @relation(fields: [SurgeryBookingID], references: [SurgeryBookingID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgeryitem_ibfk_1")
+  hop_subtreatmenttype                                hop_subtreatmenttype? @relation(fields: [SubTreatmentTypeID], references: [SubTreatmentTypeID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgeryitem_ibfk_2")
+  lab_labtest                                         lab_labtest?          @relation(fields: [LabTestID], references: [LabTestID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgeryitem_ibfk_3")
+  phm_medicine                                        phm_medicine?         @relation(fields: [MedicineID], references: [MedicineID], onDelete: NoAction, onUpdate: NoAction, map: "sur_surgeryitem_ibfk_4")
+
+  @@index([CreatedByUserID], map: "FK_SUR_Item_CreatedBy")
+  @@index([ModifiedByUserID], map: "FK_SUR_Item_ModifiedBy")
+  @@index([LabTestID], map: "LabTestID")
+  @@index([MedicineID], map: "MedicineID")
+  @@index([SubTreatmentTypeID], map: "SubTreatmentTypeID")
+  @@index([SurgeryBookingID], map: "SurgeryBookingID")
+}
