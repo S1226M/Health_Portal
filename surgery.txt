@@ -1,0 +1,108 @@
+import React from "react";
+
+function surgeries() {
+  return (
+    <div className="relative">
+
+      {/* ================= STICKY ANIMATED CTA ================= */}
+      <div className="fixed top-1/2 right-6 z-50 w-[40%] max-w-md -translate-y-1/2 mt-8.5">
+        <div className="bg-white shadow-2xl rounded-2xl p-5 animate-slideInRight">
+
+          {/* Title */}
+          <h2 className="text-lg font-semibold text-blue-700 mb-4">
+            Book your consultation today
+          </h2>
+
+          {/* Form */}
+          <form className="space-y-3">
+
+            {/* Location */}
+            <div className="border rounded-lg px-4 py-2.5 flex justify-between items-center">
+              <span className="text-gray-700">Bangalore</span>
+              <span className="text-gray-500">⌄</span>
+            </div>
+
+            {/* Select Ailment */}
+            <div className="border rounded-lg px-4 py-2.5 flex justify-between items-center">
+              <span className="text-gray-400">Select Ailment*</span>
+              <span className="text-gray-500">⌄</span>
+            </div>
+
+            {/* Name */}
+            <input
+              type="text"
+              placeholder="Name*"
+              className="w-full border rounded-lg px-4 py-2.5 outline-none"
+            />
+
+            {/* Contact */}
+            <input
+              type="text"
+              placeholder="Contact Number*"
+              className="w-full border rounded-lg px-4 py-2.5 outline-none"
+            />
+
+            {/* Button */}
+            <button
+              type="submit"
+              className="w-full bg-indigo-700 text-white py-2.5 rounded-lg font-semibold
+                   hover:bg-indigo-800 transition"
+            >
+              Book Appointment
+            </button>
+
+          </form>
+
+          {/* T&C */}
+          <p className="text-[11px] text-gray-500 text-center mt-3">
+            By submitting the form, you agree to Practo's{" "}
+            <span className="text-blue-600 cursor-pointer">T&amp;C</span>
+          </p>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-3">
+            <div className="flex-1 h-px bg-gray-300"></div>
+            <span className="text-gray-500 text-xs">OR</span>
+            <div className="flex-1 h-px bg-gray-300"></div>
+          </div>
+
+          {/* Call */}
+          <div className="border rounded-lg py-2 text-center text-sm text-gray-700">
+            Reach out to us on{" "}
+            <span className="text-blue-700 font-semibold ml-1">
+              📞 08045685554
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+
+      {/* ================= PAGE CONTENT ================= */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 space-y-16">
+
+          <div className="h-[400px] bg-white rounded-xl shadow flex items-center justify-center">
+            Section 1 Content
+          </div>
+
+          <div className="h-[400px] bg-white rounded-xl shadow flex items-center justify-center">
+            Section 2 Content
+          </div>
+
+          <div className="h-[400px] bg-white rounded-xl shadow flex items-center justify-center">
+            Section 3 Content
+          </div>
+
+          <div className="h-[400px] bg-white rounded-xl shadow flex items-center justify-center">
+            Section 4 Content
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  );
+}
+
+export default surgeries;

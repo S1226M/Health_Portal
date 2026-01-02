@@ -37,21 +37,21 @@ export default function Home() {
             </div>
           </Link>
           {/* Card 2 */}
-          <Link href="/hop/doctor" className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer block text-decoration-none">
+          <Link href="/admin/components/hop/doctor" className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer block text-decoration-none">
             <img src="https://via.placeholder.com/150" className="w-full h-40 object-cover rounded-t-lg" alt="Find Doctor" />
             <div className="p-4">
               <h4 className="text-gray-600 font-semibold mx-2">Find Doctor Near You</h4>
             </div>
           </Link>
           {/* Card 3 */}
-          <Link href="/lab/labtest" className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer block text-decoration-none">
+          <Link href="/admin/components/lab/labtest" className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer block text-decoration-none">
             <img src="https://via.placeholder.com/150" className="w-full h-40 object-cover rounded-t-lg" alt="Lab Test" />
             <div className="p-4">
               <h4 className="text-gray-600 font-semibold mx-2">Lab Test</h4>
             </div>
           </Link>
           {/* Card 4 */}
-          <Link href="/sur/surgery" className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer block text-decoration-none">
+          <Link href="/admin/components/sur/surgery" className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer block text-decoration-none">
             <img src="https://via.placeholder.com/150" className="w-full h-40 object-cover rounded-t-lg" alt="Surgeries" />
             <div className="p-4">
               <h4 className="text-gray-600 font-semibold mx-2">Surgeries</h4>
@@ -68,7 +68,7 @@ export default function Home() {
             <p className="mt-2 text-gray-600">Private online consultations with verified doctors in all specialists</p>
           </div>
           {/* Note: changed 'to' to 'href' for Next.js */}
-          <Link href="/hop/specialization" className="mt-4 md:mt-0 px-6 py-2 border border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
+          <Link href="/admin/components/hop/specialization" className="mt-4 md:mt-0 px-6 py-2 border border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
             View All Specialities
           </Link>
         </div>

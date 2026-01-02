@@ -77,3 +77,4 @@ Thumbs.db
 
 # Build and production
 dist/
+/lib/generated/prisma
