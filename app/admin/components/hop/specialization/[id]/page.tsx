@@ -10,6 +10,7 @@ export default async function SpecializationDetailPage({ params }: { params: Pro
     const specialization = await prisma.hop_specialization.findFirst({
         where: {SpecializationID : Number(id)}
     })
+    
     console.log(specialization);
 
     return (

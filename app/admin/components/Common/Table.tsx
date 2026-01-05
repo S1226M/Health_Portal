@@ -1,6 +1,8 @@
 import React from 'react';
 import { Eye, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import deleteSpecialization from '../../modules/hop/specialization/action/deleteSpecialization';
+import DeleteBtn from './ui/deleteBtn';
 
 export interface Column {
   header: string;
@@ -56,9 +58,7 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
                         >
                           <Eye size={18} />
                         </Link>
-                        <button className="text-gray-400 hover:text-red-600">
-                          <Trash2 size={18} />
-                        </button>
+                        <DeleteBtn id={row.SpecializationID} deleteFn={deleteSpecialization} />
                       </div>
                     ) : (
                       row[col.accessor as string]
