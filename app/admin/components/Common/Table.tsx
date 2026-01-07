@@ -3,6 +3,7 @@ import { Eye, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import deleteSpecialization from '@/app/admin/modules/hop/specialization/action/deleteSpecialization';
 import DeleteBtn from './ui/deleteBtn';
+import ViewBtn from './ui/viewBtn';
 
 export interface Column {
   header: string;
@@ -27,9 +28,8 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
               {columns.map((col, idx) => (
                 <th
                   key={idx}
-                  className={`py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider ${
-                    col.isAction ? 'text-right' : ''
-                  }`}
+                  className={`py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider ${col.isAction ? 'text-right' : ''
+                    }`}
                 >
                   {col.header}
                 </th>
@@ -46,19 +46,13 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
                 {columns.map((col, colIdx) => (
                   <td
                     key={colIdx}
-                    className={`py-4 px-6 text-sm ${
-                      col.isAction ? 'text-right' : 'text-gray-700'
-                    }`}
+                    className={`py-4 px-6 text-sm ${col.isAction ? 'text-right' : 'text-gray-700'
+                      }`}
                   >
                     {col.isAction ? (
                       <div className="flex items-center justify-end gap-3">
-                        <Link
-                          href={`${basePath}/${row[idKey]}`}
-                          className="text-gray-400 hover:text-[#28328c]"
-                        >
-                          <Eye size={18} />
-                        </Link>
-                        <DeleteBtn id={row.SpecializationID} deleteFn={deleteSpecialization} />
+                        <ViewBtn id={row[idKey]} viewUrl={basePath} />
+                        <DeleteBtn id={row[idKey]} deleteFn={deleteSpecialization} />
                       </div>
                     ) : (
                       row[col.accessor as string]
@@ -81,6 +75,6 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
           </tbody>
         </table>
       </div>
-    </div>
+    </div >
   );
 }
