@@ -9,10 +9,14 @@ export interface ColumnInfo {
 
 export async function getSpecializationColumns(): Promise<ColumnInfo[]> {
     const columns = await prisma.$queryRaw<ColumnInfo[]>`
-        SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'hop_specialization'
-        AND TABLE_SCHEMA = DATABASE()
-    `;
+    SELECT 
+        COLUMN_NAME, 
+        DATA_TYPE, 
+        IS_NULLABLE
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'hop_specialization'
+      AND TABLE_SCHEMA = DATABASE()
+    ORDER BY ORDINAL_POSITION`;
+
     return columns;
 }

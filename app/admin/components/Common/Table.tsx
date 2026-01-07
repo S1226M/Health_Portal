@@ -1,7 +1,7 @@
 import React from 'react';
 import { Eye, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import deleteSpecialization from '../../modules/hop/specialization/action/deleteSpecialization';
+import deleteSpecialization from '@/app/admin/modules/hop/specialization/action/deleteSpecialization';
 import DeleteBtn from './ui/deleteBtn';
 
 export interface Column {
