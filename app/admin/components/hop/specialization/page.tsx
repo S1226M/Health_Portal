@@ -14,7 +14,6 @@
     'IsDeleted',
   ]);
 
-
     const columns: Column<typeof data[number]>[] = [
       ...autoColumns,
       {
