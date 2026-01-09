@@ -7,7 +7,7 @@ export interface ColumnInfo {
     IS_NULLABLE: string;
 }
 
-export async function getSpecializationColumns(): Promise<ColumnInfo[]> {
+export async function getColumns(): Promise<ColumnInfo[]> {
     const columns = await prisma.$queryRaw<ColumnInfo[]>`
     SELECT 
         COLUMN_NAME, 

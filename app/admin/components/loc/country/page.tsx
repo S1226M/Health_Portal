@@ -1,26 +1,33 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
 import { Table } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function CountryListPage() {
-    const data = [
-        { id: 1, name: 'India', code: 'IN', phoneCode: '+91' },
-        { id: 2, name: 'United States', code: 'US', phoneCode: '+1' },
-        { id: 3, name: 'United Kingdom', code: 'UK', phoneCode: '+44' },
-    ];
+export default async function CountryListPage() {
 
-    const columns = [
-        { header: 'Country Name', accessor: 'name' },
-        { header: 'ISO Code', accessor: 'code' },
-        { header: 'Phone Code', accessor: 'phoneCode' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
-    ];
+    const data = await prisma.loc_country.findMany();
+
+      const autoColumns = generateColumns(data, [
+        'Created',
+        'Modified',
+        'CreatedByUserID',
+        'ModifiedByUserID',
+        'IsDeleted',
+      ]);
+
+    const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+          header: 'Actions',
+          isAction: true,
+        },
+    ];      
 
     return (
         <div className="p-6">
             <PageHeader
                 title="Countries"
-                description="Manage global country entries."
                 actionLabel="Add Country"
                 actionUrl="/admin/components/loc/country/add"
             />
@@ -32,6 +39,7 @@ export default function CountryListPage() {
             <Table
                 columns={columns}
                 data={data}
+                idKey='CountryID'
                 basePath="/admin/components/loc/country"
             />
         </div>

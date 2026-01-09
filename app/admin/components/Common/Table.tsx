@@ -1,9 +1,10 @@
 import React from 'react';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import deleteSpecialization from '@/app/admin/modules/hop/specialization/action/deleteSpecialization';
 import DeleteBtn from './ui/deleteBtn';
 import ViewBtn from './ui/viewBtn';
+import EditBtn from './ui/editBtn';
 
 export interface Column {
   header: string;
@@ -38,7 +39,9 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
           </thead>
 
           <tbody className="divide-y divide-gray-100">
-            {data.map((row, rowIdx) => (
+            {data
+            .filter(row => row.IsDeleted !== true)
+            .map((row, rowIdx) => (
               <tr
                 key={rowIdx}
                 className="hover:bg-gray-50/80 transition-colors duration-150"
@@ -52,6 +55,7 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
                     {col.isAction ? (
                       <div className="flex items-center justify-end gap-3">
                         <ViewBtn id={row[idKey]} viewUrl={basePath} />
+                        <EditBtn id={row[idKey]} viewUrl={`${basePath}/edit`} />
                         <DeleteBtn id={row[idKey]} deleteFn={deleteSpecialization} />
                       </div>
                     ) : (

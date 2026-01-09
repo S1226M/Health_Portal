@@ -14,8 +14,6 @@ interface DetailViewTableProps {
 export function ViewTable({ columns, data }: DetailViewTableProps) {
   if (!data) return null;
 
-  // 1. Logic to separate Core fields from Audit fields
-  // Make sure these match your database column names exactly
   const auditKeys = ['Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID'];
   
   const primaryInfo = columns.filter(col => col.accessor && !auditKeys.includes(col.accessor));
@@ -89,7 +87,6 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
             {renderGrid(auditInfo)}
           </div>
         )}
-
       </div>
     </div>
   );

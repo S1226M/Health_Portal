@@ -13,7 +13,7 @@ export default function ViewBtn({id,viewUrl}: ViewBtnProps){
     return (
         <button
             onClick={() => router.push(`${viewUrl}/${id}`)}
-            className="text-red-500 hover:text-blue-700 transition-colors p-1 rounded-md hover:bg-red-50"
+            className="text-500 hover:text-700 transition-colors p-1 rounded-md hover:bg-red-50"
             title="View Specialization" 
         >
             <Eye size={18} />
