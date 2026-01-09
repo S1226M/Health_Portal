@@ -1,18 +1,26 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
 import { Table } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function StateListPage() {
-    const data = [
-        { id: 1, name: 'Maharashtra', country: 'India' },
-        { id: 2, name: 'California', country: 'United States' },
-        { id: 3, name: 'London', country: 'United Kingdom' },
-    ];
+export default async function StateListPage() {
+    const data = await prisma.loc_state.findMany();
 
-    const columns = [
-        { header: 'State Name', accessor: 'name' },
-        { header: 'Country', accessor: 'country' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+            'Created',
+            'Modified',
+            'CreatedByUserID',
+            'ModifiedByUserID',
+            'IsDeleted',
+          ]);
+        
+        const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+          header: 'Actions',
+          isAction: true,
+        },
     ];
 
     return (
@@ -31,6 +39,7 @@ export default function StateListPage() {
             <Table
                 columns={columns}
                 data={data}
+                idKey='StateID'
                 basePath="/admin/components/loc/state"
             />
         </div>

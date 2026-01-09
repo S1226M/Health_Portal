@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { ViewTable } from '../../../Common/commonViewTable';
 import { getColumns } from '../../../Common/columns';
+import { FormattedColumns } from '../../../Common/formatedColumns';
 
 export default async function CountryDetailPage({ params }: { params: Promise<{ countryID: string }> }) {
     const { countryID } = await params;
@@ -12,19 +13,17 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
 
     if (Number.isNaN(id)) notFound();
 
+
     const [rawColumns, country] = await Promise.all([
-        getColumns(),
+        getColumns('loc_country'),
         prisma.loc_country.findFirst({ where: { CountryID: id } })
     ])
 
     if (!country) notFound();
 
-    const formattedColumns = rawColumns.map((col) => ({
-        accessor: col.COLUMN_NAME,
-        header: col.COLUMN_NAME.replace(/([A-Z])/g, ' $1').trim(), 
-    }));
-    
-    // In a real app, fetch data based on params.id
+
+    const formattedColumns = FormattedColumns(rawColumns); 
+
     return (
         <div className="p-6">
             <PageHeader

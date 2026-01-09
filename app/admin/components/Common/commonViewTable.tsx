@@ -19,6 +19,8 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
   const primaryInfo = columns.filter(col => col.accessor && !auditKeys.includes(col.accessor));
   const auditInfo = columns.filter(col => col.accessor && auditKeys.includes(col.accessor));
 
+  console.log('Data to display:', primaryInfo, auditInfo, data);
+
   // Helper function to render a group of fields
   const renderGrid = (fields: Column[]) => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-6">

@@ -18,7 +18,7 @@ export default async function SpecializationEdit({ params }: { params: Promise<{
     }
     
     const skipFields = ['SpecializationID', 'Created', 'Modified', 'IsDeleted','CreatedByUserID','ModifiedByUserID'];
-    const columns = await getColumns();
+    const columns = await getColumns('hop_specialization');
     console.log(columns);
     
     return (

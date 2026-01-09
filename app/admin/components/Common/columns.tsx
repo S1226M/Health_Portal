@@ -7,14 +7,14 @@ export interface ColumnInfo {
     IS_NULLABLE: string;
 }
 
-export async function getColumns(): Promise<ColumnInfo[]> {
+export async function getColumns(tableName: string): Promise<ColumnInfo[]> {
     const columns = await prisma.$queryRaw<ColumnInfo[]>`
     SELECT 
         COLUMN_NAME, 
         DATA_TYPE, 
         IS_NULLABLE
     FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'hop_specialization'
+    WHERE TABLE_NAME = ${tableName}
       AND TABLE_SCHEMA = DATABASE()
     ORDER BY ORDINAL_POSITION`;
 
