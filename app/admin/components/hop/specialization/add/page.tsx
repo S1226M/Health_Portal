@@ -3,12 +3,10 @@ import { PageHeader } from '@/app/admin/components/Common/PageHeader';
 import {getColumns} from '@/app/admin//components/Common/columns'
 import { FormContainer, FormInput } from '../../../Common/Form';
 import { SaveSpecialization } from '@/app/admin/modules/hop/specialization/action/SaveSpecialization';
-import { hop_specializationOrderByRelevanceFieldEnum } from '@/lib/generated/prisma/internal/prismaNamespace';
 
     
 export default async function AddSpecializationPage() {
     const columns = await getColumns('hop_specialization');
-    console.log(columns);
     const skipFields = ['SpecializationID', 'Created', 'Modified', 'IsDeleted', 'CreatedByUserID','ModifiedByUserID'];
     return (
         <div className="p-6">

@@ -5,6 +5,7 @@ import deleteSpecialization from '@/app/admin/modules/hop/specialization/action/
 import DeleteBtn from './ui/deleteBtn';
 import ViewBtn from './ui/viewBtn';
 import EditBtn from './ui/editBtn';
+import { deleteCountry } from '../../modules/loc/country/action/deleteCountry';
 
 export interface Column {
   header: string;
@@ -12,14 +13,24 @@ export interface Column {
   isAction?: boolean;
 }
 
+const actionsMap: Record<string, (id: any) => Promise<void>> = {
+  "deleteCountry": deleteCountry,
+  "deleteSpecialization": deleteSpecialization,
+  // Add other functions here as you create them
+};
+
 interface TableProps {
   columns: Column[];
   data: any[];
   basePath: string;
   idKey: string;
+  moduleName: string;
 }
 
-export function Table({ columns, data, basePath, idKey }: TableProps) {
+export function Table({ columns, data, basePath, idKey, moduleName }: TableProps) {
+  const generatedFnName = `delete${moduleName.charAt(0).toUpperCase()}${moduleName.slice(1)}`;
+  const activeDeleteFn = actionsMap[generatedFnName];
+  
   return (
     <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
@@ -56,7 +67,7 @@ export function Table({ columns, data, basePath, idKey }: TableProps) {
                       <div className="flex items-center justify-end gap-3">
                         <ViewBtn id={row[idKey]} viewUrl={basePath} />
                         <EditBtn id={row[idKey]} viewUrl={`${basePath}/edit`} />
-                        <DeleteBtn id={row[idKey]} deleteFn={deleteSpecialization} />
+                        <DeleteBtn id={row[idKey]} deleteFn={activeDeleteFn} />
                       </div>
                     ) : (
                       row[col.accessor as string]

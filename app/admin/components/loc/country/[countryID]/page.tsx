@@ -1,6 +1,4 @@
-import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput } from '@/app/admin/components/Common/Form';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { ViewTable } from '../../../Common/commonViewTable';
@@ -13,7 +11,6 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
 
     if (Number.isNaN(id)) notFound();
 
-
     const [rawColumns, country] = await Promise.all([
         getColumns('loc_country'),
         prisma.loc_country.findFirst({ where: { CountryID: id } })
@@ -21,11 +18,10 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
 
     if (!country) notFound();
 
-
     const formattedColumns = FormattedColumns(rawColumns); 
 
     return (
-        <div className="p-6">
+        <div className="p-6 bg-gray-50 min-h-screen">
             <PageHeader
                 title="Country Details"
                 backUrl="/admin/components/loc/country"

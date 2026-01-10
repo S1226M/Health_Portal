@@ -1,10 +1,8 @@
-import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { ViewTable } from '../../../Common/commonViewTable';
 import { getColumns } from '../../../Common/columns';
-import { hop_specializationOrderByRelevanceFieldEnum } from '@/lib/generated/prisma/internal/prismaNamespace';
 import { FormattedColumns } from '../../../Common/formatedColumns';
 
 export default async function SpecializationDetailPage({ params }: { params: Promise<{ specializationID: string }> }) {

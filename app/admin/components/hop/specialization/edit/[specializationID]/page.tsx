@@ -5,8 +5,6 @@ import editSpecialization from "@/app/admin/modules/hop/specialization/action/ed
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
-
-
 export default async function SpecializationEdit({ params }: { params: Promise<{ specializationID: string }> }){
     const { specializationID } = await params;
     const specialization = await prisma.hop_specialization.findUnique({
@@ -19,7 +17,6 @@ export default async function SpecializationEdit({ params }: { params: Promise<{
     
     const skipFields = ['SpecializationID', 'Created', 'Modified', 'IsDeleted','CreatedByUserID','ModifiedByUserID'];
     const columns = await getColumns('hop_specialization');
-    console.log(columns);
     
     return (
         <div className="p-6 bg-gray-50 min-h-screen">

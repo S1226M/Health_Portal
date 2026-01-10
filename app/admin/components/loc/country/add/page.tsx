@@ -1,19 +1,33 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
 import { FormContainer, FormInput } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import { SaveCountry } from '@/app/admin/modules/loc/country/action/SaveCountry';
 
-export default function AddCountryPage() {
+export default async function AddCountryPage() {
+    const columns = await getColumns('loc_country');
+    const skipFields = ['CountryID', 'Created', 'Modified', 'IsDeleted', 'CreatedByUserID', 'ModifiedByUserID'];
     return (
         <div className="p-6">
             <PageHeader
                 title="Add Country"
                 backUrl="/admin/components/loc/country"
             />
-
-            <FormContainer onCancelUrl="/admin/components/loc/country">
-                <FormInput label="Country Name" placeholder="e.g. India" />
-                <FormInput label="ISO Code" placeholder="e.g. IN" />
-                <FormInput label="Phone Code" placeholder="e.g. +91" />
+            <FormContainer action={SaveCountry} onCancelUrl="/admin/components/loc/country">
+                {columns
+                    .filter(col => !skipFields.includes(col.COLUMN_NAME))
+                    .map((col) => (
+                        <FormInput
+                            key={col.COLUMN_NAME}
+                            label={col.COLUMN_NAME.replace(/([A-Z])/g, ' $1').trim()}
+                            name={col.COLUMN_NAME}
+                            required={col.IS_NULLABLE === 'NO'}
+                            isTextArea={col.COLUMN_NAME.toLowerCase().includes('description')}
+                            fullWidth={col.COLUMN_NAME.toLowerCase().includes('description')}
+                            placeholder={`Enter ${col.COLUMN_NAME}...`}
+                        />
+                    ))
+                }
             </FormContainer>
         </div>
     );

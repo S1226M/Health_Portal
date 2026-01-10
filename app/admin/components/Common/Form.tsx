@@ -20,12 +20,12 @@ export function FormContainer({ children, onCancelUrl, action, submitLabel = "Sa
                     >
                         Cancel
                     </Link>
-                    <button
+                    <button onClick={onCancelUrl? undefined : (e) => e.preventDefault()}
                         type="submit"
                         className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition transform active:scale-95 duration-200"
                     >
                         {submitLabel}
-                    </button>   
+                    </button>
                 </div>
             </form>
         </div>
