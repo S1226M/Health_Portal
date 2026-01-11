@@ -1,19 +1,39 @@
-import React from 'react';
-import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput, FormSelect } from '@/app/admin/components/Common/Form';
+import SaveState from "@/app/admin/modules/loc/state/action/SaveState";
+import { getColumns } from "../../../Common/columns";
+import { FormContainer } from "../../../Common/Form";
+import { PageHeader } from "../../../Common/PageHeader";
+import { prisma } from "@/lib/prisma";
 
-export default function AddStatePage() {
+export default async function AddStatePage() {
+    const columns = await getColumns('loc_state');
+
+    // Fetch only active countries (IsDeleted is false)
+    const countries = await prisma.loc_country.findMany({
+        where: { IsDeleted: false },
+        select: { CountryID: true, CountryName: true }
+    });
+
+    // Format for the Generic Dropdown
+    const countryOptions = countries.map(c => ({
+        label: c.CountryName,
+        value: c.CountryID
+    }));
+
     return (
-        <div className="p-6">
-            <PageHeader
-                title="Add State"
-                backUrl="/admin/components/loc/state"
-            />
-
-            <FormContainer onCancelUrl="/admin/components/loc/state">
-                <FormInput label="State Name" placeholder="e.g. Maharashtra" />
-                <FormSelect label="Country" options={['India', 'USA', 'UK']} />
-            </FormContainer>
-        </div>
+        <>
+        <PageHeader 
+            title="Add State" 
+            backUrl="/admin/components/loc/state" 
+        />
+        <FormContainer 
+            columns={columns}
+            action={SaveState}
+            onCancelUrl="/admin/components/loc/state"
+            skipFields={['StateID']}
+            selectOptions={{
+                CountryID: countryOptions
+            }}
+        />
+        </>
     );
 }

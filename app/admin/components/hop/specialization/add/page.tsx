@@ -14,22 +14,12 @@ export default async function AddSpecializationPage() {
                 title="Add Specialization" 
                 backUrl="/admin/components/hop/specialization" 
             />
-            <FormContainer action={SaveSpecialization} onCancelUrl="/admin/components/hop/specialization">
-                    {columns
-                    .filter(col => !skipFields.includes(col.COLUMN_NAME))
-                    .map((col) => (
-                        <FormInput 
-                            key={col.COLUMN_NAME}   
-                            label={col.COLUMN_NAME.replace(/([A-Z])/g, ' $1').trim()}
-                            name={col.COLUMN_NAME}
-                            required={col.IS_NULLABLE === 'NO'}
-                            isTextArea={col.COLUMN_NAME.toLowerCase().includes('description')}
-                            fullWidth={col.COLUMN_NAME.toLowerCase().includes('description')}
-                            placeholder={`Enter ${col.COLUMN_NAME}...`}
-                        />
-                    ))
-                }
-            </FormContainer>
+            <FormContainer 
+                action={SaveSpecialization} 
+                onCancelUrl="/admin/components/loc/country"
+                columns={columns}
+                skipFields={['SpecializationID']}
+            />
         </div>
    );
 }
