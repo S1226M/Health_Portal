@@ -40,7 +40,7 @@
           idKey='SpecializationID'
           basePath="/admin/components/hop/specialization"
           moduleName="specialization"
-        />
+        />  
       </div>
     );
   }

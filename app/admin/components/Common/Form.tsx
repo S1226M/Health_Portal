@@ -26,6 +26,7 @@ interface FormProps {
     columns?: DBColumn[];
     skipFields?: string[];
     selectOptions?: Record<string, SelectOption[]>;
+    initialData?: any; // New prop for pre-filling data
 }
 
 export function FormContainer({
@@ -35,7 +36,8 @@ export function FormContainer({
     submitLabel = "Save Details",
     columns,
     skipFields = [],
-    selectOptions = {}
+    selectOptions = {},
+    initialData = {} // Default to empty object
 }: FormProps) {
     const allSkipFields = [...DEFAULT_SKIP_FIELDS, ...skipFields];
 
@@ -43,7 +45,7 @@ export function FormContainer({
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-4xl mx-auto mt-6">
             <form action={action} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                    {columns ? (
+                    {columns && (
                         columns
                             .filter(col => !allSkipFields.includes(col.COLUMN_NAME))
                             .map((col) => {
@@ -54,6 +56,11 @@ export function FormContainer({
                                 const isForeignKey = col.REFERENCED_TABLE_NAME !== null;
                                 // Check if we actually have data to show in the dropdown
                                 const hasOptions = selectOptions[name] && selectOptions[name].length > 0;
+
+                                // Get default value if available
+                                const defaultValue = initialData && initialData[name] !== undefined && initialData[name] !== null
+                                    ? initialData[name]
+                                    : "";
 
                                 // Condition: If it's a Foreign Key and we have data, show Select.
                                 // If it's a Foreign Key but NO data is passed, we fall back to FormInput 
@@ -66,6 +73,7 @@ export function FormContainer({
                                             </label>
                                             <select
                                                 name={name}
+                                                defaultValue={defaultValue} // Set default value for select
                                                 required={col.IS_NULLABLE === 'NO'}
                                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm bg-white"
                                             >
@@ -86,6 +94,7 @@ export function FormContainer({
                                         key={name}
                                         label={label}
                                         name={name}
+                                        defaultValue={defaultValue} // Set default value for input
                                         required={col.IS_NULLABLE === 'NO'}
                                         isTextArea={name.toLowerCase().includes('description')}
                                         fullWidth={name.toLowerCase().includes('description')}
@@ -93,9 +102,9 @@ export function FormContainer({
                                     />
                                 );
                             })
-                    ) : (
-                        children
                     )}
+                    {/* Render children (like hidden inputs) even if columns are present */}
+                    {children}
                 </div>
 
                 <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100 mt-6">

@@ -7,6 +7,8 @@ import ViewBtn from './ui/viewBtn';
 import EditBtn from './ui/editBtn';
 import { deleteCountry } from '../../modules/loc/country/action/deleteCountry';
 
+import { deleteState } from '../../modules/loc/state/action/deleteState';
+
 export interface Column {
   header: string;
   accessor?: string;
@@ -16,6 +18,7 @@ export interface Column {
 const actionsMap: Record<string, (id: any) => Promise<void>> = {
   "deleteCountry": deleteCountry,
   "deleteSpecialization": deleteSpecialization,
+  "deleteState": deleteState,
   // Add other functions here as you create them
 };
 
@@ -30,7 +33,7 @@ interface TableProps {
 export function Table({ columns, data, basePath, idKey, moduleName }: TableProps) {
   const generatedFnName = `delete${moduleName.charAt(0).toUpperCase()}${moduleName.slice(1)}`;
   const activeDeleteFn = actionsMap[generatedFnName];
-  
+
   return (
     <div className="bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
@@ -51,31 +54,31 @@ export function Table({ columns, data, basePath, idKey, moduleName }: TableProps
 
           <tbody className="divide-y divide-gray-100">
             {data
-            .filter(row => row.IsDeleted !== true)
-            .map((row, rowIdx) => (
-              <tr
-                key={rowIdx}
-                className="hover:bg-gray-50/80 transition-colors duration-150"
-              >
-                {columns.map((col, colIdx) => (
-                  <td
-                    key={colIdx}
-                    className={`py-4 px-6 text-sm ${col.isAction ? 'text-right' : 'text-gray-700'
-                      }`}
-                  >
-                    {col.isAction ? (
-                      <div className="flex items-center justify-end gap-3">
-                        <ViewBtn id={row[idKey]} viewUrl={basePath} />
-                        <EditBtn id={row[idKey]} viewUrl={`${basePath}/edit`} />
-                        <DeleteBtn id={row[idKey]} deleteFn={activeDeleteFn} />
-                      </div>
-                    ) : (
-                      row[col.accessor as string]
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
+              .filter(row => row.IsDeleted !== true)
+              .map((row, rowIdx) => (
+                <tr
+                  key={rowIdx}
+                  className="hover:bg-gray-50/80 transition-colors duration-150"
+                >
+                  {columns.map((col, colIdx) => (
+                    <td
+                      key={colIdx}
+                      className={`py-4 px-6 text-sm ${col.isAction ? 'text-right' : 'text-gray-700'
+                        }`}
+                    >
+                      {col.isAction ? (
+                        <div className="flex items-center justify-end gap-3">
+                          <ViewBtn id={row[idKey]} viewUrl={basePath} />
+                          <EditBtn id={row[idKey]} viewUrl={`${basePath}/edit`} />
+                          <DeleteBtn id={row[idKey]} deleteFn={activeDeleteFn} />
+                        </div>
+                      ) : (
+                        row[col.accessor as string]
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
 
             {data.length === 0 && (
               <tr>

@@ -8,16 +8,16 @@ export default async function AddStatePage() {
     const columns = await getColumns('loc_state');
 
     // Fetch only active countries (IsDeleted is false)
-    const countries = await prisma.loc_country.findMany({
-        where: { IsDeleted: false },
-        select: { CountryID: true, CountryName: true }
-    });
+        const countries = await prisma.loc_country.findMany({
+            where: { IsDeleted: false },
+            select: { CountryID: true, CountryName: true }
+        });
 
-    // Format for the Generic Dropdown
-    const countryOptions = countries.map(c => ({
-        label: c.CountryName,
-        value: c.CountryID
-    }));
+        // Format for the Generic Dropdown
+        const countryOptions = countries.map(c => ({
+            label: c.CountryName,
+            value: c.CountryID
+        }));
 
     return (
         <>
