@@ -21,19 +21,19 @@ export default async function AddStatePage() {
 
     return (
         <>
-        <PageHeader 
-            title="Add State" 
-            backUrl="/admin/components/loc/state" 
-        />
-        <FormContainer 
-            columns={columns}
-            action={SaveState}
-            onCancelUrl="/admin/components/loc/state"
-            skipFields={['StateID']}
-            selectOptions={{
-                CountryID: countryOptions
-            }}
-        />
+            <PageHeader 
+                title="Add State" 
+                backUrl="/admin/components/loc/state" 
+            />
+            <FormContainer 
+                columns={columns}
+                action={SaveState}
+                onCancelUrl="/admin/components/loc/state"
+                skipFields={['StateID']}
+                selectOptions={{
+                    CountryID: countryOptions
+                }}
+            />
         </>
     );
 }

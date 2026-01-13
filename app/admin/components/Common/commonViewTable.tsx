@@ -8,20 +8,19 @@ export interface Column {
 
 interface DetailViewTableProps {
   columns: Column[];
-  data: any; 
+  data: any;
 }
 
 export function ViewTable({ columns, data }: DetailViewTableProps) {
   if (!data) return null;
 
-  const auditKeys = ['Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID'];
+  // Keys used for the "Other Info" section
+  const auditKeys = ['Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID', 'CreatedAt', 'UpdatedAt'];
   
   const primaryInfo = columns.filter(col => col.accessor && !auditKeys.includes(col.accessor));
   const auditInfo = columns.filter(col => col.accessor && auditKeys.includes(col.accessor));
 
-  console.log('Data to display:', primaryInfo, auditInfo, data);
-
-  // Helper function to render a group of fields
+  // Helper function to render a group of fields in a responsive grid
   const renderGrid = (fields: Column[]) => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-6">
       {fields.map((col, index) => {
@@ -29,13 +28,18 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
         const isDescription = col.accessor?.toLowerCase().includes('description');
 
         let displayValue: React.ReactNode = '-';
+
         if (rawValue !== null && rawValue !== undefined) {
-          if (rawValue instanceof Date) {
-            displayValue = rawValue.toLocaleDateString('en-US', {
+          // Handle Dates
+          if (rawValue instanceof Date || (!isNaN(Date.parse(rawValue)) && typeof rawValue === 'string' && rawValue.includes('-'))) {
+            const dateObj = rawValue instanceof Date ? rawValue : new Date(rawValue);
+            displayValue = dateObj.toLocaleDateString('en-US', {
               month: 'short',
               day: '2-digit',
               year: 'numeric'
             });
+          } else if (typeof rawValue === 'boolean') {
+            displayValue = rawValue ? 'Yes' : 'No';
           } else {
             displayValue = String(rawValue);
           }
@@ -44,7 +48,7 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
         return (
           <div 
             key={index} 
-            className={`flex flex-row items-baseline gap-3 border-b border-gray-50 pb-2 ${
+            className={`flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4 border-b border-gray-50 pb-3 ${
               isDescription ? 'md:col-span-2' : ''
             }`}
           >
@@ -64,12 +68,12 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
     <div className="max-w-5xl mx-auto mt-8 space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         
-        {/* Section 1: Core Information (Neurology Information) */}
+        {/* Section 1: Core Information */}
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-gray-100"></div>
             <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600">
-              {data.SpecializationName || 'Record'} Information
+              {data.CityName || data.Name || 'Record'} Information
             </h2>
             <div className="h-px flex-1 bg-gray-100"></div>
           </div>
@@ -82,7 +86,7 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
             <div className="flex items-center gap-4 mb-6">
               <div className="h-px flex-1 bg-gray-100"></div>
               <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                Other Info
+                System Details
               </h2>
               <div className="h-px flex-1 bg-gray-200"></div>
             </div>

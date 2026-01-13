@@ -1,25 +1,32 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
-import { Table } from '@/app/admin/components/Common/Table';
+import { Column, Table } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function HospitalListPage() {
-    const data = [
-        { id: 1, name: 'General Hospital', city: 'Pune', charge: '500.00' },
-        { id: 2, name: 'Apollo Clinic', city: 'Mumbai', charge: '800.00' },
-    ];
+export default async function HospitalListPage() {
+    const data = await prisma.hop_hospital.findMany();
 
-    const columns = [
-        { header: 'Hospital Name', accessor: 'name' },
-        { header: 'City', accessor: 'city' },
-        { header: 'Reg. Charge', accessor: 'charge' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+        'Created',
+        'Modified',
+        'CreatedByUserID',
+        'ModifiedByUserID',
+        'IsDeleted',
+    ])
+
+    const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
         <div className="p-6">
             <PageHeader
                 title="Hospitals"
-                description="Manage hospital branches."
                 actionLabel="Add Hospital"
                 actionUrl="/admin/components/hop/hospital/add"
             />
@@ -31,7 +38,9 @@ export default function HospitalListPage() {
             <Table
                 columns={columns}
                 data={data}
+                idKey='HospitalID'
                 basePath="/admin/components/hop/hospital"
+                moduleName='hospital'
             />
         </div>
     );

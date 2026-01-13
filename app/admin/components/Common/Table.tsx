@@ -8,6 +8,7 @@ import EditBtn from './ui/editBtn';
 import { deleteCountry } from '../../modules/loc/country/action/deleteCountry';
 
 import { deleteState } from '../../modules/loc/state/action/deleteState';
+import { deleteCity } from '../../modules/loc/city/action/deleteCity';
 
 export interface Column {
   header: string;
@@ -19,6 +20,7 @@ const actionsMap: Record<string, (id: any) => Promise<void>> = {
   "deleteCountry": deleteCountry,
   "deleteSpecialization": deleteSpecialization,
   "deleteState": deleteState,
+  "deleteCity": deleteCity,
   // Add other functions here as you create them
 };
 

@@ -1,20 +1,39 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput, FormSelect } from '@/app/admin/components/Common/Form';
+import { FormContainer } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import { prisma } from '@/lib/prisma';
+import SaveCity from '@/app/admin/modules/loc/city/action/SaveCity';
 
-export default function AddCityPage() {
+export default async function AddCityPage() {
+    const columns = await getColumns('loc_city');
+    
+    const states = await prisma.loc_state.findMany({
+        where: { IsDeleted: false },
+        select: { StateID: true, StateName: true }
+    });
+
+    const stateOptions = states.map(c => ({
+        label: c.StateName,
+        value: c.StateID
+    }));
+
     return (
-        <div className="p-6">
-            <PageHeader
-                title="Add City"
-                backUrl="/admin/components/loc/city"
+        <>
+            <PageHeader 
+                title="Add City" 
+                backUrl="/admin/components/loc/city" 
             />
 
-            <FormContainer onCancelUrl="/admin/components/loc/city">
-                <FormInput label="City Name" placeholder="e.g. Pune" />
-                <FormInput label="Pincode" placeholder="e.g. 411001" />
-                <FormSelect label="State" options={['Maharashtra', 'California']} />
-            </FormContainer>
-        </div>
+            <FormContainer 
+                columns={columns}
+                action={SaveCity}
+                onCancelUrl="/admin/components/loc/city"
+                skipFields={['CityID']}
+                selectOptions={{
+                    StateID: stateOptions
+                }}
+            />
+        </>  
     );
 }

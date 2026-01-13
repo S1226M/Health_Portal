@@ -1,38 +1,44 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
 import { Table } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function CityListPage() {
-    const data = [
-        { id: 1, name: 'Pune', state: 'Maharashtra', pincode: '411001' },
-        { id: 2, name: 'Mumbai', state: 'Maharashtra', pincode: '400001' },
-        { id: 3, name: 'San Francisco', state: 'California', pincode: '94105' },
-    ];
+export default async function CityListPage() {
+    const data = await prisma.loc_city.findMany();
 
-    const columns = [
-        { header: 'City Name', accessor: 'name' },
-        { header: 'State', accessor: 'state' },
-        { header: 'Pincode', accessor: 'pincode' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data,[
+        "Created",
+        "Modified",
+        "CreatedByUserID",
+        "ModifiedByUserID",
+        "IsDeleted"
+    ]);
+
+    const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
         <div className="p-6">
             <PageHeader
                 title="Cities"
-                description="Manage cities for address selection."
                 actionLabel="Add City"
                 actionUrl="/admin/components/loc/city/add"
             />
-
             <div className="mb-6">
                 <SearchBar />
             </div>
-
             <Table
                 columns={columns}
                 data={data}
+                idKey='CityID'
                 basePath="/admin/components/loc/city"
+                moduleName="city"
             />
         </div>
     );

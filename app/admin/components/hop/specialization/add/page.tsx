@@ -1,6 +1,6 @@
 // @/app/admin/components/hop/specialization/add/page.tsx
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { getColumns } from '@/app/admin//components/Common/columns'
+import { getColumns } from '@/app/admin/components/Common/columns'
 import { FormContainer, FormInput } from '../../../Common/Form';
 import { SaveSpecialization } from '@/app/admin/modules/hop/specialization/action/SaveSpecialization';
 

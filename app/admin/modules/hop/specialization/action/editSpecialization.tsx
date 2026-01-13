@@ -18,10 +18,14 @@ export default async function editSpecialization(formData: FormData) {
     };
 
     await prisma.hop_specialization.update({
-        where:{
-            SpecializationID : specId
+        where: {
+            SpecializationID: specId
         },
-        data: saveObj   
+        data: {
+            ...saveObj,
+            ModifiedByUserID: 4,
+            Modified: new Date()
+        }
     });
 
     const editData = {
@@ -33,17 +37,6 @@ export default async function editSpecialization(formData: FormData) {
 
     await prisma.hop_log_specialization.create({ data: editData });
 
-    const modifiedByUserID = {
-        ModifiedByUserID: 4
-    }
-
-    await prisma.hop_specialization.update({
-        where:{
-            SpecializationID : specId
-        },
-        data: modifiedByUserID   
-    });
-    
     revalidatePath('/admin/components/hop/specialization');
     redirect('/admin/components/hop/specialization');
 }

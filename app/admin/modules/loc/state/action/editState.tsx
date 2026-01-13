@@ -9,12 +9,10 @@ export default async function editState(formData: FormData) {
     
     if (isNaN(stateId)) throw new Error("Invalid State ID");
     
-    const currentUserId = 4;
+    const currentUserId = 4; // Ideally get this from session/auth
     
     await prisma.loc_state.update({
-        where: {
-            StateID: stateId
-        },
+        where: { StateID: stateId },
         data: {
             StateName: formData.get('StateName') as string,
             CountryID: parseInt(formData.get('CountryID') as string),
@@ -23,16 +21,16 @@ export default async function editState(formData: FormData) {
         }
     });
 
-    const editData = {
-        StateID: stateId,
-        IUD: 'U',
-        Created: new Date(),
-        CreatedByUserID: currentUserId
-    };
-
-    await prisma.loc_log_state.create({ data: editData });
+    // Logging the change
+    await prisma.loc_log_state.create({ 
+        data: {
+            StateID: stateId,
+            IUD: 'U',
+            Created: new Date(),
+            CreatedByUserID: currentUserId
+        } 
+    });
 
     revalidatePath('/admin/components/loc/state');
     redirect('/admin/components/loc/state');
-            
 }

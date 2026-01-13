@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { generateColumns } from '@/app/admin/utils/generateColumns';
 
 export default async function StateListPage() {
+
     const data = await prisma.loc_state.findMany();
 
     const autoColumns = generateColumns(data, [
@@ -27,7 +28,6 @@ export default async function StateListPage() {
         <div className="p-6">
             <PageHeader
                 title="States"
-                description="Manage states and provinces."
                 actionLabel="Add State"
                 actionUrl="/admin/components/loc/state/add"
             />
