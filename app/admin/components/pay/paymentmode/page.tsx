@@ -38,7 +38,7 @@ export default async function PaymentModeListPage() {
                 data={data}
                 idKey='PaymentModeID'
                 basePath="/admin/components/pay/paymentmode"
-                moduleName="paymentmode"
+                moduleName="paymentMode"
             />
         </div>
     );

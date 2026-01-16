@@ -8,12 +8,14 @@ export async function SaveCountry(formData: FormData) {
     const countryCode = formData.get('CountryCode') as string;
 
     const currentUserId = 4;
+
     const data= {
-            CountryName: countryName,
-            CountryCode: countryCode,
-            Created: new Date(),
-            CreatedByUserID: currentUserId
-        }
+        CountryName: countryName,
+        CountryCode: countryCode,
+        Created: new Date(),
+        CreatedByUserID: currentUserId
+    }
+    
     const addedData = await prisma.loc_country.create({data});
 
     const addedID = addedData.CountryID;

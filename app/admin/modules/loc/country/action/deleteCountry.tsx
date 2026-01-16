@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache";
 
 export async function deleteCountry(id:number) {
-
     await prisma.loc_country.update({
         where: {CountryID: id},
         data: { IsDeleted: true }
