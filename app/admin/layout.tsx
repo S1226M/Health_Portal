@@ -48,7 +48,9 @@ export default function AdminLayout({
             <SidebarItem title="States" href="/admin/components/loc/state" icon="🗺️" isOpen={isSidebarOpen} />
             <SidebarItem title="Countries" href="/admin/components/loc/country" icon="🌍" isOpen={isSidebarOpen} />
             
-            <SidebarItem title="Paymentmode" href="/admin/components/pay/paymentmode" icon="🌍" isOpen={isSidebarOpen} />
+            <div className="my-2 border-t border-gray-100"></div>
+            <SidebarLabel title="PAYMENTMODE (PAY)" isOpen={isSidebarOpen} />
+            <SidebarItem title="Paymentmode" href="/admin/components/pay/paymentmode" icon="💸" isOpen={isSidebarOpen} />
             
           </ul>
         </nav>
