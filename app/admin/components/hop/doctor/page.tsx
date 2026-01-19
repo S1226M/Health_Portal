@@ -1,30 +1,48 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
 import { Table } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
+import { Column } from '@/app/admin/components/Common/Table';
 
-export default function DoctorListPage() {
-    const data = [
-        { id: 1, name: 'Dr. John Doe', spec: 'Cardiologist', hosp: 'General Hospital' },
-        { id: 2, name: 'Dr. Jane Smith', spec: 'Dentist', hosp: 'Apollo Clinic' },
-    ];
+export default async function DoctorListPage() {
+    const data = await prisma.hop_doctor.findMany({
+        where: { IsDeleted: false }
+    });
 
-    const columns = [
-        { header: 'Doctor Name', accessor: 'name' },
-        { header: 'Specialization', accessor: 'spec' },
-        { header: 'Hospital', accessor: 'hosp' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+        "Created",
+        "Modified",
+        "CreatedByUserID",
+        "ModifiedByUserID",
+        "IsDeleted"
+    ]);
+
+    const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
         <div className="p-6">
             <PageHeader
                 title="Doctors"
-                description="Manage doctors and their assignments."
                 actionLabel="Add Doctor"
                 actionUrl="/admin/components/hop/doctor/add"
             />
-            <div className="mb-6"><SearchBar /></div>
-            <Table columns={columns} data={data} basePath="/admin/components/hop/doctor" />
+            <div className="mb-6">
+                <SearchBar />
+            </div>
+            <Table
+                columns={columns}
+                data={data}
+                idKey='DoctorID'
+                basePath="/admin/components/hop/doctor"
+                moduleName="doctor"
+            />
         </div>
     );
 }

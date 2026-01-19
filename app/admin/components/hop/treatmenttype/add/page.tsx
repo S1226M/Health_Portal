@@ -1,16 +1,39 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput } from '@/app/admin/components/Common/Form';
+import { FormContainer } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import { prisma } from '@/lib/prisma';
+import SaveTreatmentType from '@/app/admin/modules/hop/treatmenttype/action/SaveTreatmentType';
 
-export default function AddTreatmentTypePage() {
+export default async function AddTreatmentTypePage() {
+    const columns = await getColumns('hop_treatmenttype');
+
+    const users = await prisma.sec_user.findMany({
+        where: { IsDeleted: false },
+        select: { UserID: true, UserName: true }
+    });
+
+    const userOptions = users.map(u => ({
+        label: u.UserName,
+        value: u.UserID
+    }));
+
     return (
-        <div className="p-6">
-            <PageHeader title="Add Treatment Type" backUrl="/admin/components/hop/treatmenttype" />
-            <FormContainer onCancelUrl="/admin/components/hop/treatmenttype">
-                <FormInput label="Name" placeholder="e.g. Consultation" fullWidth />
-                <FormInput label="Short Name" placeholder="e.g. CONS" />
-                <FormInput label="Description" placeholder="Optional description" fullWidth />
-            </FormContainer>
-        </div>
+        <>
+            <PageHeader
+                title="Add Treatment Type"
+                backUrl="/admin/components/hop/treatmenttype"
+            />
+
+            <FormContainer
+                columns={columns}
+                action={SaveTreatmentType}
+                onCancelUrl="/admin/components/hop/treatmenttype"
+                skipFields={['TreatmentTypeID', 'Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID', 'IsDeleted']}
+                selectOptions={{
+                    UserID: userOptions
+                }}
+            />
+        </>
     );
 }

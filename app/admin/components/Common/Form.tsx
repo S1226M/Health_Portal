@@ -26,7 +26,7 @@ interface FormProps {
     columns?: DBColumn[];
     skipFields?: string[];
     selectOptions?: Record<string, SelectOption[]>;
-    initialData?: any; // New prop for pre-filling data
+    initialData?: any;
 }
 
 export function FormContainer({
@@ -37,7 +37,7 @@ export function FormContainer({
     columns,
     skipFields = [],
     selectOptions = {},
-    initialData = {} // Default to empty object
+    initialData = {}
 }: FormProps) {
     const allSkipFields = [...DEFAULT_SKIP_FIELDS, ...skipFields];
 
@@ -45,78 +45,64 @@ export function FormContainer({
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-4xl mx-auto mt-6">
             <form action={action} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                    {columns && (
-                        columns
-                            .filter(col => !allSkipFields.includes(col.COLUMN_NAME))
-                            .map((col) => {
-                                const name = col.COLUMN_NAME;
-                                const label = name.replace(/([A-Z])/g, ' $1').trim();
+                    {columns && columns
+                        .filter(col => !allSkipFields.includes(col.COLUMN_NAME))
+                        .map((col) => {
+                            const name = col.COLUMN_NAME;
+                            const label = name.replace(/([A-Z])/g, ' $1').trim();
+                            const isForeignKey = col.REFERENCED_TABLE_NAME !== null;
+                            const hasOptions = selectOptions[name] && selectOptions[name].length > 0;
+                            const defaultValue = initialData?.[name] ?? "";
 
-                                // Check if this is a Foreign Key
-                                const isForeignKey = col.REFERENCED_TABLE_NAME !== null;
-                                // Check if we actually have data to show in the dropdown
-                                const hasOptions = selectOptions[name] && selectOptions[name].length > 0;
-
-                                // Get default value if available
-                                const defaultValue = initialData && initialData[name] !== undefined && initialData[name] !== null
-                                    ? initialData[name]
-                                    : "";
-
-                                // Condition: If it's a Foreign Key and we have data, show Select.
-                                // If it's a Foreign Key but NO data is passed, we fall back to FormInput 
-                                // so the form remains functional.
-                                if (isForeignKey && hasOptions) {
-                                    return (
-                                        <div key={name}>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                {label}
-                                            </label>
-                                            <select
-                                                name={name}
-                                                defaultValue={defaultValue} // Set default value for select
-                                                required={col.IS_NULLABLE === 'NO'}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm bg-white"
-                                            >
-                                                <option value="">Select {label}...</option>
-                                                {selectOptions[name].map((opt) => (
-                                                    <option key={opt.value} value={opt.value}>
-                                                        {opt.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    );
-                                }
-
-                                // Default fallback to your FormInput function
+                            if (isForeignKey && hasOptions) {
                                 return (
-                                    <FormInput
-                                        key={name}
-                                        label={label}
-                                        name={name}
-                                        defaultValue={defaultValue} // Set default value for input
-                                        required={col.IS_NULLABLE === 'NO'}
-                                        isTextArea={name.toLowerCase().includes('description')}
-                                        fullWidth={name.toLowerCase().includes('description')}
-                                        placeholder={`Enter ${label.toLowerCase()}...`}
-                                    />
+                                    <div key={name}>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            {label}
+                                        </label>
+                                        <select
+                                            name={name}
+                                            defaultValue={defaultValue}
+                                            required={col.IS_NULLABLE === 'NO'}
+                                            suppressHydrationWarning
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition text-sm bg-white"
+                                        >
+                                            <option value="">Select {label}...</option>
+                                            {selectOptions[name].map((opt) => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 );
-                            })
-                    )}
-                    {/* Render children (like hidden inputs) even if columns are present */}
+                            }
+
+                            return (
+                                <FormInput
+                                    key={name}
+                                    label={label}
+                                    name={name}
+                                    defaultValue={defaultValue}
+                                    required={col.IS_NULLABLE === 'NO'}
+                                    suppressHydrationWarning
+                                    isTextArea={name.toLowerCase().includes('description')}
+                                    fullWidth={name.toLowerCase().includes('description')}
+                                    placeholder={`Enter ${label.toLowerCase()}...`}
+                                />
+                            );
+                        })
+                    }
                     {children}
                 </div>
 
                 <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100 mt-6">
-                    <Link
-                        href={onCancelUrl}
-                        className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition duration-200"
-                    >
+                    <Link href={onCancelUrl} className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition">
                         Cancel
                     </Link>
                     <button
                         type="submit"
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition transform active:scale-95 duration-200"
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md active:scale-95 transition duration-200"
                     >
                         {submitLabel}
                     </button>
@@ -126,32 +112,16 @@ export function FormContainer({
     );
 }
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
-    label: string;
-    fullWidth?: boolean;
-    isTextArea?: boolean;
-}
-
-export function FormInput({ label, fullWidth = false, isTextArea = false, className = '', ...props }: InputProps) {
-    const baseClass = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition placeholder:text-gray-400 text-sm";
+export function FormInput({ label, fullWidth = false, isTextArea = false, className = '', ...props }: any) {
+    const baseClass = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition placeholder:text-gray-400 text-sm";
 
     return (
         <div className={`${fullWidth ? 'md:col-span-2' : ''}`}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-                {label}
-            </label>
-
+            <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
             {isTextArea ? (
-                <textarea
-                    {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
-                    rows={4}
-                    className={`${baseClass} ${className}`}
-                />
+                <textarea {...props} rows={4} className={`${baseClass} ${className}`} />
             ) : (
-                <input
-                    {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
-                    className={`${baseClass} ${className}`}
-                />
+                <input {...props} className={`${baseClass} ${className}`} />
             )}
         </div>
     );

@@ -1,31 +1,48 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
 import { Table } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
+import { Column } from '@/app/admin/components/Common/Table';
 
-export default function AppointmentListPage() {
-    const data = [
-        { id: 1, patient: 'Smit M', doctor: 'Dr. John Doe', date: '2025-12-30', status: 'Confirmed' },
-        { id: 2, patient: 'Alice Brown', doctor: 'Dr. Jane Smith', date: '2025-12-31', status: 'Pending' },
-    ];
+export default async function AppointmentListPage() {
+    const data = await prisma.hop_appointment.findMany({
+        where: { IsDeleted: false }
+    });
 
-    const columns = [
-        { header: 'Patient', accessor: 'patient' },
-        { header: 'Doctor', accessor: 'doctor' },
-        { header: 'Date', accessor: 'date' },
-        { header: 'Status', accessor: 'status' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+        "Created",
+        "Modified",
+        "CreatedByUserID",
+        "ModifiedByUserID",
+        "IsDeleted"
+    ]);
+
+    const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
         <div className="p-6">
             <PageHeader
                 title="Appointments"
-                description="Manage patient appointments."
-                actionLabel="New Appointment"
+                actionLabel="Add Appointment"
                 actionUrl="/admin/components/hop/appointment/add"
             />
-            <div className="mb-6"><SearchBar /></div>
-            <Table columns={columns} data={data} basePath="/admin/components/hop/appointment" />
+            <div className="mb-6">
+                <SearchBar />
+            </div>
+            <Table
+                columns={columns}
+                data={data}
+                idKey='AppointmentID'
+                basePath="/admin/components/hop/appointment"
+                moduleName="appointment"
+            />
         </div>
     );
 }

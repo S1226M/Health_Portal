@@ -27,31 +27,47 @@ export default function AdminLayout({
             <SidebarItem title="Dashboard" href="/admin" icon="📊" isOpen={isSidebarOpen} />
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="HOSPITAL (HOP)" isOpen={isSidebarOpen} />
-            <SidebarItem title="Doctors" href="/admin/components/hop/doctor" icon="👨‍⚕️" isOpen={isSidebarOpen} />
-            <SidebarItem title="Hospitals" href="/admin/components/hop/hospital" icon="🏥" isOpen={isSidebarOpen} />
-            <SidebarItem title="Patients" href="/admin/components/hop/patient" icon="🤕" isOpen={isSidebarOpen} />
             <SidebarItem title="Appointments" href="/admin/components/hop/appointment" icon="📅" isOpen={isSidebarOpen} />
+            <SidebarItem title="Diagnosis Types" href="/admin/components/hop/diagnosistype" icon="📋" isOpen={isSidebarOpen} />
+            <SidebarItem title="Doctors" href="/admin/components/hop/doctor" icon="👨‍⚕️" isOpen={isSidebarOpen} />
+            <SidebarItem title="Doctor Reviews" href="/admin/components/hop/doctorreview" icon="⭐" isOpen={isSidebarOpen} />
+            <SidebarItem title="Hospitals" href="/admin/components/hop/hospital" icon="🏥" isOpen={isSidebarOpen} />
+            <SidebarItem title="Hosp. Treatments" href="/admin/components/hop/hospitaltreatment" icon="🏥" isOpen={isSidebarOpen} />
+            <SidebarItem title="OPD" href="/admin/components/hop/opd" icon="🛌" isOpen={isSidebarOpen} />
+            <SidebarItem title="OPD Diag. Types" href="/admin/components/hop/opddiagnosistype" icon="📑" isOpen={isSidebarOpen} />
+            <SidebarItem title="Patients" href="/admin/components/hop/patient" icon="🤕" isOpen={isSidebarOpen} />
             <SidebarItem title="Specializations" href="/admin/components/hop/specialization" icon="🩺" isOpen={isSidebarOpen} />
+            <SidebarItem title="Sub Treat. Types" href="/admin/components/hop/subtreatmenttype" icon="🔬" isOpen={isSidebarOpen} />
+            <SidebarItem title="Treatment Types" href="/admin/components/hop/treatmenttype" icon="💉" isOpen={isSidebarOpen} />
 
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="LABORATORY (LAB)" isOpen={isSidebarOpen} />
             <SidebarItem title="Lab Tests" href="/admin/components/lab/labtest" icon="🧪" isOpen={isSidebarOpen} />
-            <SidebarItem title="Test Orders" href="/admin/components/lab/labtestorder" icon="📝" isOpen={isSidebarOpen} />
+            <SidebarItem title="Lab Test Orders" href="/admin/components/lab/labtestorder" icon="📝" isOpen={isSidebarOpen} />
+            <SidebarItem title="Lab Test Types" href="/admin/components/lab/labtesttype" icon="🧬" isOpen={isSidebarOpen} />
 
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="PHARMACY (PHM)" isOpen={isSidebarOpen} />
             <SidebarItem title="Medicines" href="/admin/components/phm/medicine" icon="💊" isOpen={isSidebarOpen} />
+            <SidebarItem title="Med. Categories" href="/admin/components/phm/medicinecategory" icon="📦" isOpen={isSidebarOpen} />
+            <SidebarItem title="Medicine Orders" href="/admin/components/phm/orderofmedicine" icon="🛒" isOpen={isSidebarOpen} />
+
+            <div className="my-2 border-t border-gray-100"></div>
+            <SidebarLabel title="SURGERY (SUR)" isOpen={isSidebarOpen} />
+            <SidebarItem title="Surgeries" href="/admin/components/sur/surgery" icon="🔪" isOpen={isSidebarOpen} />
+            <SidebarItem title="Surgery Bookings" href="/admin/components/sur/surgerybooking" icon="📅" isOpen={isSidebarOpen} />
+            <SidebarItem title="Surgery Items" href="/admin/components/sur/surgeryitem" icon="🔧" isOpen={isSidebarOpen} />
 
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="LOCATION (LOC)" isOpen={isSidebarOpen} />
             <SidebarItem title="Cities" href="/admin/components/loc/city" icon="🏙️" isOpen={isSidebarOpen} />
             <SidebarItem title="States" href="/admin/components/loc/state" icon="🗺️" isOpen={isSidebarOpen} />
             <SidebarItem title="Countries" href="/admin/components/loc/country" icon="🌍" isOpen={isSidebarOpen} />
-            
+
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="PAYMENTMODE (PAY)" isOpen={isSidebarOpen} />
-            <SidebarItem title="Paymentmode" href="/admin/components/pay/paymentmode" icon="💸" isOpen={isSidebarOpen} />
-            
+            <SidebarItem title="Payment Mode" href="/admin/components/pay/paymentmode" icon="💸" isOpen={isSidebarOpen} />
+
           </ul>
         </nav>
 
