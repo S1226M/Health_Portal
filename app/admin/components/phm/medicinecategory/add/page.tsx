@@ -1,14 +1,25 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput } from '@/app/admin/components/Common/Form';
+import { FormContainer } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import SaveMedicineCategory from '@/app/admin/modules/phm/medicinecategory/action/SaveMedicineCategory';
 
-export default function AddMedicineCategoryPage() {
+export default async function AddMedicineCategoryPage() {
+    const columns = await getColumns('phm_medicinecategory');
+
     return (
-        <div className="p-6">
-            <PageHeader title="Add Category" backUrl="/admin/components/phm/medicinecategory" />
-            <FormContainer onCancelUrl="/admin/components/phm/medicinecategory">
-                <FormInput label="Category Name" placeholder="e.g. Tablet" fullWidth />
-            </FormContainer>
-        </div>
+        <>
+            <PageHeader
+                title="Add Medicine Category"
+                backUrl="/admin/components/phm/medicinecategory"
+            />
+
+            <FormContainer
+                columns={columns}
+                action={SaveMedicineCategory}
+                onCancelUrl="/admin/components/phm/medicinecategory"
+                skipFields={['MedicineCategoryID']}
+            />
+        </>
     );
 }

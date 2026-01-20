@@ -1,17 +1,35 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput, FormSelect } from '@/app/admin/components/Common/Form';
+import { FormContainer } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import { prisma } from '@/lib/prisma';
+import SaveSurgeryItem from '@/app/admin/modules/sur/surgeryitem/action/SaveSurgeryItem';
 
-export default function AddSurgeryItemPage() {
+export default async function AddSurgeryItemPage() {
+    const columns = await getColumns('sur_surgeryitem');
+
+    const labTests = await prisma.lab_labtest.findMany({ where: { IsDeleted: false } });
+    const surgeries = await prisma.sur_surgery.findMany({ where: { IsDeleted: false } });
+
+    const selectOptions = {
+        LabTestID: labTests.map(l => ({ label: l.TestName, value: l.LabTestID })),
+        SurgeryID: surgeries.map(s => ({ label: s.SurgeryName, value: s.SurgeryID }))
+    };
+
     return (
-        <div className="p-6">
-            <PageHeader title="Add Surgery Item" backUrl="/admin/components/sur/surgeryitem" />
-            <FormContainer onCancelUrl="/admin/components/sur/surgeryitem">
-                <FormSelect label="Item Type" options={['Medicine', 'Lab Test', 'Other']} />
-                <FormInput label="Quantity" type="number" defaultValue="1" />
-                <FormInput label="Amount" type="number" placeholder="0.00" />
-                <FormInput label="Description" placeholder="Item description" fullWidth />
-            </FormContainer>
-        </div>
+        <>
+            <PageHeader
+                title="Add Surgery Item"
+                backUrl="/admin/components/sur/surgeryitem"
+            />
+
+            <FormContainer
+                columns={columns}
+                action={SaveSurgeryItem}
+                onCancelUrl="/admin/components/sur/surgeryitem"
+                skipFields={['SurgeryItemID']}
+                selectOptions={selectOptions}
+            />
+        </>
     );
 }

@@ -1,25 +1,45 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
-import { Table } from '@/app/admin/components/Common/Table';
+import { Table, Column } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function SurgeryBookingListPage() {
-    const data = [
-        { id: 1, patient: 'Smit M', bookingNo: 'BK2025001', date: '2025-12-30', status: 'Scheduled' },
-    ];
+export default async function SurgeryBookingListPage() {
+    const data = await prisma.sur_surgerybooking.findMany();
 
-    const columns = [
-        { header: 'Patient', accessor: 'patient' },
-        { header: 'Booking No', accessor: 'bookingNo' },
-        { header: 'Date', accessor: 'date' },
-        { header: 'Status', accessor: 'status' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+        "Created",
+        "Modified",
+        "CreatedByUserID",
+        "ModifiedByUserID",
+        "IsDeleted"
+    ]);
+
+    const columns: Column[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
         <div className="p-6">
-            <PageHeader title="Surgery Bookings" actionLabel="New Booking" actionUrl="/admin/components/sur/surgerybooking/add" />
-            <div className="mb-6"><SearchBar /></div>
-            <Table columns={columns} data={data} basePath="/admin/components/sur/surgerybooking" />
+            <PageHeader
+                title="Surgery Bookings"
+                actionLabel="Book Surgery"
+                actionUrl="/admin/components/sur/surgerybooking/add"
+            />
+            <div className="mb-6">
+                <SearchBar />
+            </div>
+            <Table
+                columns={columns}
+                data={data}
+                idKey='SurgeryBookingID'
+                basePath="/admin/components/sur/surgerybooking"
+                moduleName="surgeryBooking"
+            />
         </div>
     );
 }

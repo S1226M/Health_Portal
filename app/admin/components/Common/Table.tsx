@@ -10,6 +10,17 @@ import { deleteCountry } from '../../modules/loc/country/action/deleteCountry';
 import { deleteState } from '../../modules/loc/state/action/deleteState';
 import { deleteCity } from '../../modules/loc/city/action/deleteCity';
 import { deletePaymentMode } from '../../modules/pay/paymentmode/action/deletePaymentMode';
+import { deleteTreatmentType } from '../../modules/hop/treatmenttype/action/deleteTreatmentType';
+import { deleteDiagnosisType } from '../../modules/hop/diagnosistype/action/deleteDiagnosisType';
+import deleteLabTest from '../../modules/lab/labtest/action/deleteLabTest';
+import deleteLabTestOrder from '../../modules/lab/labtestorder/action/deleteLabTestOrder';
+import deleteLabTestType from '../../modules/lab/labtesttype/action/deleteLabTestType';
+import deleteMedicine from '../../modules/phm/medicine/action/deleteMedicine';
+import deleteMedicineCategory from '../../modules/phm/medicinecategory/action/deleteMedicineCategory';
+import deleteOrderOfMedicine from '../../modules/phm/orderofmedicine/action/deleteOrderOfMedicine';
+import deleteSurgery from '../../modules/sur/surgery/action/deleteSurgery';
+import deleteSurgeryBooking from '../../modules/sur/surgerybooking/action/deleteSurgeryBooking';
+import deleteSurgeryItem from '../../modules/sur/surgeryitem/action/deleteSurgeryItem';
 
 export interface Column {
   header: string;
@@ -22,7 +33,18 @@ const actionsMap: Record<string, (id: any) => Promise<void>> = {
   "deleteSpecialization": deleteSpecialization,
   "deleteState": deleteState,
   "deleteCity": deleteCity,
-  "deletePaymentMode":deletePaymentMode,
+  "deletePaymentMode": deletePaymentMode,
+  "deleteTreatmenttype": deleteTreatmentType,
+  "deleteDiagnosisType": deleteDiagnosisType,
+  "deleteLabTest": deleteLabTest,
+  "deleteLabTestOrder": deleteLabTestOrder,
+  "deleteLabTestType": deleteLabTestType,
+  "deleteMedicine": deleteMedicine,
+  "deleteMedicineCategory": deleteMedicineCategory,
+  "deleteOrderOfMedicine": deleteOrderOfMedicine,
+  "deleteSurgery": deleteSurgery,
+  "deleteSurgeryBooking": deleteSurgeryBooking,
+  "deleteSurgeryItem": deleteSurgeryItem,
   // Add other functions here as you create them
 };
 

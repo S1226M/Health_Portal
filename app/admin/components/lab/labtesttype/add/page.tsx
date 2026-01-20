@@ -1,14 +1,25 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput } from '@/app/admin/components/Common/Form';
+import { FormContainer } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import SaveLabTestType from '@/app/admin/modules/lab/labtesttype/action/SaveLabTestType';
 
-export default function AddLabTestTypePage() {
+export default async function AddLabTestTypePage() {
+    const columns = await getColumns('lab_labtesttype');
+
     return (
-        <div className="p-6">
-            <PageHeader title="Add Lab Test Type" backUrl="/admin/components/lab/labtesttype" />
-            <FormContainer onCancelUrl="/admin/components/lab/labtesttype">
-                <FormInput label="Type Name" placeholder="e.g. Pathology" fullWidth />
-            </FormContainer>
-        </div>
+        <>
+            <PageHeader
+                title="Add Lab Test Type"
+                backUrl="/admin/components/lab/labtesttype"
+            />
+
+            <FormContainer
+                columns={columns}
+                action={SaveLabTestType}
+                onCancelUrl="/admin/components/lab/labtesttype"
+                skipFields={['LabTestTypeID']}
+            />
+        </>
     );
 }

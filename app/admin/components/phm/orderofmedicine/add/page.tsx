@@ -1,16 +1,35 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput, FormSelect } from '@/app/admin/components/Common/Form';
+import { FormContainer } from '@/app/admin/components/Common/Form';
+import { getColumns } from '../../../Common/columns';
+import { prisma } from '@/lib/prisma';
+import SaveOrderOfMedicine from '@/app/admin/modules/phm/orderofmedicine/action/SaveOrderOfMedicine';
 
-export default function AddOrderOfMedicinePage() {
+export default async function AddOrderOfMedicinePage() {
+    const columns = await getColumns('phm_orderofmedicine');
+
+    const medicines = await prisma.phm_medicine.findMany({ where: { IsDeleted: false } });
+    // const paymentTypes = ...
+
+    const selectOptions = {
+        MedicineID: medicines.map(m => ({ label: m.MedicineName, value: m.MedicineID })),
+        // MedicineOrderPaymentTypeID: ...
+    };
+
     return (
-        <div className="p-6">
-            <PageHeader title="New Medicine Order" backUrl="/admin/components/phm/orderofmedicine" />
-            <FormContainer onCancelUrl="/admin/components/phm/orderofmedicine">
-                <FormSelect label="Medicine" options={['Paracetamol']} />
-                <FormInput label="Quantity" type="number" defaultValue="1" />
-                <FormSelect label="Payment Type" options={['Cash', 'Card']} />
-            </FormContainer>
-        </div>
+        <>
+            <PageHeader
+                title="Add Medicine Order"
+                backUrl="/admin/components/phm/orderofmedicine"
+            />
+
+            <FormContainer
+                columns={columns}
+                action={SaveOrderOfMedicine}
+                onCancelUrl="/admin/components/phm/orderofmedicine"
+                skipFields={['OrderOfMedicineID']}
+                selectOptions={selectOptions}
+            />
+        </>
     );
 }
