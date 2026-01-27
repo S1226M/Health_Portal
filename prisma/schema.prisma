@@ -13,7 +13,7 @@ model hop_appointment {
   AppointmentNo                                       String      @db.VarChar(50)
   PatientID                                           Int
   DoctorID                                            Int
-  AppointmentDate                                     DateTime    @db.DateTime(0)
+  AppointmentDate                                     DateTiMedicie    @db.DateTime(0)
   Status                                              String      @db.VarChar(50)
   Reason                                              String?     @db.VarChar(250)
   Created                                             DateTime    @default(now()) @db.DateTime(0)

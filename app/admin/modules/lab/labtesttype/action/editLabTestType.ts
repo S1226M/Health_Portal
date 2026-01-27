@@ -11,7 +11,7 @@ export default async function editLabTestType(formData: FormData) {
         where: { LabTestTypeID },
         data: {
             LabTestTypeName,
-            ModifiedByUserID: 1,
+            ModifiedByUserID: 4,
         }
     });
 

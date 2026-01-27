@@ -13,7 +13,7 @@ export default async function SaveLabTest(formData: FormData) {
             TestName,
             TestCode,
             Price,
-            CreatedByUserID: 1,
+            CreatedByUserID: 4,
             IsDeleted: false,
         }
     });

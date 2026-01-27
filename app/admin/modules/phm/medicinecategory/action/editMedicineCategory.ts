@@ -11,7 +11,7 @@ export default async function editMedicineCategory(formData: FormData) {
         where: { MedicineCategoryID },
         data: {
             CategoryName,
-            ModifiedByUserID: 1,
+            ModifiedByUserID: 4,
         }
     });
 

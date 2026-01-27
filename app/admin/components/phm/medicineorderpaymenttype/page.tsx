@@ -1,11 +1,11 @@
-import React from 'react';
+import { exportPages } from "next/dist/export/worker";
+import { Table } from "../../Common/Table";
+import { PageHeader, SearchBar } from "../../Common/PageHeader";
 import { generateColumns } from "@/app/admin/utils/generateColumns";
 import { prisma } from "@/lib/prisma";
-import { Table } from '../../Common/Table';
-import { PageHeader, SearchBar } from '../../Common/PageHeader';
 
-export default async function AddLabTestListPage(){
-    const data = await prisma.lab_labtest.findMany();
+export default async function MedicineOrderPaymentTypeListPage() {
+    const data = await prisma.phm_medicineorderpaymenttype.findMany();
 
     const autoColumns = generateColumns(data, [
         "Created",
@@ -26,22 +26,20 @@ export default async function AddLabTestListPage(){
     return(
         <div className="p-6">
             <PageHeader
-                title="Lab Tests"
-                actionLabel="Add Lab Test"
-                actionUrl="/admin/components/lab/labtest/add"
+                title="Medicine Order Payment Types"
+                actionLabel="Create Payment Type"
+                actionUrl="/admin/components/phm/medicineorderpaymenttype/add"
             />
-
             <div className="mb-6">
                 <SearchBar />
             </div>
             <Table
                 columns={columns}
                 data={data}
-                idKey='LabTestID'
-                basePath="/admin/components/lab/labtest"
-                moduleName="labTest"
+                idKey='MedicineOrderPaymentTypeID'
+                basePath="/admin/components/phm/medicineorderpaymenttype"
+                moduleName="medicineOrderPaymentType"
             />
         </div>
     )
-
-}
+} 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
 import { FormContainer } from '@/app/admin/components/Common/Form';
-import { getColumns } from '../../Common/columns';
 import SaveLabTest from '@/app/admin/modules/lab/labtest/action/SaveLabTest';
+import { getColumns } from '../../../Common/columns';
 
 export default async function AddLabTestPage() {
     const columns = await getColumns('lab_labtest');

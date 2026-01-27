@@ -9,7 +9,7 @@ export default async function SaveLabTestType(formData: FormData) {
     await prisma.lab_labtesttype.create({
         data: {
             LabTestTypeName,
-            CreatedByUserID: 1,
+            CreatedByUserID: 4,
             IsDeleted: false,
         }
     });

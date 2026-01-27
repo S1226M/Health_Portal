@@ -15,7 +15,7 @@ export default async function editLabTest(formData: FormData) {
             TestName,
             TestCode,
             Price,
-            ModifiedByUserID: 1,
+            ModifiedByUserID: 4,
         }
     });
 

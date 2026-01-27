@@ -51,6 +51,7 @@ export default function AdminLayout({
             <SidebarItem title="Medicines" href="/admin/components/phm/medicine" icon="💊" isOpen={isSidebarOpen} />
             <SidebarItem title="Med. Categories" href="/admin/components/phm/medicinecategory" icon="📦" isOpen={isSidebarOpen} />
             <SidebarItem title="Medicine Orders" href="/admin/components/phm/orderofmedicine" icon="🛒" isOpen={isSidebarOpen} />
+            <SidebarItem title="Medicine Orders Payment Type" href="/admin/components/phm/medicineorderpaymenttype" icon="💸" isOpen={isSidebarOpen} />
 
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="SURGERY (SUR)" isOpen={isSidebarOpen} />
