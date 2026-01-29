@@ -1,32 +1,19 @@
-import React from 'react';
-import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer } from '@/app/admin/components/Common/Form';
-import { getColumns } from '../../../Common/columns';
-import { prisma } from '@/lib/prisma';
-import SaveHospitalTreatment from '@/app/admin/modules/hop/hospitaltreatment/action/SaveHospitalTreatment';
+import { prisma } from "@/lib/prisma";
+import { getColumns } from "../../../Common/columns";
+import { FormContainer } from "../../../Common/Form";
+import SaveHospitalTreatment from "@/app/admin/modules/hop/hospitaltreatment/action/SaveHospitalTreatment";
+import { PageHeader } from "../../../Common/PageHeader";
 
 export default async function AddHospitalTreatmentPage() {
     const columns = await getColumns('hop_hospitaltreatment');
 
-    const hospitals = await prisma.hop_hospital.findMany({
-        where: { IsDeleted: false },
-        select: { HospitalID: true, HospitalName: true }
-    });
+    const hospital = await prisma.hop_hospital.findMany({ where: { IsDeleted: false } })
+    const treatmentType = await prisma.hop_treatmenttype.findMany({ where: { IsDeleted: false } })
 
-    const treatmentTypes = await prisma.hop_treatmenttype.findMany({
-        where: { IsDeleted: false },
-        select: { TreatmentTypeID: true, TreatmentTypeName: true }
-    });
-
-    const hospitalOptions = hospitals.map(h => ({
-        label: h.HospitalName,
-        value: h.HospitalID
-    }));
-
-    const treatmentTypeOptions = treatmentTypes.map(t => ({
-        label: t.TreatmentTypeName,
-        value: t.TreatmentTypeID
-    }));
+    const selectOptions = {
+        HospitalID: hospital.map(h => ({ label: h.HospitalName, value: h.HospitalID })),
+        TreatmentTypeID: treatmentType.map(t => ({ label: t.TreatmentTypeName, value: t.TreatmentTypeID }))
+    };
 
     return (
         <>
@@ -39,12 +26,9 @@ export default async function AddHospitalTreatmentPage() {
                 columns={columns}
                 action={SaveHospitalTreatment}
                 onCancelUrl="/admin/components/hop/hospitaltreatment"
-                skipFields={['HospitalTreatmentID', 'IsDeleted']}
-                selectOptions={{
-                    HospitalID: hospitalOptions,
-                    TreatmentTypeID: treatmentTypeOptions
-                }}
+                skipFields={['HospitalTreatmentID','TreatmentTypeID']}
+                selectOptions={selectOptions}
             />
         </>
-    );
+    )
 }

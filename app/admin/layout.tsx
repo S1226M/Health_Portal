@@ -36,6 +36,8 @@ export default function AdminLayout({
             <SidebarItem title="OPD" href="/admin/components/hop/opd" icon="🛌" isOpen={isSidebarOpen} />
             <SidebarItem title="OPD Diag. Types" href="/admin/components/hop/opddiagnosistype" icon="📑" isOpen={isSidebarOpen} />
             <SidebarItem title="Patients" href="/admin/components/hop/patient" icon="🤕" isOpen={isSidebarOpen} />
+            <SidebarItem title="Receipts" href="/admin/components/hop/receipt" icon="🧾" isOpen={isSidebarOpen} />
+            <SidebarItem title="Receipt Transactions" href="/admin/components/hop/receipttran" icon="💰" isOpen={isSidebarOpen} />
             <SidebarItem title="Specializations" href="/admin/components/hop/specialization" icon="🩺" isOpen={isSidebarOpen} />
             <SidebarItem title="Sub Treat. Types" href="/admin/components/hop/subtreatmenttype" icon="🔬" isOpen={isSidebarOpen} />
             <SidebarItem title="Treatment Types" href="/admin/components/hop/treatmenttype" icon="💉" isOpen={isSidebarOpen} />
@@ -68,6 +70,11 @@ export default function AdminLayout({
             <div className="my-2 border-t border-gray-100"></div>
             <SidebarLabel title="PAYMENTMODE (PAY)" isOpen={isSidebarOpen} />
             <SidebarItem title="Payment Mode" href="/admin/components/pay/paymentmode" icon="💸" isOpen={isSidebarOpen} />
+
+            <div className="my-2 border-t border-gray-100"></div>
+            <SidebarLabel title="SECURITY (SEC)" isOpen={isSidebarOpen} />
+            <SidebarItem title="Roles" href="/admin/components/sec/role" icon="🛡️" isOpen={isSidebarOpen} />
+            <SidebarItem title="Users" href="/admin/components/sec/user" icon="👤" isOpen={isSidebarOpen} />
 
           </ul>
         </nav>
