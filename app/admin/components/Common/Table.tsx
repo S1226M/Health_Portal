@@ -22,10 +22,11 @@ import deleteSurgery from '../../modules/sur/surgery/action/deleteSurgery';
 import deleteSurgeryBooking from '../../modules/sur/surgerybooking/action/deleteSurgeryBooking';
 import deleteSurgeryItem from '../../modules/sur/surgeryitem/action/deleteSurgeryItem';
 
-export interface Column {
+export interface Column<T = any> {
   header: string;
   accessor?: string;
   isAction?: boolean;
+  key?: string;
 }
 
 const actionsMap: Record<string, (id: any) => Promise<void>> = {
@@ -99,7 +100,7 @@ export function Table({ columns, data, basePath, idKey, moduleName }: TableProps
                           <DeleteBtn id={row[idKey]} deleteFn={activeDeleteFn} />
                         </div>
                       ) : (
-                        row[col.accessor as string]
+                        row[(col.accessor || col.key) as string]
                       )}
                     </td>
                   ))}

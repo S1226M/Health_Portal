@@ -2,6 +2,16 @@
 
 import React from 'react';
 import Link from 'next/link';
+import {
+    Box,
+    Paper,
+    TextField,
+    MenuItem,
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+} from '@mui/material';
 
 export interface DBColumn {
     COLUMN_NAME: string;
@@ -42,9 +52,9 @@ export function FormContainer({
     const allSkipFields = [...DEFAULT_SKIP_FIELDS, ...skipFields];
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-4xl mx-auto mt-6">
-            <form action={action} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+        <Paper elevation={3} sx={{ p: 4, mt: 6, borderRadius: 2, maxWidth: '900px', mx: 'auto' }}>
+            <form action={action}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                     {columns && columns
                         .filter(col => !allSkipFields.includes(col.COLUMN_NAME))
                         .map((col) => {
@@ -56,25 +66,27 @@ export function FormContainer({
 
                             if (isForeignKey && hasOptions) {
                                 return (
-                                    <div key={name}>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            {label}
-                                        </label>
-                                        <select
-                                            name={name}
-                                            defaultValue={defaultValue}
-                                            required={col.IS_NULLABLE === 'NO'}
-                                            suppressHydrationWarning
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition text-sm bg-white"
-                                        >
-                                            <option value="">Select {label}...</option>
-                                            {selectOptions[name].map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <Box key={name}>
+                                        <FormControl fullWidth size="medium" variant="outlined">
+                                            <InputLabel id={`${name}-label`}>{label}</InputLabel>
+                                            <Select
+                                                labelId={`${name}-label`}
+                                                name={name}
+                                                defaultValue={defaultValue}
+                                                required={col.IS_NULLABLE === 'NO'}
+                                                label={label}
+                                            >
+                                                <MenuItem value="">
+                                                    <em>None</em>
+                                                </MenuItem>
+                                                {selectOptions[name].map((opt) => (
+                                                    <MenuItem key={opt.value} value={opt.value}>
+                                                        {opt.label}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Box>
                                 );
                             }
 
@@ -85,7 +97,6 @@ export function FormContainer({
                                     name={name}
                                     defaultValue={defaultValue}
                                     required={col.IS_NULLABLE === 'NO'}
-                                    suppressHydrationWarning
                                     isTextArea={name.toLowerCase().includes('description')}
                                     fullWidth={name.toLowerCase().includes('description')}
                                     placeholder={`Enter ${label.toLowerCase()}...`}
@@ -94,35 +105,45 @@ export function FormContainer({
                         })
                     }
                     {children}
-                </div>
 
-                <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100 mt-6">
-                    <Link href={onCancelUrl} className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition">
-                        Cancel
-                    </Link>
-                    <button
-                        type="submit"
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md active:scale-95 transition duration-200"
-                    >
-                        {submitLabel}
-                    </button>
-                </div>
+                    <Box sx={{ gridColumn: '1 / -1' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3, pt: 3, borderTop: '1px solid #f0f0f0' }}>
+                            <Button
+                                component={Link}
+                                href={onCancelUrl}
+                                variant="outlined"
+                                color="inherit"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                size="large"
+                            >
+                                {submitLabel}
+                            </Button>
+                        </Box>
+                    </Box>
+                </Box>
             </form>
-        </div>
+        </Paper>
     );
 }
 
 export function FormInput({ label, fullWidth = false, isTextArea = false, className = '', ...props }: any) {
-    const baseClass = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition placeholder:text-gray-400 text-sm";
-
     return (
-        <div className={`${fullWidth ? 'md:col-span-2' : ''}`}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-            {isTextArea ? (
-                <textarea {...props} rows={4} className={`${baseClass} ${className}`} />
-            ) : (
-                <input {...props} className={`${baseClass} ${className}`} />
-            )}
-        </div>
+        <Box sx={{ gridColumn: fullWidth ? '1 / -1' : 'auto' }}>
+            <TextField
+                {...props}
+                label={label}
+                variant="outlined"
+                fullWidth
+                multiline={isTextArea}
+                rows={isTextArea ? 4 : 1}
+                InputLabelProps={{ shrink: true }}
+            />
+        </Box>
     );
 }

@@ -1,6 +1,17 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
-import { Plus, ArrowLeft, Search, Filter } from 'lucide-react';
+import {
+    Box,
+    Typography,
+    Button,
+    IconButton,
+    TextField,
+    InputAdornment,
+    Stack
+} from '@mui/material';
+import { Add, ArrowBack, Search as SearchIcon } from '@mui/icons-material';
 
 interface PageHeaderProps {
     title: string;
@@ -12,49 +23,66 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actionLabel, actionUrl, backUrl }: PageHeaderProps) {
     return (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-3">
+        <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {backUrl && (
-                    <Link
+                    <IconButton
+                        component={Link}
                         href={backUrl}
-                        className="p-2 -ml-2 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-full transition-colors"
-                        title="Go Back"
+                        color="inherit"
+                        aria-label="Go Back"
+                        edge="start"
                     >
-                        <ArrowLeft size={20} />
-                    </Link>
+                        <ArrowBack />
+                    </IconButton>
                 )}
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{title}</h1>
-                    {description && <p className="text-gray-500 text-sm mt-1">{description}</p>}
-                </div>
-            </div>
+                <Box>
+                    <Typography variant="h4" component="h1" fontWeight="bold" color="text.primary">
+                        {title}
+                    </Typography>
+                    {description && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            {description}
+                        </Typography>
+                    )}
+                </Box>
+            </Box>
 
-            <div className="flex items-center gap-3">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {actionLabel && actionUrl && (
-                    <Link
+                    <Button
+                        component={Link}
                         href={actionUrl}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#28328c] text-white text-sm font-medium rounded-lg hover:bg-[#1e266d] transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#28328c]"
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add />}
+                        sx={{ textTransform: 'none', fontWeight: 600 }}
                     >
-                        <Plus size={18} />
                         {actionLabel}
-                    </Link>
+                    </Button>
                 )}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }
 
 export function SearchBar() {
     return (
-        <div className="relative max-w-sm w-full">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={18} className="text-gray-400" />
-            </div>
-            <input
-                type="text"
+        <Box sx={{ maxWidth: 400, width: '100%' }}>
+            <TextField
+                fullWidth
                 placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#28328c] focus:border-transparent bg-white shadow-sm"
+                variant="outlined"
+                size="small"
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon color="action" />
+                        </InputAdornment>
+                    ),
+                    sx: { bgcolor: 'background.paper' }
+                }}
             />
-        </div>
+        </Box>
     );
 }

@@ -1,6 +1,7 @@
 import React from 'react';
+import { Box, Paper, Typography, Divider, Grid } from '@mui/material';
 
-export interface Column {
+export interface Column<T = any> {
   header: string;
   accessor?: string;
   isAction?: boolean;
@@ -16,22 +17,22 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
 
   // Keys used for the "Other Info" section
   const auditKeys = ['Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID', 'CreatedAt', 'UpdatedAt'];
-  
+
   const primaryInfo = columns.filter(col => col.accessor && !auditKeys.includes(col.accessor));
   const auditInfo = columns.filter(col => col.accessor && auditKeys.includes(col.accessor));
 
   // Helper function to render a group of fields in a responsive grid
   const renderGrid = (fields: Column[]) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-6">
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
       {fields.map((col, index) => {
         const rawValue = col.accessor ? data[col.accessor] : null;
-        const isDescription = col.accessor?.toLowerCase().includes('description');
+        const isDescription = col.accessor?.toLowerCase().includes('description'); // could check for long text
 
         let displayValue: React.ReactNode = '-';
 
         if (rawValue !== null && rawValue !== undefined) {
           // Handle Dates
-          if (rawValue instanceof Date || (!isNaN(Date.parse(rawValue)) && typeof rawValue === 'string' && rawValue.includes('-'))) {
+          if (rawValue instanceof Date || (!isNaN(Date.parse(rawValue)) && typeof rawValue === 'string' && rawValue.includes('-') && rawValue.length > 10)) {
             const dateObj = rawValue instanceof Date ? rawValue : new Date(rawValue);
             displayValue = dateObj.toLocaleDateString('en-US', {
               month: 'short',
@@ -46,54 +47,57 @@ export function ViewTable({ columns, data }: DetailViewTableProps) {
         }
 
         return (
-          <div 
-            key={index} 
-            className={`flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4 border-b border-gray-50 pb-3 ${
-              isDescription ? 'md:col-span-2' : ''
-            }`}
+          <Box
+            key={index}
+            sx={{
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              pb: 1,
+              gridColumn: isDescription ? { md: '1 / -1' } : 'auto'
+            }}
           >
-            <dt className="text-sm font-medium text-gray-400 whitespace-nowrap min-w-[160px]">
-              {col.header} :
-            </dt>
-            <dd className="text-sm font-semibold text-gray-900 break-words">
+            <Typography variant="caption" display="block" color="text.secondary" gutterBottom sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {col.header}
+            </Typography>
+            <Typography variant="body1" color="text.primary" sx={{ fontWeight: 500 }}>
               {displayValue}
-            </dd>
-          </div>
+            </Typography>
+          </Box>
         );
       })}
-    </div>
+    </Box>
   );
 
   return (
-    <div className="max-w-5xl mx-auto mt-8 space-y-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        
+    <Box sx={{ maxWidth: 'lg', mx: 'auto', mt: 4, px: 2 }}>
+      <Paper elevation={0} sx={{ p: 4, borderRadius: 3, border: '1px solid', borderColor: 'grey.200' }}>
+
         {/* Section 1: Core Information */}
-        <div className="mb-10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="h-px flex-1 bg-gray-100"></div>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600">
+        <Box sx={{ mb: 5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ flex: 1, height: '1px', bgcolor: 'grey.100' }} />
+            <Typography variant="subtitle2" sx={{ px: 2, textTransform: 'uppercase', letterSpacing: 1.5, color: 'primary.main', fontWeight: 700 }}>
               {data.CityName || data.Name || 'Record'} Information
-            </h2>
-            <div className="h-px flex-1 bg-gray-100"></div>
-          </div>
+            </Typography>
+            <Box sx={{ flex: 1, height: '1px', bgcolor: 'grey.100' }} />
+          </Box>
           {renderGrid(primaryInfo)}
-        </div>
+        </Box>
 
         {/* Section 2: Audit/Other Information */}
         {auditInfo.length > 0 && (
-          <div>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-px flex-1 bg-gray-100"></div>
-              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Box sx={{ flex: 1, height: '1px', bgcolor: 'grey.100' }} />
+              <Typography variant="subtitle2" sx={{ px: 2, textTransform: 'uppercase', letterSpacing: 1.5, color: 'text.secondary', fontWeight: 700 }}>
                 System Details
-              </h2>
-              <div className="h-px flex-1 bg-gray-200"></div>
-            </div>
+              </Typography>
+              <Box sx={{ flex: 1, height: '1px', bgcolor: 'grey.100' }} />
+            </Box>
             {renderGrid(auditInfo)}
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Paper>
+    </Box>
   );
 }
