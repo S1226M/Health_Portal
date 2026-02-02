@@ -36,6 +36,14 @@ export default async function EditAppointmentPage({ params }: { params: Promise<
         value: d.DoctorID
     }));
 
+    const statusOptions = [
+        { label: 'Scheduled', value: 'Scheduled' },
+        { label: 'Confirmed', value: 'Confirmed' },
+        { label: 'Completed', value: 'Completed' },
+        { label: 'Cancelled', value: 'Cancelled' },
+        { label: 'Pending', value: 'Pending' }
+    ];
+
     // Serialize data to avoid passing Date objects to Client Component
     const serializedAppointment = appointment ? JSON.parse(JSON.stringify(appointment)) : null;
 
@@ -53,7 +61,8 @@ export default async function EditAppointmentPage({ params }: { params: Promise<
                 skipFields={['AppointmentID', 'Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID', 'IsDeleted']}
                 selectOptions={{
                     PatientID: patientOptions,
-                    DoctorID: doctorOptions
+                    DoctorID: doctorOptions,
+                    Status: statusOptions
                 }}
                 initialData={serializedAppointment}
             >

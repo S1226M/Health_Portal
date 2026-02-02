@@ -8,6 +8,8 @@ import SaveAppointment from '@/app/admin/modules/hop/appointment/action/SaveAppo
 export default async function AddAppointmentPage() {
     const columns = await getColumns('hop_appointment');
 
+    console.log('Columns:', columns);
+
     const patients = await prisma.hop_patient.findMany({
         where: { IsDeleted: false },
         select: { PatientID: true, PatientName: true }
@@ -28,6 +30,14 @@ export default async function AddAppointmentPage() {
         value: d.DoctorID
     }));
 
+    const statusOptions = [
+        { label: 'Scheduled', value: 'Scheduled' },
+        { label: 'Confirmed', value: 'Confirmed' },
+        { label: 'Completed', value: 'Completed' },
+        { label: 'Cancelled', value: 'Cancelled' },
+        { label: 'Pending', value: 'Pending' }
+    ];
+
     return (
         <>
             <PageHeader
@@ -39,10 +49,11 @@ export default async function AddAppointmentPage() {
                 columns={columns}
                 action={SaveAppointment}
                 onCancelUrl="/admin/components/hop/appointment"
-                skipFields={['AppointmentID', 'Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID', 'IsDeleted']}
+                skipFields={['AppointmentID']}
                 selectOptions={{
                     PatientID: patientOptions,
-                    DoctorID: doctorOptions
+                    DoctorID: doctorOptions,
+                    Status: statusOptions
                 }}
             />
         </>
