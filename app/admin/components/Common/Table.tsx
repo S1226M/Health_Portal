@@ -100,7 +100,13 @@ export function Table({ columns, data, basePath, idKey, moduleName }: TableProps
                           <DeleteBtn id={row[idKey]} deleteFn={activeDeleteFn} />
                         </div>
                       ) : (
-                        row[(col.accessor || col.key) as string]
+                        (() => {
+                          const value = row[(col.accessor || col.key) as string];
+                          if (value instanceof Date) return value.toLocaleString();
+                          if (value === null || value === undefined) return '';
+                          if (typeof value === 'object') return JSON.stringify(value);
+                          return value;
+                        })()
                       )}
                     </td>
                   ))}

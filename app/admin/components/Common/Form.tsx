@@ -85,7 +85,6 @@ export function FormContainer({
                             const dataType = col.DATA_TYPE ? String(col.DATA_TYPE).toLowerCase() : "";
 
                             // 2. Define Types
-                            // 2. Define Types
                             const isDateTime = dataType === 'datetime' || dataType === 'timestamp' ||
                                 (name.toLowerCase().includes('date') && name.toLowerCase().includes('time'));
                             const isDateOnly = dataType === 'date' ||
@@ -95,8 +94,38 @@ export function FormContainer({
                             const hasOptions = selectOptions[name] && selectOptions[name].length > 0;
                             const defaultValue = initialData?.[name] ?? "";
 
-                            // 3. Render Foreign Key Select
-                            if (isForeignKey && hasOptions) {
+                            const isBoolean = dataType === 'tinyint' || dataType === 'boolean' || name.toLowerCase().startsWith('is') || name.toLowerCase().startsWith('has');
+
+                            // 3. Render Boolean Select (e.g., IsFollowUpCase)
+                            if (isBoolean) {
+                                const def = ((): any => {
+                                    if (defaultValue === true || defaultValue === 1 || defaultValue === '1') return 'true';
+                                    if (defaultValue === false || defaultValue === 0 || defaultValue === '0') return 'false';
+                                    if (defaultValue === 'true' || defaultValue === 'false') return defaultValue;
+                                    return '';
+                                })();
+                                return (
+                                    <Box key={name}>
+                                        <FormControl fullWidth variant="outlined">
+                                            <InputLabel id={`${name}-label`}>{label}</InputLabel>
+                                            <Select
+                                                labelId={`${name}-label`}
+                                                name={name}
+                                                defaultValue={def}
+                                                required={col.IS_NULLABLE === 'NO'}
+                                                label={label}
+                                            >
+                                                <MenuItem value=""><em>None</em></MenuItem>
+                                                <MenuItem value="true">True</MenuItem>
+                                                <MenuItem value="false">False</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    </Box>
+                                );
+                            }
+
+                            // 4. Render Select when options are provided (supports FK and manual options)
+                            if (hasOptions) {
                                 return (
                                     <Box key={name}>
                                         <FormControl fullWidth variant="outlined">

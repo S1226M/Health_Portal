@@ -49,7 +49,7 @@ export default async function AddOPDPage() {
     }));
 
     const appointmentOptions = appointments.map(a => ({
-        label: `${a.AppointmentID} - ${a.AppointmentDate}`,
+        label: `${a.AppointmentID} - ${a.AppointmentDate ? new Date(a.AppointmentDate).toLocaleString() : ''}`,
         value: a.AppointmentID
     }));
 

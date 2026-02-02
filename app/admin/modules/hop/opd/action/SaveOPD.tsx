@@ -7,7 +7,8 @@ import { redirect } from "next/navigation";
 export default async function SaveOPD(formData: FormData) {
     const opdDateTime = formData.get("OPDDateTime") as string;
     const patientID = formData.get("PatientID") as string;
-    const isFollowUpCase = formData.get("IsFollowUpCase") === 'on';
+    const _isFollowUpCase = formData.get("IsFollowUpCase");
+    const isFollowUpCase = (_isFollowUpCase === 'on' || _isFollowUpCase === 'true' || _isFollowUpCase === '1');
     const treatedByDoctorID = formData.get("TreatedByDoctorID") as string;
     const diagnosisTypeID = formData.get("DiagnosisTypeID") as string;
     const otherDiagnosis = formData.get("OtherDiagnosis") as string;
