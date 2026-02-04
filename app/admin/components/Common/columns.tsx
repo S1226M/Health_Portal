@@ -9,7 +9,6 @@ export interface ColumnInfo {
 }
 
 export async function getColumns(tableName: string): Promise<ColumnInfo[]> {
-    // Changed alias 'keys' to 'k' to avoid reserved keyword conflict
     const columns = await prisma.$queryRaw<ColumnInfo[]>`
     SELECT 
         cols.COLUMN_NAME, 

@@ -11,22 +11,18 @@ export default async function SaveUser(formData: FormData) {
     const RoleID = parseInt(formData.get("RoleID") as string);
     const Email = formData.get("Email") as string;
     const MobileNo = formData.get("MobileNo") as string;
-    // Checkbox handling might vary, but simplified here. often "on" or null.
-    // However, schema default is true. If form doesn't send it, might be false?
-    // Let's assume FormContainer handles bools correctly or we might need to cast.
-    // For now, simple text fields mostly. IsActive logic might need care if exposed.
-
-    // For simple CRUD, usually IsActive is not in 'add' form or defaults to true.
+    const ProfileURL = formData.get("ProfileURL") as string;
 
     const currentUserId = 4;
 
     const data = {
         UserName,
         FullName,
-        Password, // Storing plain text as per simple CRUD assumption
+        Password,
         RoleID,
         Email,
         MobileNo,
+        ProfileURL,
         IsActive: true,
         Created: new Date(),
         Modified: new Date(),

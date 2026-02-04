@@ -330,7 +330,7 @@ model hop_opddiagnosistype {
 model hop_patient {
   PatientID                                       Int                  @id @default(autoincrement())
   PatientName                                     String               @db.VarChar(250)
-  PatientNo                                       Int
+  PatientNo                                       String               @db.VarChar(20)
   RegistrationDateTime                            DateTime             @db.DateTime(0)
   Age                                             Int?
   BloodGroup                                      String?              @db.VarChar(20)
@@ -850,6 +850,7 @@ model sec_user {
   CreatedByUserID                                                                      Int
   ModifiedByUserID                                                                     Int?
   IsDeleted                                                                            Boolean                        @default(false)
+  ProfileURL                                                                           String?                        @db.VarChar(255)
   hop_appointment_hop_appointment_CreatedByUserIDTosec_user                            hop_appointment[]              @relation("hop_appointment_CreatedByUserIDTosec_user")
   hop_appointment_hop_appointment_ModifiedByUserIDTosec_user                           hop_appointment[]              @relation("hop_appointment_ModifiedByUserIDTosec_user")
   hop_diagnosistype_hop_diagnosistype_CreatedByUserIDTosec_user                        hop_diagnosistype[]            @relation("hop_diagnosistype_CreatedByUserIDTosec_user")

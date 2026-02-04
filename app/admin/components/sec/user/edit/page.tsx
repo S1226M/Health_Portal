@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageHeader } from '@/app/admin/components/Common/PageHeader';
 import { FormContainer } from '@/app/admin/components/Common/Form';
-import { getColumns } from '../../../../Common/columns';
+import { getColumns } from '../../../Common/columns';
 import { prisma } from '@/lib/prisma';
 import EditUser from '@/app/admin/modules/sec/user/action/editUser';
 import { notFound } from 'next/navigation';

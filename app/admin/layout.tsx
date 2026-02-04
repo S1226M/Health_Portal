@@ -232,7 +232,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Notifications />
                   </Badge>
                 </IconButton>
+                
                 <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 14 }}>A</Avatar>
+              
               </Box>
             </Box>
           </Toolbar>
