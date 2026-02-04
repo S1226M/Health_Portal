@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import {
@@ -59,6 +59,8 @@ import {
   Search,
   Settings
 } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
+
 
 // --- Theme Definition ---
 const drawerWidth = 260;
@@ -183,7 +185,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(true);
-
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const router = useRouter();
+  
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -191,6 +195,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+  fetch('/api/user/profile')
+      .then(res => res.json())
+      .then(data => {
+        console.log('IMAGE URL:', data?.ProfileURL)
+        setImageUrl(data?.ProfileURL)
+      })
+  }, [])
+
+  const MyAvtarNavigation = () => {
+    router.push('/admin/components/sec/user/4')
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -233,7 +250,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Badge>
                 </IconButton>
                 
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 14 }}>A</Avatar>
+                <Avatar 
+                  onClick={MyAvtarNavigation}
+                  src={imageUrl ?? undefined}
+                  variant="rounded"
+                  sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 14 }}
+                >
+                  A
+                </Avatar>
               
               </Box>
             </Box>

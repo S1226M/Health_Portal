@@ -34,7 +34,7 @@ export default async function UserDetailPage({params}:PageProps) {
             <ViewTable
                 columns={formattedColumns}
                 data={subTreatmentType}
-            />
+            />  
         </div>
     );
 }
