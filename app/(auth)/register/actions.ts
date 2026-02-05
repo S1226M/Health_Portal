@@ -1,34 +1,42 @@
-// Server Actions for User Registration
-// "use server";
+"use server";
 
-import { redirect } from 'next/navigation';
-// import { prisma } from '@/lib/prisma';
-// import bcrypt from 'bcrypt'; // or your preferred hashing library
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function registerUser(formData: FormData) {
-    // 1. Extract data (name, email, password) from formData
+  const UserName = formData.get("UserName") as string;
+  const FullName = formData.get("FullName") as string;
+  const Password = formData.get("Password") as string;
+  const Email = formData.get("Email") as string;
+  const MobileNo = formData.get("MobileNumber") as string;
 
-    // 2. Validate inputs (ensure email is unique, password strength, etc.)
+  const currentUserId = 6;
 
-    try {
-        // 3. Check if user already exists in DB
-        //    const existingUser = await prisma.user.findUnique(...)
+  const user = await prisma.sec_user.create({
+    data: {
+      UserName,
+      FullName,
+      Password,
+      RoleID: currentUserId,
+      Email,
+      MobileNo,
+      Created: new Date(),
+      CreatedByUserID: currentUserId,
+    },
+  });
 
-        // 4. If exists, return error ("User already exists")
+  await prisma.sec_log_user.create({
+    data: {
+      UserID: user.UserID,
+      IUD: "I",
+      Created: new Date(),
+      CreatedByUserID: currentUserId,
+    },
+  });
 
-        // 5. Hash the password
-        //    const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 6. Create the new user in the database
-        //    await prisma.user.create({
-        //      data: { ... }
-        //    })
-
-        // 7. Redirect to Login Page
-        //    redirect('/login');
-
-    } catch (error) {
-        // 8. Handle DB errors
-        return { message: 'Registration Failed' };
-    }
+  if(currentUserId === 6){
+    revalidatePath("/user");
+    redirect("/user");
+  }
 }

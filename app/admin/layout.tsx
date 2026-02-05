@@ -60,6 +60,7 @@ import {
   Settings
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import { logout } from '../actions/logout';
 
 
 // --- Theme Definition ---
@@ -241,6 +242,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <form action={logout}>
+                  <button type="submit" style={{color:'red'}}>Logout</button>
+                </form>
                 <IconButton size="small" sx={{ color: 'text.secondary' }}>
                   <Search />
                 </IconButton>

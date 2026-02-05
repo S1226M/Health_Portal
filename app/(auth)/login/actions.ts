@@ -1,35 +1,59 @@
-// This file will contain Server Actions for secure authentication
-// "use server";
+"use server";
 
+import { createToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-// Import your database client (Prisma)
-// import { prisma } from '@/lib/prisma';
-// Import Nextjs Auth libraries or JWT utilities if you are using them
+import jwt from 'jsonwebtoken';
 
-export async function authenticate(formData: FormData) {
-    // 1. Extract email/username and password from formData
+export async function login(formData: FormData) {
+    const Email = formData.get('Email') as string;
+    const UserEnterdPass = formData.get('Password') as string;
 
-    // 2. Validate the inputs (Check if empty, valid email format, etc.)
+    const data = await prisma.sec_user.findFirst({
+        where:{
+            Email
+        },
+        select:{
+            RoleID: true,
+            UserID: true,
+            Password: true
+        }
+    })
 
-    try {
-        // 3. Query the database to find the user by their email/username
-        //    const user = await prisma.user.findUnique(...)
+    const role = await prisma.sec_role.findFirst({
+        where:{
+            RoleID: data?.RoleID
+        },
+        select:{
+            RoleName: true
+        }
+    })
 
-        // 4. If user not found, return an error message
+    if(UserEnterdPass === data?.Password){
 
-        // 5. If user found, Compare the provided password with the stored hash
-        //    (Use a library like bcrypt or argon2)
+        const token = createToken({
+            UserID: data?.UserID,
+            role: role?.RoleName
+        });
 
-        // 6. If password matches:
-        //    - Create a Session or JWT Token
-        //    - Set the cookie
-        //    - Return success or Redirect to the dashboard
-        //      redirect('/admin'); 
+        const cookieStore = await cookies();
+        cookieStore.set("auth_token", token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          path: "/",
+          maxAge: 60 * 60 * 24 * 7,
+        });
 
-    } catch (error) {
-        // 7. Handle any database errors
-        return { message: 'Database Error: Failed to Log In.' };
+        if(role?.RoleName === "Admin"){
+            redirect('/admin');
+        }
+        else if(role?.RoleName === "Patient"){
+            redirect('/user');
+        }
+        else{
+            redirect('/login');
+        }
     }
-
-    // 8. If authentication fails (wrong password), return an error
 }

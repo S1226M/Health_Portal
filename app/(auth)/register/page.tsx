@@ -11,7 +11,7 @@ export default function RegisterPage() {
             sx={{
                 minHeight: '100vh',
                 width: '100%',
-                bgcolor: '#f0f2f5', // Matches admin background
+                bgcolor: '#f0f2f5',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -58,9 +58,6 @@ export default function RegisterPage() {
                     <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 2}}>
                         Create an Account   
                     </Typography>
-                    {/* <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                        Join us to manage your health portal journey
-                    </Typography> */}
 
                     <RegisterForm />
 
