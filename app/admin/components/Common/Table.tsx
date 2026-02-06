@@ -21,6 +21,7 @@ import deleteOrderOfMedicine from '../../modules/phm/orderofmedicine/action/dele
 import deleteSurgery from '../../modules/sur/surgery/action/deleteSurgery';
 import deleteSurgeryBooking from '../../modules/sur/surgerybooking/action/deleteSurgeryBooking';
 import deleteSurgeryItem from '../../modules/sur/surgeryitem/action/deleteSurgeryItem';
+import DeleteRole from '../../modules/sec/role/action/deleteRole';
 
 export interface Column<T = any> {
   header: string;
@@ -30,6 +31,7 @@ export interface Column<T = any> {
 }
 
 const actionsMap: Record<string, (id: any) => Promise<void>> = {
+  "deleteRole": DeleteRole,
   "deleteCountry": deleteCountry,
   "deleteSpecialization": deleteSpecialization,
   "deleteState": deleteState,

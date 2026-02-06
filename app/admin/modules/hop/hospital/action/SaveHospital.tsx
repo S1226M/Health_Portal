@@ -4,7 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+
 export default async function SaveHospital(formData: FormData) {
+  const token = (await cookies()).get("auth_token")?.value;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const currentUserId = (decoded.userId ?? decoded.UserID) as number;
+  if (!currentUserId) {
+    throw new Error("Unauthorized");
+  }
     // 1. Extract values safely
     const hospitalName = formData.get("HospitalName") as string;
     const defaultPaymentModeID = formData.get("DefaultPaymentModeID") as string;
@@ -12,10 +25,7 @@ export default async function SaveHospital(formData: FormData) {
     const openingDate = formData.get("OpeningDate") as string;
     const address = formData.get("Address") as string;
     const cityID = formData.get("CityID") as string;
-    const userID = formData.get("UserID") as string;
-
-    const currentUserId = 4; // Mocked session user ID
-
+    const userID = formData.get("UserID") as string;
     // 2. Format data for Prisma (Prevents NaN and Invalid Date errors)
     const data = {
         HospitalName: hospitalName,

@@ -4,7 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+
 export default async function SaveUser(formData: FormData) {
+  const token = (await cookies()).get("auth_token")?.value;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const currentUserId = (decoded.userId ?? decoded.UserID) as number;
+  if (!currentUserId) {
+    throw new Error("Unauthorized");
+  }
     const UserName = formData.get("UserName") as string;
     const FullName = formData.get("FullName") as string;
     const Password = formData.get("Password") as string;
@@ -12,8 +25,14 @@ export default async function SaveUser(formData: FormData) {
     const Email = formData.get("Email") as string;
     const MobileNo = formData.get("MobileNo") as string;
     const ProfileURL = formData.get("ProfileURL") as string;
-
-    const currentUserId = 4;
+    
+    // Validate unique UserName
+    const existingUser = await prisma.sec_user.findUnique({
+      where: { UserName }
+    });
+    if (existingUser) {
+      throw new Error("A user with this username already exists");
+    }
 
     const data = {
         UserName,

@@ -4,7 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+
 export default async function SaveHospitalTreatment(formData: FormData) {
+  const token = (await cookies()).get("auth_token")?.value;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const currentUserId = (decoded.userId ?? decoded.UserID) as number;
+  if (!currentUserId) {
+    throw new Error("Unauthorized");
+  }
     const hospitalID = formData.get("HospitalID") as string;
     const treatmentTypeID = formData.get("TreatmentTypeID") as string;
 
@@ -16,6 +29,14 @@ export default async function SaveHospitalTreatment(formData: FormData) {
     // But typical pattern requires logging. 
     // And log table requires CreatedByUserID (line 205).
     // The main table doesn't have it.
+
+    // Validate composite unique constraint (HospitalID + TreatmentTypeID)
+    const existingRecord = await prisma.hop_hospitaltreatment.findUnique({
+      where: { HospitalID_TreatmentTypeID: { HospitalID: parseInt(hospitalID), TreatmentTypeID: parseInt(treatmentTypeID) } }
+    });
+    if (existingRecord && !existingRecord.IsDeleted) {
+      throw new Error("This hospital treatment combination already exists");
+    }
 
     const data = {
         HospitalID: parseInt(hospitalID),
@@ -30,7 +51,7 @@ export default async function SaveHospitalTreatment(formData: FormData) {
         HospitalTreatmentID: addedID,
         IUD: "I",
         Created: new Date(),
-        CreatedByUserID: 4, // Hardcoded as per pattern
+        CreatedByUserID: currentUserId, // Hardcoded as per pattern
     };
     await prisma.hop_log_hospitaltreatment.create({ data: newData });
 

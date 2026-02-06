@@ -1,12 +1,33 @@
 "use server"
+
+
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function SavePaymentMode(formData: FormData){
-    const paymentMode = formData.get('PaymentModeName') as string;
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
-    const currentUserId = 4;
+export async function SavePaymentMode(formData: FormData){
+  const token = (await cookies()).get("auth_token")?.value;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const currentUserId = (decoded.userId ?? decoded.UserID) as number;
+  if (!currentUserId) {
+    throw new Error("Unauthorized");
+  }
+    const paymentMode = formData.get('PaymentModeName') as string;
+    
+    // Validate unique PaymentModeName
+    const existingPaymentMode = await prisma.pay_paymentmode.findUnique({
+      where: { PaymentModeName: paymentMode }
+    });
+    if (existingPaymentMode) {
+      throw new Error("A payment mode with this name already exists");
+    }
 
     const data = {
         PaymentModeName: paymentMode,
