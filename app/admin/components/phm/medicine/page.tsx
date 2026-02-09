@@ -1,18 +1,26 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
-import { Table } from '@/app/admin/components/Common/Table';
+import { Table, Column } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function MedicineListPage() {
-    const data = [
-        { id: 1, name: 'Paracetamol', cat: 'Tablet', price: '10.00', mfr: 'GSK' },
-    ];
+export default async function MedicineListPage() {
+    const data = await prisma.phm_medicine.findMany({ where: { IsDeleted: false } });
 
-    const columns = [
-        { header: 'Medicine Name', accessor: 'name' },
-        { header: 'Category', accessor: 'cat' },
-        { header: 'Price', accessor: 'price' },
-        { header: 'Manufacturer', accessor: 'mfr' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+        'Created',
+        'Modified',
+        'CreatedByUserID',
+        'ModifiedByUserID',
+        'IsDeleted'
+    ]);
+
+    const columns: Column<typeof data[number]>[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
@@ -23,7 +31,13 @@ export default function MedicineListPage() {
                 actionUrl="/admin/components/phm/medicine/add"
             />
             <div className="mb-6"><SearchBar /></div>
-            <Table columns={columns} data={data} basePath="/admin/components/phm/medicine" />
+            <Table
+                columns={columns}
+                data={data}
+                idKey='MedicineID'
+                basePath="/admin/components/phm/medicine"
+                moduleName="medicine"
+            />
         </div>
     );
 }

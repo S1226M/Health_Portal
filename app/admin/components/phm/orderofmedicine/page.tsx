@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { generateColumns } from '@/app/admin/utils/generateColumns';
 
 export default async function OrderOfMedicineListPage() {
-    const data = await prisma.phm_orderofmedicine.findMany();
+    const data = await prisma.phm_orderofmedicine.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
         "Created",

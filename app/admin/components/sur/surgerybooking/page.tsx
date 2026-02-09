@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { generateColumns } from '@/app/admin/utils/generateColumns';
 
 export default async function SurgeryBookingListPage() {
-    const data = await prisma.sur_surgerybooking.findMany();
+    const data = await prisma.sur_surgerybooking.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
         "Created",

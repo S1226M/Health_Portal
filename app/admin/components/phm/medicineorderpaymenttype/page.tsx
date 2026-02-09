@@ -1,11 +1,12 @@
-import { exportPages } from "next/dist/export/worker";
-import { Table } from "../../Common/Table";
+import { Table, Column } from "../../Common/Table";
 import { PageHeader, SearchBar } from "../../Common/PageHeader";
 import { generateColumns } from "@/app/admin/utils/generateColumns";
 import { prisma } from "@/lib/prisma";
 
 export default async function MedicineOrderPaymentTypeListPage() {
-    const data = await prisma.phm_medicineorderpaymenttype.findMany();
+    const data = await prisma.phm_medicineorderpaymenttype.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
         "Created",

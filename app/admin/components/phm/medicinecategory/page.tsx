@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { generateColumns } from '@/app/admin/utils/generateColumns';
 
 export default async function MedicineCategoryListPage() {
-    const data = await prisma.phm_medicinecategory.findMany();
+    const data = await prisma.phm_medicinecategory.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
         "Created",

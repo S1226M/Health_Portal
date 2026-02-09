@@ -4,7 +4,9 @@
   import { generateColumns } from '@/app/admin/utils/generateColumns';
 
   export default async function SpecializationListPage() {
-    const data = await prisma.hop_specialization.findMany();
+    const data = await prisma.hop_specialization.findMany({
+      where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
     'Created',

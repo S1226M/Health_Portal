@@ -1,11 +1,13 @@
 import React from 'react';
 import { generateColumns } from "@/app/admin/utils/generateColumns";
 import { prisma } from "@/lib/prisma";
-import { Table } from '../../Common/Table';
+import { Table, Column } from '../../Common/Table';
 import { PageHeader, SearchBar } from '../../Common/PageHeader';
 
 export default async function AddLabTestListPage(){
-    const data = await prisma.lab_labtest.findMany();
+    const data = await prisma.lab_labtest.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
         "Created",

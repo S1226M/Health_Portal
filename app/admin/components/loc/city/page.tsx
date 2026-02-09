@@ -1,11 +1,13 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
-import { Table } from '@/app/admin/components/Common/Table';
+import { Table, Column } from '@/app/admin/components/Common/Table';
 import { prisma } from '@/lib/prisma';
 import { generateColumns } from '@/app/admin/utils/generateColumns';
 
 export default async function CityListPage() {
-    const data = await prisma.loc_city.findMany();
+    const data = await prisma.loc_city.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data,[
         "Created",

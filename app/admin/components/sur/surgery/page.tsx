@@ -1,25 +1,45 @@
 import React from 'react';
 import { PageHeader, SearchBar } from '@/app/admin/components/Common/PageHeader';
-import { Table } from '@/app/admin/components/Common/Table';
+import { Table, Column } from '@/app/admin/components/Common/Table';
+import { prisma } from '@/lib/prisma';
+import { generateColumns } from '@/app/admin/utils/generateColumns';
 
-export default function SurgeryListPage() {
-    const data = [
-        { id: 1, name: 'Appendectomy', code: 'APP01', hosp: 'General Hospital', price: '15000.00' },
-    ];
+export default async function SurgeryListPage() {
+    const data = await prisma.sur_surgery.findMany({ where: { IsDeleted: false } });
 
-    const columns = [
-        { header: 'Surgery Name', accessor: 'name' },
-        { header: 'Code', accessor: 'code' },
-        { header: 'Hospital', accessor: 'hosp' },
-        { header: 'Base Price', accessor: 'price' },
-        { header: 'Actions', accessor: 'actions', isAction: true },
+    const autoColumns = generateColumns(data, [
+        "Created",
+        "Modified",
+        "CreatedByUserID",
+        "ModifiedByUserID",
+        "IsDeleted"  
+    ])
+
+    const columns: Column[] = [
+        ...autoColumns,
+        {
+            header: 'Actions',
+            isAction: true,
+        },
     ];
 
     return (
         <div className="p-6">
-            <PageHeader title="Surgeries" actionLabel="Add Surgery" actionUrl="/admin/components/sur/surgery/add" />
-            <div className="mb-6"><SearchBar /></div>
-            <Table columns={columns} data={data} basePath="/admin/components/sur/surgery" />
+            <PageHeader 
+                title="Surgeries" 
+                actionLabel="Add Surgery" 
+                actionUrl="/admin/components/sur/surgery/add" 
+            />
+            <div className="mb-6">
+                <SearchBar />
+            </div>
+            <Table 
+                idKey='SurgeryID'
+                columns={columns} 
+                data={data} 
+                basePath="/admin/components/sur/surgery" 
+                moduleName="surgery" 
+            />
         </div>
     );
 }

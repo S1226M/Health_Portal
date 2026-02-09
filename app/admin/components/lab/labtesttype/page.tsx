@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { generateColumns } from '@/app/admin/utils/generateColumns';
 
 export default async function LabTestTypeListPage() {
-    const data = await prisma.lab_labtesttype.findMany();
+    const data = await prisma.lab_labtesttype.findMany({
+        where: { IsDeleted: false }
+    });
 
     const autoColumns = generateColumns(data, [
         "Created",

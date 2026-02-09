@@ -20,16 +20,16 @@ export default async function editSurgery(formData: FormData) {
     const SurgeryID = parseInt(formData.get("SurgeryID") as string);
     const SurgeryName = formData.get("SurgeryName") as string;
     const SurgeryCode = formData.get("SurgeryCode") as string;
-    const SurgeryCost = parseFloat(formData.get("SurgeryCost") as string);
+    const BasePrice = parseFloat(formData.get("BasePrice") as string || '0');
 
     await prisma.sur_surgery.update({
-        where: { SurgeryID },
-        data: {
-            SurgeryName,
-            SurgeryCode,
-            SurgeryCost,
-            ModifiedByUserID: currentUserId,
-        }
+      where: { SurgeryID },
+      data: {
+        SurgeryName,
+        SurgeryCode,
+        BasePrice,
+        ModifiedByUserID: currentUserId,
+      }
     });
 
     revalidatePath("/admin/components/sur/surgery");
