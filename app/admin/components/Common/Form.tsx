@@ -1,209 +1,216 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 import {
-    Box,
-    Paper,
-    TextField,
-    MenuItem,
-    Button,
-    FormControl,
-    InputLabel,
-    Select,
-} from '@mui/material';
+  Box,
+  Paper,
+  TextField,
+  MenuItem,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+} from "@mui/material";
 
-// MUI Date Picker Imports
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import dayjs from 'dayjs';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs";
+
+/* ================= TYPES ================= */
 
 export interface DBColumn {
-    COLUMN_NAME: string;
-    IS_NULLABLE: string;
-    DATA_TYPE: string;
-    REFERENCED_TABLE_NAME: string | null;
-    REFERENCED_COLUMN_NAME: string | null;
+  COLUMN_NAME: string;
+  IS_NULLABLE: string;
+  DATA_TYPE: string;
+  REFERENCED_TABLE_NAME: string | null;
+  REFERENCED_COLUMN_NAME: string | null;
 }
 
 interface SelectOption {
-    label: string;
-    value: string | number;
+  label: string;
+  value: string | number;
 }
 
-const DEFAULT_SKIP_FIELDS = ['Created', 'Modified', 'IsDeleted', 'CreatedByUserID', 'ModifiedByUserID'];
+const DEFAULT_SKIP_FIELDS = [
+  "Created",
+  "Modified",
+  "IsDeleted",
+  "CreatedByUserID",
+  "ModifiedByUserID",
+  "UserID",
+];
 
-/**
- * Custom wrapper for MUI DateTimePicker to work with dynamic forms
- */
-function FormDateTimePicker({ label, name, defaultValue }: { label: string, name: string, defaultValue: any }) {
-    return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Box sx={{ width: '100%' }}>
-                <DateTimePicker
-                    label={label}
-                    // Dayjs is required for MUI X Pickers
-                    defaultValue={defaultValue ? dayjs(defaultValue) : null}
-                    // This ensures the value is sent correctly via standard HTML Form action
-                    slotProps={{
-                        textField: {
-                            name: name,
-                            fullWidth: true,
-                            variant: "outlined"
-                        },
-                    }}
-                />
-            </Box>
-        </LocalizationProvider>
-    );
+/* ================= DATE PICKER ================= */
+
+function FormDateTimePicker({
+  label,
+  name,
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  defaultValue: any;
+}) {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DateTimePicker
+        label={label}
+        defaultValue={defaultValue ? dayjs(defaultValue) : null}
+        slotProps={{
+          textField: {
+            name,
+            fullWidth: true,
+          },
+        }}
+      />
+    </LocalizationProvider>
+  );
 }
+
+/* ================= MAIN FORM ================= */
 
 export function FormContainer({
-    children,
-    onCancelUrl,
-    action,
-    submitLabel = "Save Details",
-    columns,
-    skipFields = [],
-    selectOptions = {},
-    initialData = {}
+  children,
+  onCancelUrl,
+  action,
+  submitLabel = "Save Details",
+  columns,
+  skipFields = [],
+  selectOptions = {},
+  initialData = {},
 }: any) {
-    const allSkipFields = [...DEFAULT_SKIP_FIELDS, ...skipFields];
+  const allSkipFields = [...DEFAULT_SKIP_FIELDS, ...skipFields];
 
-    return (
-        <Paper elevation={3} sx={{ p: 4, mt: 6, borderRadius: 2, maxWidth: '900px', mx: 'auto' }}>
-            <form action={action}>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    {columns && columns
-                        .filter((col: DBColumn) => !allSkipFields.includes(col.COLUMN_NAME))
-                        .map((col: DBColumn) => {
-                            const name = col.COLUMN_NAME;
-                            const label = name.replace(/([A-Z])/g, ' $1').trim();
+  return (
+    <Paper sx={{ p: 4, mt: 6, maxWidth: 900, mx: "auto" }}>
+      <form action={action}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 3,
+          }}
+        >
+          {columns
+            ?.filter(
+              (col: DBColumn) =>
+                !allSkipFields.includes(col.COLUMN_NAME)
+            )
+            .map((col: DBColumn) => {
+              const name = col.COLUMN_NAME;
 
-                            // 1. Convert to string safely
-                            const dataType = col.DATA_TYPE ? String(col.DATA_TYPE).toLowerCase() : "";
+              /* ===== FRIENDLY LABEL ===== */
+              const label = name.endsWith("ID")
+                ? name.replace("ID", " Name").replace(/([A-Z])/g, " $1").trim()
+                : name.replace(/([A-Z])/g, " $1").trim();
 
-                            // 2. Define Types
-                            const isDateTime = dataType === 'datetime' || dataType === 'timestamp' ||
-                                (name.toLowerCase().includes('date') && name.toLowerCase().includes('time'));
-                            const isDateOnly = dataType === 'date' ||
-                                (name.toLowerCase().includes('date') && !name.toLowerCase().includes('time'));
+              const dataType = String(col.DATA_TYPE || "").toLowerCase();
 
-                            const isForeignKey = col.REFERENCED_TABLE_NAME !== null;
-                            const hasOptions = selectOptions[name] && selectOptions[name].length > 0;
-                            const defaultValue = initialData?.[name] ?? "";
+              const defaultValue = initialData?.[name] ?? "";
 
-                            const isBoolean = dataType === 'tinyint' || dataType === 'boolean' || name.toLowerCase().startsWith('is') || name.toLowerCase().startsWith('has');
+              const isDate =
+                dataType === "datetime" ||
+                dataType === "timestamp" ||
+                dataType === "date";
 
-                            // 3. Render Boolean Select (e.g., IsFollowUpCase)
-                            if (isBoolean) {
-                                const def = ((): any => {
-                                    if (defaultValue === true || defaultValue === 1 || defaultValue === '1') return 'true';
-                                    if (defaultValue === false || defaultValue === 0 || defaultValue === '0') return 'false';
-                                    if (defaultValue === 'true' || defaultValue === 'false') return defaultValue;
-                                    return '';
-                                })();
-                                return (
-                                    <Box key={name}>
-                                        <FormControl fullWidth variant="outlined">
-                                            <InputLabel id={`${name}-label`}>{label}</InputLabel>
-                                            <Select
-                                                labelId={`${name}-label`}
-                                                name={name}
-                                                defaultValue={def}
-                                                required={col.IS_NULLABLE === 'NO'}
-                                                label={label}
-                                            >
-                                                <MenuItem value=""><em>None</em></MenuItem>
-                                                <MenuItem value="true">True</MenuItem>
-                                                <MenuItem value="false">False</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </Box>
-                                );
-                            }
+              const isBoolean =
+                dataType === "boolean" ||
+                dataType === "tinyint" ||
+                name.toLowerCase().startsWith("is");
 
-                            // 4. Render Select when options are provided (supports FK and manual options)
-                            if (hasOptions) {
-                                return (
-                                    <Box key={name}>
-                                        <FormControl fullWidth variant="outlined">
-                                            <InputLabel id={`${name}-label`}>{label}</InputLabel>
-                                            <Select
-                                                labelId={`${name}-label`}
-                                                name={name}
-                                                defaultValue={defaultValue}
-                                                required={col.IS_NULLABLE === 'NO'}
-                                                label={label}
-                                            >
-                                                <MenuItem value=""><em>None</em></MenuItem>
-                                                {selectOptions[name].map((opt: SelectOption) => (
-                                                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Box>
-                                );
-                            }
+              const hasOptions =
+                selectOptions[name] &&
+                selectOptions[name].length > 0;
 
-                            // 4. Render Specialized DateTime Picker
-                            if (isDateTime || isDateOnly) {
-                                return (
-                                    <FormDateTimePicker
-                                        key={name}
-                                        label={label}
-                                        name={name}
-                                        defaultValue={defaultValue}
-                                    />
-                                );
-                            }
+              /* ===== BOOLEAN ===== */
+              if (isBoolean) {
+                return (
+                  <FormControl fullWidth key={name}>
+                    <InputLabel>{label}</InputLabel>
+                    <Select
+                      name={name}
+                      label={label}
+                      defaultValue={defaultValue}
+                    >
+                      <MenuItem value="" disabled>
+                        Select {label}
+                      </MenuItem>
+                      <MenuItem value="true">True</MenuItem>
+                      <MenuItem value="false">False</MenuItem>
+                    </Select>
+                  </FormControl>
+                );
+              }
 
-                            // 5. Render Standard Text Input
-                            return (
-                                <FormInput
-                                    key={name}
-                                    label={label}
-                                    name={name}
-                                    defaultValue={defaultValue}
-                                    required={col.IS_NULLABLE === 'NO'}
-                                    isTextArea={name.toLowerCase().includes('description')}
-                                    fullWidth={name.toLowerCase().includes('description')}
-                                    placeholder={`Enter ${label.toLowerCase()}...`}
-                                />
-                            );
-                        })
-                    }
-                    {children}
+              /* ===== FOREIGN KEY / SELECT ===== */
+              if (hasOptions) {
+                return (
+                  <FormControl fullWidth key={name}>
+                    <InputLabel>{label}</InputLabel>
+                    <Select
+                      name={name}
+                      label={label}
+                      defaultValue={defaultValue}
+                    >
+                      <MenuItem value="" disabled>
+                        Select {label}
+                      </MenuItem>
 
-                    <Box sx={{ gridColumn: '1 / -1' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3, pt: 3, borderTop: '1px solid #f0f0f0' }}>
-                            <Button component={Link} href={onCancelUrl} variant="outlined" color="inherit">
-                                Cancel
-                            </Button>
-                            <Button type="submit" variant="contained" color="primary" size="large">
-                                {submitLabel}
-                            </Button>
-                        </Box>
-                    </Box>
-                </Box>
-            </form>
-        </Paper>
-    );
-}
+                      {selectOptions[name].map((opt: SelectOption) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                );
+              }
 
-export function FormInput({ label, fullWidth = false, isTextArea = false, ...props }: any) {
-    return (
-        <Box sx={{ gridColumn: fullWidth ? '1 / -1' : 'auto' }}>
-            <TextField
-                {...props}
-                label={label}
-                variant="outlined"
-                fullWidth
-                multiline={isTextArea}
-                rows={isTextArea ? 4 : 1}
-                InputLabelProps={{ shrink: true }}
-            />
+              /* ===== DATE ===== */
+              if (isDate) {
+                return (
+                  <FormDateTimePicker
+                    key={name}
+                    name={name}
+                    label={label}
+                    defaultValue={defaultValue}
+                  />
+                );
+              }
+
+              /* ===== TEXT ===== */
+              return (
+                <TextField
+                  key={name}
+                  name={name}
+                  label={label}
+                  defaultValue={defaultValue}
+                  fullWidth
+                  placeholder={`Enter ${label.toLowerCase()}`}
+                />
+              );
+            })}
+
+          {children}
+
+          {/* ===== ACTION BUTTONS ===== */}
+          <Box sx={{ gridColumn: "1 / -1", textAlign: "right", mt: 3 }}>
+            <Button
+              component={Link}
+              href={onCancelUrl}
+              variant="outlined"
+              sx={{ mr: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained">
+              {submitLabel}
+            </Button>
+          </Box>
         </Box>
-    );
+      </form>
+    </Paper>
+  );
 }

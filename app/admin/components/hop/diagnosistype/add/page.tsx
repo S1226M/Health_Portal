@@ -23,11 +23,6 @@ export default async function AddDiagnosisTypePage() {
         value: h.HospitalID
     }));
 
-    const userOptions = users.map(u => ({
-        label: u.UserName,
-        value: u.UserID
-    }));
-
     return (
         <>
             <PageHeader
@@ -41,8 +36,7 @@ export default async function AddDiagnosisTypePage() {
                 onCancelUrl="/admin/components/hop/diagnosistype"
                 skipFields={['DiagnosisTypeID', 'Created', 'Modified', 'CreatedByUserID', 'ModifiedByUserID', 'IsDeleted']}
                 selectOptions={{
-                    HospitalID: hospitalOptions,
-                    UserID: userOptions
+                    HospitalID: hospitalOptions
                 }}
             />
         </>

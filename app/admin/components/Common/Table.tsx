@@ -22,6 +22,19 @@ import deleteSurgery from '../../modules/sur/surgery/action/deleteSurgery';
 import deleteSurgeryBooking from '../../modules/sur/surgerybooking/action/deleteSurgeryBooking';
 import deleteSurgeryItem from '../../modules/sur/surgeryitem/action/deleteSurgeryItem';
 import DeleteRole from '../../modules/sec/role/action/deleteRole';
+import { deleteAppointment }from '../../modules/hop/appointment/action/deleteAppointment';
+import {deleteDoctor} from '../../modules/hop/doctor/action/deleteDoctor';
+import {deleteDoctorReview} from '../../modules/hop/doctorreview/action/deleteDoctorReview';
+import {deleteHospital} from '../../modules/hop/hospital/action/deleteHospital';
+import {deleteHospitalTreatment} from '../../modules/hop/hospitaltreatment/action/deleteHospitalTreatment';
+import {deleteOPD} from '../../modules/hop/opd/action/deleteOPD';
+import {deleteOPDDiagnosisType} from '../../modules/hop/opddiagnosistype/action/deleteOPDDiagnosisType';
+import {deletePatient} from '../../modules/hop/patient/action/deletePatient';
+import DeleteReceipt from '../../modules/hop/receipt/action/deleteReceipt';
+import DeleteReceiptTran from '../../modules/hop/receipttran/action/deleteReceiptTran';
+import {deleteSubTreatmentType} from '../../modules/hop/subtreatmenttype/action/deleteSubTreatmentType';
+import {deleteMedicineOrderPaymentType} from '../../modules/phm/medicineorderpaymenttype/action/deleteMedicineOrderPaymentType';
+import DeleteUser from '../../modules/sec/user/action/deleteUser';
 
 export interface Column<T = any> {
   header: string;
@@ -31,13 +44,12 @@ export interface Column<T = any> {
 }
 
 const actionsMap: Record<string, (id: any) => Promise<void>> = {
-  "deleteRole": DeleteRole,
-  "deleteCountry": deleteCountry,
   "deleteSpecialization": deleteSpecialization,
+  "deleteCountry": deleteCountry,
   "deleteState": deleteState,
   "deleteCity": deleteCity,
   "deletePaymentMode": deletePaymentMode,
-  "deleteTreatmenttype": deleteTreatmentType,
+  "deleteTreatmentType": deleteTreatmentType,
   "deleteDiagnosisType": deleteDiagnosisType,
   "deleteLabTest": deleteLabTest,
   "deleteLabTestOrder": deleteLabTestOrder,
@@ -48,7 +60,20 @@ const actionsMap: Record<string, (id: any) => Promise<void>> = {
   "deleteSurgery": deleteSurgery,
   "deleteSurgeryBooking": deleteSurgeryBooking,
   "deleteSurgeryItem": deleteSurgeryItem,
-  // Add other functions here as you create them
+  "deleteRole": DeleteRole,
+  "deleteAppointment": deleteAppointment,
+  "deleteDoctor": deleteDoctor,
+  "deleteDoctorReview": deleteDoctorReview,
+  "deleteHospital": deleteHospital,
+  "deleteHospitalTreatment": deleteHospitalTreatment,
+  "deleteOPD": deleteOPD,
+  "deleteOPDDiagnosisType": deleteOPDDiagnosisType,
+  "deletePatient": deletePatient,
+  "deleteReceipt": DeleteReceipt,
+  "deleteReceiptTran": DeleteReceiptTran,
+  "deleteSubTreatmentType": deleteSubTreatmentType,
+  "deleteMedicineOrderPaymentType": deleteMedicineOrderPaymentType,
+  "deleteUser": DeleteUser,
 };
 
 interface TableProps {

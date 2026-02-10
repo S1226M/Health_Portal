@@ -23,13 +23,14 @@ export default async function SaveDiagnosisType(formData: FormData) {
     const isActive = formData.get("IsActive") === 'on';
     const hospitalID = formData.get("HospitalID") as string;
     const description = formData.get("Description") as string;
-    const userID = formData.get("UserID") as string;    const data = {
+    const userID = formData.get("UserID") as string;
+    const data = {
         DiagnosisTypeName: diagnosisTypeName,
         DiagnosisTypeShortName: diagnosisTypeShortName,
         IsActive: isActive,
         HospitalID: parseInt(hospitalID),
         Description: description,
-        UserID: parseInt(userID),
+        UserID: currentUserId,
         Created: new Date(),
         CreatedByUserID: currentUserId,
         Modified: new Date(),
