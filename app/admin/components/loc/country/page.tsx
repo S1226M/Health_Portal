@@ -43,7 +43,7 @@ export default async function CountryListPage() {
                 data={data}
                 idKey='CountryID'
                 basePath="/admin/components/loc/country"
-                moduleName="country"
+                moduleName="Country"
             />
         </div>
     );

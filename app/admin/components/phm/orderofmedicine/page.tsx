@@ -40,7 +40,7 @@ export default async function OrderOfMedicineListPage() {
                 data={data}
                 idKey='OrderOfMedicineID'
                 basePath="/admin/components/phm/orderofmedicine"
-                moduleName="orderOfMedicine"
+                moduleName="OrderOfMedicine"
             />
         </div>
     );

@@ -39,7 +39,7 @@ export default async function MedicineOrderPaymentTypeListPage() {
                 data={data}
                 idKey='MedicineOrderPaymentTypeID'
                 basePath="/admin/components/phm/medicineorderpaymenttype"
-                moduleName="medicineOrderPaymentType"
+                moduleName="MedicineOrderPaymentType"
             />
         </div>
     )

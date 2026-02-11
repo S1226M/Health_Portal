@@ -41,7 +41,7 @@ export default async function SubTreatmentTypeListPage() {
                 data={data}
                 idKey='SubTreatmentTypeID'
                 basePath="/admin/components/hop/subtreatmenttype"
-                moduleName="subtreatmenttype"
+                moduleName="SubTreatmentType"
             />
         </div>
     );

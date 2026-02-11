@@ -39,7 +39,7 @@ export default async function UsserPage(){
                 data={data}
                 idKey='UserID'
                 basePath="/admin/components/sec/user"
-                moduleName="user"
+                moduleName="User"
             />
         </div>
     )

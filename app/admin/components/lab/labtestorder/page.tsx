@@ -40,7 +40,7 @@ export default async function LabTestOrderListPage() {
                 data={data}
                 idKey='LabTestOrderID'
                 basePath="/admin/components/lab/labtestorder"
-                moduleName="labTestOrder"
+                moduleName="LabTestOrder"
             />
         </div>
     );

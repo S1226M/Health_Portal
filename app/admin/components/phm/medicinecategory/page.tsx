@@ -40,7 +40,7 @@ export default async function MedicineCategoryListPage() {
                 data={data}
                 idKey='MedicineCategoryID'
                 basePath="/admin/components/phm/medicinecategory"
-                moduleName="medicineCategory"
+                moduleName="MedicineCategory"
             />
         </div>
     );

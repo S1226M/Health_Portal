@@ -40,7 +40,7 @@ export default async function HospitalPage() {
                 data={data}
                 idKey='HospitalID'
                 basePath="/admin/components/hop/hospital"
-                moduleName="hospital"
+                moduleName="Hospital"
             />
         </div>
     );

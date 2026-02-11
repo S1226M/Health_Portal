@@ -53,7 +53,7 @@ export default async function HospitalTreatmentListPage() {
                 data={flattenedData}
                 idKey='HospitalTreatmentID'
                 basePath="/admin/components/hop/hospitaltreatment"
-                moduleName="hospitaltreatment"
+                moduleName="HospitalTreatment"
             />
         </div>
     );

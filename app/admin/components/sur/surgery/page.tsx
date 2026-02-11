@@ -38,7 +38,7 @@ export default async function SurgeryListPage() {
                 columns={columns} 
                 data={data} 
                 basePath="/admin/components/sur/surgery" 
-                moduleName="surgery" 
+                moduleName="Surgery" 
             />
         </div>
     );

@@ -41,7 +41,7 @@ export default async function RoleListPage() {
                 data={data}
                 idKey='RoleID'
                 basePath="/admin/components/sec/role"
-                moduleName="role"
+                moduleName="Role"
             />
         </div>
     );

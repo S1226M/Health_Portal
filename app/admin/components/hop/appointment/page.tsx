@@ -41,7 +41,7 @@ export default async function AppointmentListPage() {
                 data={data}
                 idKey='AppointmentID'
                 basePath="/admin/components/hop/appointment"
-                moduleName="appointment"
+                moduleName="Appointment"
             />
         </div>
     );

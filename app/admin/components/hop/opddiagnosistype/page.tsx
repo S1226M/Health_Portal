@@ -53,7 +53,7 @@ export default async function OPDDiagnosisTypeListPage() {
                 data={flattenedData}
                 idKey='OPDDiagnosisTypeID'
                 basePath="/admin/components/hop/opddiagnosistype"
-                moduleName="opddiagnosistype"
+                moduleName="OPDDiagnosisType"
             />
         </div>
     );

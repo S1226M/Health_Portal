@@ -43,7 +43,7 @@ export default async function StateListPage() {
                 data={data}
                 idKey='StateID'
                 basePath="/admin/components/loc/state"
-                moduleName="state"
+                moduleName="State"
             />
         </div>
     );

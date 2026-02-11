@@ -41,7 +41,7 @@ export default async function DoctorReviewListPage() {
                 data={data}
                 idKey='DoctorReviewID'
                 basePath="/admin/components/hop/doctorreview"
-                moduleName="doctorreview"
+                moduleName="DoctorReview"
             />
         </div>
     );

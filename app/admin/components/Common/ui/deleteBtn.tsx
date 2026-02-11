@@ -8,10 +8,12 @@ interface DeleteBtnProps {
 }
 
 export default function DeleteBtn({id,deleteFn}: DeleteBtnProps) {
+    console.log(deleteFn,id);
   const handleDelete = async () => {
         const confirmed = window.confirm("Are you sure you want to delete this item?");
         
         if (confirmed) {
+
             try {
                 await deleteFn(id);
                 // Optionally add a toast success message here

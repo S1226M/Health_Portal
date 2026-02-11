@@ -41,7 +41,7 @@ export default async function OPDListPage() {
                 data={data}
                 idKey='OPDID'
                 basePath="/admin/components/hop/opd"
-                moduleName="opd"
+                moduleName="OPD"
             />
         </div>
     );

@@ -40,7 +40,7 @@ export default async function CityListPage() {
                 data={data}
                 idKey='CityID'
                 basePath="/admin/components/loc/city"
-                moduleName="city"
+                moduleName="City"
             />
         </div>
     );

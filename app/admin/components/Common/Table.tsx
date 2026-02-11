@@ -85,7 +85,7 @@ interface TableProps {
 }
 
 export function Table({ columns, data, basePath, idKey, moduleName }: TableProps) {
-  const generatedFnName = `delete${moduleName.charAt(0).toUpperCase()}${moduleName.slice(1)}`;
+  const generatedFnName = `delete${moduleName}`;
   const activeDeleteFn = actionsMap[generatedFnName];
 
   return (

@@ -63,7 +63,7 @@ export default async function ReceiptTranListPage() {
                 data={flatData}
                 idKey='ReceiptTranID'
                 basePath="/admin/components/hop/receipttran"
-                moduleName="receipttran"
+                moduleName="ReceiptTran"
             />
         </div>
     );

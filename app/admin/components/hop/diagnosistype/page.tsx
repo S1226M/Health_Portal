@@ -41,7 +41,7 @@ export default async function DiagnosisTypeListPage() {
                 data={data}
                 idKey='DiagnosisTypeID'
                 basePath="/admin/components/hop/diagnosistype"
-                moduleName="diagnosistype"
+                moduleName="DiagnosisType"
             />
         </div>
     );

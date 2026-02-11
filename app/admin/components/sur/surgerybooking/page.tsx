@@ -40,7 +40,7 @@ export default async function SurgeryBookingListPage() {
                 data={data}
                 idKey='SurgeryBookingID'
                 basePath="/admin/components/sur/surgerybooking"
-                moduleName="surgeryBooking"
+                moduleName="SurgeryBooking"
             />
         </div>
     );
