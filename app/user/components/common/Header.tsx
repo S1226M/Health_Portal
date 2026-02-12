@@ -23,9 +23,9 @@ export default function Header() {
   // TypeScript will now infer they match the NavItem structure
   const navItems: NavItem[] = [
     { label: "Find Doctors", href: "/" },
-    { label: "Video Consult", href: "/videoConsult/viewConsult" },
-    { label: "Lab Tests", href: "/lab/labTest" },
-    { label: "Surgeries", href: "/sur/surgery" },
+    { label: "Book Appointment", href: "/user/components/hop/appointment" },
+    { label: "Lab Tests", href: "/user/components/lab/labTest" },
+    { label: "Surgeries", href: "/user/components/sur/surgery" },
   ]
 
   const corporateItems: NavItem[] = [
