@@ -13,28 +13,32 @@ export default async function DeleteUser(id: number) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    await prisma.sec_user.update({
-        where: { UserID: id },
-        data: {
-            IsDeleted: true,
-            Modified: new Date(),
-            ModifiedByUserID: currentUserId
-        }
-    });
+  await prisma.sec_user.update({
+    where: { UserID: id },
+    data: {
+      IsDeleted: true,
+      Modified: new Date(),
+      ModifiedByUserID: currentUserId,
+    },
+  });
 
-    const logData = {
-        UserID: id,
-        IUD: "D",
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-    };
+  const logData = {
+    UserID: id,
+    IUD: "D",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.sec_log_user.create({ data: logData });
+  await prisma.sec_log_user.create({ data: logData });
 
-    revalidatePath("/admin/components/sec/user");
+  revalidatePath("/admin/components/sec/user");
 }

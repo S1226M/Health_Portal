@@ -1,3 +1,4 @@
+"use server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -11,21 +12,29 @@ export default async function editMedicineOrderPaymentType(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const MedicineOrderPaymentTypeID = parseInt(formData.get("MedicineOrderPaymentTypeID") as string);
-    const MedicineOrderPaymentTypeName = formData.get("PaymentTypeName") as string;
+  const MedicineOrderPaymentTypeID = parseInt(
+    formData.get("MedicineOrderPaymentTypeID") as string,
+  );
+  const MedicineOrderPaymentTypeName = formData.get(
+    "PaymentTypeName",
+  ) as string;
 
-    await prisma.phm_medicineorderpaymenttype.update({
-        where: { MedicineOrderPaymentTypeID },
-        data: {
-            MedicineOrderPaymentTypeName,
-            ModifiedByUserID: currentUserId,
-        }
-    });
-    revalidatePath("/admin/components/phm/medicineorderpaymenttype");
-    redirect("/admin/components/phm/medicineorderpaymenttype");
+  await prisma.phm_medicineorderpaymenttype.update({
+    where: { MedicineOrderPaymentTypeID },
+    data: {
+      MedicineOrderPaymentTypeName,
+      ModifiedByUserID: currentUserId,
+    },
+  });
+  revalidatePath("/admin/components/phm/medicineorderpaymenttype");
+  redirect("/admin/components/phm/medicineorderpaymenttype");
 }

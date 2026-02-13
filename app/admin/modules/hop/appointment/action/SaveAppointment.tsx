@@ -13,39 +13,44 @@ export default async function SaveAppointment(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const appointmentNo = formData.get("AppointmentNo") as string;
-    const patientID = formData.get("PatientID") as string;
-    const doctorID = formData.get("DoctorID") as string;
-    const appointmentDate = formData.get("AppointmentDate") as string;
-    const status = formData.get("Status") as string;
-    const reason = formData.get("Reason") as string;    const data = {
-        AppointmentNo: appointmentNo,
-        PatientID: parseInt(patientID),
-        DoctorID: parseInt(doctorID),
-        AppointmentDate: new Date(appointmentDate),
-        Status: status,
-        Reason: reason,
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-        Modified: new Date(),
-    };
+  const appointmentNo = formData.get("AppointmentNo") as string;
+  const patientID = formData.get("PatientID") as string;
+  const doctorID = formData.get("DoctorID") as string;
+  const appointmentDate = formData.get("AppointmentDate") as string;
+  const status = formData.get("Status") as string;
+  const reason = formData.get("Reason") as string;
+  const data = {
+    AppointmentNo: appointmentNo,
+    PatientID: parseInt(patientID),
+    DoctorID: parseInt(doctorID),
+    AppointmentDate: new Date(appointmentDate),
+    Status: status,
+    Reason: reason,
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+    Modified: new Date(),
+  };
 
-    const addedData = await prisma.hop_appointment.create({ data });
+  const addedData = await prisma.hop_appointment.create({ data });
 
-    const addedID = addedData.AppointmentID;
-    const newData = {
-        AppointmentID: addedID,
-        IUD: "I",
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-    };
-    await prisma.hop_log_appointment.create({ data: newData });
+  const addedID = addedData.AppointmentID;
+  const newData = {
+    AppointmentID: addedID,
+    IUD: "I",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
+  await prisma.hop_log_appointment.create({ data: newData });
 
-    revalidatePath("/admin/components/hop/appointment");
-    redirect("/admin/components/hop/appointment");
+  revalidatePath("/admin/components/hop/appointment");
+  redirect("/admin/components/hop/appointment");
 }

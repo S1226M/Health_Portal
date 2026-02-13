@@ -17,7 +17,7 @@ export default function LoginForm() {
   return (
     <Box component="form" action={login} sx={{ width: "100%" }}>
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             name="Email"
             fullWidth
@@ -34,7 +34,7 @@ export default function LoginForm() {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             name="Password"
             fullWidth
@@ -60,10 +60,7 @@ export default function LoginForm() {
           mt: 2,
         }}
       >
-        <FormControlLabel
-          control={<Checkbox />}
-          label="Remember me"
-        />
+        <FormControlLabel control={<Checkbox />} label="Remember me" />
 
         <Button variant="text" sx={{ textTransform: "none" }}>
           Forgot Password?

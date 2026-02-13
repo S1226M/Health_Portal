@@ -12,25 +12,35 @@ export default async function SaveSurgeryBooking(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const SurgeryID = parseInt(formData.get("SurgeryID") as string);
-    const PatientID = parseInt(formData.get("PatientID") as string);
-    const SurgeryDate = new Date(formData.get("SurgeryDate") as string);
+  const SurgeryID = parseInt(formData.get("SurgeryID") as string);
+  const PatientID = parseInt(formData.get("PatientID") as string);
+  const HospitalID = parseInt(formData.get("HospitalID") as string);
+  const SurgeryDate = new Date(formData.get("SurgeryDate") as string);
 
-    await prisma.sur_surgerybooking.create({
-        data: {
-            SurgeryID,
-            PatientID,
-            SurgeryDate,
-            CreatedByUserID: currentUserId,
-            IsDeleted: false,
-        }
-    });
+  await prisma.sur_surgerybooking.create({
+    data: {
+      SurgeryID,
+      PatientID,
+      PrimaryDoctorID: 1,
+      HospitalID,
+      BookingNo: "BOOK-" + Date.now(),
+      BookingDateTime: new Date(),
+      SurgeryDateTime: SurgeryDate,
+      Status: "Scheduled",
+      CreatedByUserID: currentUserId,
+      IsDeleted: false,
+    },
+  });
 
-    revalidatePath("/admin/components/sur/surgerybooking");
-    redirect("/admin/components/sur/surgerybooking");
+  revalidatePath("/admin/components/sur/surgerybooking");
+  redirect("/admin/components/sur/surgerybooking");
 }

@@ -13,28 +13,32 @@ export default async function DeleteReceiptTran(id: number) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    await prisma.hop_receipttran.update({
-        where: { ReceiptTranID: id },
-        data: {
-            IsDeleted: true,
-            Modified: new Date(),
-            ModifiedByUserID: currentUserId
-        }
-    });
+  await prisma.hop_receipttran.update({
+    where: { ReceiptTranID: id },
+    data: {
+      IsDeleted: true,
+      Modified: new Date(),
+      ModifiedByUserID: currentUserId,
+    },
+  });
 
-    const logData = {
-        ReceiptTranID: id,
-        IUD: "D",
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-    };
+  const logData = {
+    ReceiptTranID: id,
+    IUD: "D",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.hop_receipttran.create({ data: logData });
+  await prisma.hop_log_receipttran.create({ data: logData });
 
-    revalidatePath("/admin/components/hop/receipttran");
+  revalidatePath("/admin/components/hop/receipttran");
 }

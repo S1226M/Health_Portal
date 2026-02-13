@@ -5,35 +5,32 @@ import { PageHeader } from "../../../Common/PageHeader";
 import { prisma } from "@/lib/prisma";
 
 export default async function AddStatePage() {
-    const columns = await getColumns('loc_state');
+  const columns = await getColumns("loc_state");
 
-    // Fetch only active countries (IsDeleted is false)
-        const countries = await prisma.loc_country.findMany({
-            where: { IsDeleted: false },
-            select: { CountryID: true, CountryName: true }
-        });
+  // Fetch only active countries (IsDeleted is false)
+  const countries = await prisma.loc_country.findMany({
+    where: { IsDeleted: false },
+    select: { CountryID: true, CountryName: true },
+  });
 
-        // Format for the Generic Dropdown
-        const countryOptions = countries.map(c => ({
-            label: c.CountryName,
-            value: c.CountryID
-        }));
+  // Format for the Generic Dropdown
+  const countryOptions = countries.map((c) => ({
+    label: c.CountryName,
+    value: c.CountryID,
+  }));
 
-    return (
-        <>
-            <PageHeader 
-                title="Add State" 
-                backUrl="/admin/components/loc/state" 
-            />
-            <FormContainer 
-                columns={columns}
-                action={SaveState}
-                onCancelUrl="/admin/components/loc/state"
-                skipFields={['StateID']}
-                selectOptions={{
-                    CountryID: countryOptions
-                }}
-            />
-        </>
-    );
+  return (
+    <>
+      <PageHeader title="Add State" backUrl="/admin/components/loc/state" />
+      <FormContainer
+        columns={columns}
+        action={SaveState}
+        onCancelUrl="/admin/components/loc/state"
+        skipFields={["StateID"]}
+        selectOptions={{
+          CountryID: countryOptions,
+        }}
+      />
+    </>
+  );
 }

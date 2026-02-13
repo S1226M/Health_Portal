@@ -12,22 +12,28 @@ export default async function editMedicineCategory(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const MedicineCategoryID = parseInt(formData.get("MedicineCategoryID") as string);
-    const CategoryName = formData.get("CategoryName") as string;
+  const MedicineCategoryID = parseInt(
+    formData.get("MedicineCategoryID") as string,
+  );
+  const CategoryName = formData.get("CategoryName") as string;
 
-    await prisma.phm_medicinecategory.update({
-        where: { MedicineCategoryID },
-        data: {
-            CategoryName,
-            ModifiedByUserID: currentUserId,
-        }
-    });
+  await prisma.phm_medicinecategory.update({
+    where: { MedicineCategoryID },
+    data: {
+      CategoryName,
+      ModifiedByUserID: currentUserId,
+    },
+  });
 
-    revalidatePath("/admin/components/phm/medicinecategory");
-    redirect("/admin/components/phm/medicinecategory");
+  revalidatePath("/admin/components/phm/medicinecategory");
+  redirect("/admin/components/phm/medicinecategory");
 }

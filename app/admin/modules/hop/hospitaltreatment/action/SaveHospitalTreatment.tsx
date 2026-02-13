@@ -13,48 +13,57 @@ export default async function SaveHospitalTreatment(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const hospitalID = formData.get("HospitalID") as string;
-    const treatmentTypeID = formData.get("TreatmentTypeID") as string;
+  const hospitalID = formData.get("HospitalID") as string;
+  const treatmentTypeID = formData.get("TreatmentTypeID") as string;
 
-    // Note: This table doesn't have Created/CreatedByUserID in schema but has HospitalTreatmentID
-    // Checking schema again: line 145.
-    // HospitalTreatmentID, HospitalID, TreatmentTypeID, IsDeleted.
-    // It DOES NOT have Created/Modified fields.
+  // Note: This table doesn't have Created/CreatedByUserID in schema but has HospitalTreatmentID
+  // Checking schema again: line 145.
+  // HospitalTreatmentID, HospitalID, TreatmentTypeID, IsDeleted.
+  // It DOES NOT have Created/Modified fields.
 
-    // But typical pattern requires logging. 
-    // And log table requires CreatedByUserID (line 205).
-    // The main table doesn't have it.
+  // But typical pattern requires logging.
+  // And log table requires CreatedByUserID (line 205).
+  // The main table doesn't have it.
 
-    // Validate composite unique constraint (HospitalID + TreatmentTypeID)
-    const existingRecord = await prisma.hop_hospitaltreatment.findUnique({
-      where: { HospitalID_TreatmentTypeID: { HospitalID: parseInt(hospitalID), TreatmentTypeID: parseInt(treatmentTypeID) } }
-    });
-    if (existingRecord && !existingRecord.IsDeleted) {
-      throw new Error("This hospital treatment combination already exists");
-    }
-
-    const data = {
+  // Validate composite unique constraint (HospitalID + TreatmentTypeID)
+  const existingRecord = await prisma.hop_hospitaltreatment.findUnique({
+    where: {
+      HospitalID_TreatmentTypeID: {
         HospitalID: parseInt(hospitalID),
         TreatmentTypeID: parseInt(treatmentTypeID),
-        IsDeleted: false,
-    };
+      },
+    },
+  });
+  if (existingRecord && !existingRecord.IsDeleted) {
+    throw new Error("This hospital treatment combination already exists");
+  }
 
-    const addedData = await prisma.hop_hospitaltreatment.create({ data });
+  const data = {
+    HospitalID: parseInt(hospitalID),
+    TreatmentTypeID: parseInt(treatmentTypeID),
+    IsDeleted: false,
+  };
 
-    const addedID = addedData.HospitalTreatmentID;
-    const newData = {
-        HospitalTreatmentID: addedID,
-        IUD: "I",
-        Created: new Date(),
-        CreatedByUserID: currentUserId, // Hardcoded as per pattern
-    };
-    await prisma.hop_log_hospitaltreatment.create({ data: newData });
+  const addedData = await prisma.hop_hospitaltreatment.create({ data });
 
-    revalidatePath("/admin/components/hop/hospitaltreatment");
-    redirect("/admin/components/hop/hospitaltreatment");
+  const addedID = addedData.HospitalTreatmentID;
+  const newData = {
+    HospitalTreatmentID: addedID,
+    IUD: "I",
+    Created: new Date(),
+    CreatedByUserID: currentUserId, // Hardcoded as per pattern
+  };
+  await prisma.hop_log_hospitaltreatment.create({ data: newData });
+
+  revalidatePath("/admin/components/hop/hospitaltreatment");
+  redirect("/admin/components/hop/hospitaltreatment");
 }

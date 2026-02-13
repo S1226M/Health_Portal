@@ -1,8 +1,6 @@
-"use server"
+"use server";
 
-
-
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 import jwt from "jsonwebtoken";
@@ -14,24 +12,28 @@ export async function deleteSubTreatmentType(id: number) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    await prisma.hop_subtreatmenttype.update({
-        where: { SubTreatmentTypeID: id },
-        data: { IsDeleted: true }
-    });
+  await prisma.hop_subtreatmenttype.update({
+    where: { SubTreatmentTypeID: id },
+    data: { IsDeleted: true },
+  });
 
-    const deleteData = {
-        SubTreatmentTypeID: id,
-        IUD: 'D',
-        Created: new Date(),
-        CreatedByUserID: currentUserId
-    }
+  const deleteData = {
+    SubTreatmentTypeID: id,
+    IUD: "D",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.hop_log_subtreatmenttype.create({ data: deleteData });
+  await prisma.hop_log_subtreatmenttype.create({ data: deleteData });
 
-    revalidatePath('/admin/components/hop/subtreatmenttype');
+  revalidatePath("/admin/components/hop/subtreatmenttype");
 }

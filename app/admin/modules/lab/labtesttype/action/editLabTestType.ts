@@ -12,22 +12,26 @@ export default async function editLabTestType(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const LabTestTypeID = parseInt(formData.get("LabTestTypeID") as string);
-    const LabTestTypeName = formData.get("LabTestTypeName") as string;
+  const LabTestTypeID = parseInt(formData.get("LabTestTypeID") as string);
+  const LabTestTypeName = formData.get("LabTestTypeName") as string;
 
-    await prisma.lab_labtesttype.update({
-        where: { LabTestTypeID },
-        data: {
-            LabTestTypeName,
-            ModifiedByUserID: currentUserId,
-        }
-    });
+  await prisma.lab_labtesttype.update({
+    where: { LabTestTypeID },
+    data: {
+      LabTestTypeName,
+      ModifiedByUserID: currentUserId,
+    },
+  });
 
-    revalidatePath("/admin/components/lab/labtesttype");
-    redirect("/admin/components/lab/labtesttype");
+  revalidatePath("/admin/components/lab/labtesttype");
+  redirect("/admin/components/lab/labtesttype");
 }

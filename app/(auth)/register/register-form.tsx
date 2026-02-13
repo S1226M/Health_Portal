@@ -10,7 +10,7 @@ export default function RegisterForm() {
   return (
     <Box component="form" action={registerUser} sx={{ width: "100%" }}>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             name="UserName"
             fullWidth
@@ -26,7 +26,7 @@ export default function RegisterForm() {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             name="FullName"
             fullWidth
@@ -42,7 +42,7 @@ export default function RegisterForm() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             name="Password"
             type="password"
@@ -59,7 +59,7 @@ export default function RegisterForm() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             name="ConfirmPassword"
             type="password"
@@ -76,7 +76,7 @@ export default function RegisterForm() {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             name="Email"
             fullWidth
@@ -92,7 +92,7 @@ export default function RegisterForm() {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             name="MobileNumber"
             fullWidth
@@ -108,7 +108,7 @@ export default function RegisterForm() {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Button type="submit" fullWidth variant="contained" size="large">
             Create Account
           </Button>

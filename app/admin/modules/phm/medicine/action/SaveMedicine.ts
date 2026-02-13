@@ -12,27 +12,33 @@ export default async function SaveMedicine(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const MedicineName = formData.get("MedicineName") as string;
-    const MedicineCategoryID = parseInt(formData.get("MedicineCategoryID") as string);
-    const Price = parseFloat(formData.get("Price") as string);
-    const Manufacturer = formData.get("Manufacturer") as string;
+  const MedicineName = formData.get("MedicineName") as string;
+  const MedicineCategoryID = parseInt(
+    formData.get("MedicineCategoryID") as string,
+  );
+  const Price = parseFloat(formData.get("Price") as string);
+  const Manufacturer = formData.get("Manufacturer") as string;
 
-    await prisma.phm_medicine.create({
-        data: {
-            MedicineName,
-            MedicineCategoryID,
-            Price,
-            Manufacturer,
-            CreatedByUserID: currentUserId,
-            IsDeleted: false,
-        }
-    });
+  await prisma.phm_medicine.create({
+    data: {
+      MedicineName,
+      MedicineCategoryID,
+      Price,
+      Manufacturer,
+      CreatedByUserID: currentUserId,
+      IsDeleted: false,
+    },
+  });
 
-    revalidatePath("/admin/components/phm/medicine");
-    redirect("/admin/components/phm/medicine");
+  revalidatePath("/admin/components/phm/medicine");
+  redirect("/admin/components/phm/medicine");
 }

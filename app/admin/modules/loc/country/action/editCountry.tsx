@@ -12,55 +12,59 @@ export default async function editCountry(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const rawId = formData.get('CountryID');
-    const countryId = parseInt(rawId as string);
+  const rawId = formData.get("CountryID");
+  const countryId = parseInt(rawId as string);
 
-    if (isNaN(countryId)) {
-        throw new Error("Invalid Country ID");
-    }
+  if (isNaN(countryId)) {
+    throw new Error("Invalid Country ID");
+  }
 
-    const countryName = formData.get('CountryName') as string;
-    const countryCode = formData.get('CountryCode') as string;
+  const countryName = formData.get("CountryName") as string;
+  const countryCode = formData.get("CountryCode") as string;
 
-    // Validate unique CountryName if changing
-    const currentCountry = await prisma.loc_country.findUnique({
-      where: { CountryID: countryId }
+  // Validate unique CountryName if changing
+  const currentCountry = await prisma.loc_country.findUnique({
+    where: { CountryID: countryId },
+  });
+  if (currentCountry && currentCountry.CountryName !== countryName) {
+    const existingCountry = await prisma.loc_country.findUnique({
+      where: { CountryName: countryName },
     });
-    if (currentCountry && currentCountry.CountryName !== countryName) {
-      const existingCountry = await prisma.loc_country.findUnique({
-        where: { CountryName: countryName }
-      });
-      if (existingCountry) {
-        throw new Error("A country with this name already exists");
-      }
+    if (existingCountry) {
+      throw new Error("A country with this name already exists");
     }
+  }
 
-    await prisma.loc_country.update({
-        where: {
-            CountryID: countryId
-        },
-        data: {
-            CountryName: countryName,
-            CountryCode: countryCode,
-            ModifiedByUserID: currentUserId,
-            Modified: new Date(),
-        }   
-    });
+  await prisma.loc_country.update({
+    where: {
+      CountryID: countryId,
+    },
+    data: {
+      CountryName: countryName,
+      CountryCode: countryCode,
+      ModifiedByUserID: currentUserId,
+      Modified: new Date(),
+    },
+  });
 
-    const editData = {
-        CountryID: countryId,
-        IUD: 'U',
-        Created: new Date(),
-        CreatedByUserID: currentUserId
-    };
+  const editData = {
+    CountryID: countryId,
+    IUD: "U",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.loc_log_country.create({ data: editData });
+  await prisma.loc_log_country.create({ data: editData });
 
-    revalidatePath('/admin/components/loc/country');
-    redirect('/admin/components/loc/country');
+  revalidatePath("/admin/components/loc/country");
+  redirect("/admin/components/loc/country");
 }

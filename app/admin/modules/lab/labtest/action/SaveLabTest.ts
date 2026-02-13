@@ -12,25 +12,29 @@ export default async function SaveLabTest(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const TestName = formData.get("TestName") as string;
-    const TestCode = formData.get("TestCode") as string;
-    const Price = parseFloat(formData.get("Price") as string);
+  const TestName = formData.get("TestName") as string;
+  const TestCode = formData.get("TestCode") as string;
+  const Price = parseFloat(formData.get("Price") as string);
 
-    await prisma.lab_labtest.create({
-        data: {
-            TestName,
-            TestCode,
-            Price,
-            CreatedByUserID: currentUserId,
-            IsDeleted: false,
-        }
-    });
+  await prisma.lab_labtest.create({
+    data: {
+      TestName,
+      TestCode,
+      Price,
+      CreatedByUserID: currentUserId,
+      IsDeleted: false,
+    },
+  });
 
-    revalidatePath("/admin/components/lab/labtest");
-    redirect("/admin/components/lab/labtest");
+  revalidatePath("/admin/components/lab/labtest");
+  redirect("/admin/components/lab/labtest");
 }

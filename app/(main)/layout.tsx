@@ -1,17 +1,17 @@
-import type React from "react"
-import Header from "../components/Header"
-import Footer from "../components/Footer"
+import type React from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function MainLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode
+  children: React.ReactNode;
 }>) {
-    return (
-        <>
-            <Header />
-            {children}
-            <Footer />
-        </>
-    )
+  return (
+    <>
+      <Header />
+      {children}
+      <Footer />
+    </>
+  );
 }

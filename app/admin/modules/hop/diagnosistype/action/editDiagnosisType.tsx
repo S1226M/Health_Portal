@@ -13,42 +13,49 @@ export default async function editDiagnosisType(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const diagnosisTypeID = formData.get("DiagnosisTypeID") as string;
-    const diagnosisTypeName = formData.get("DiagnosisTypeName") as string;
-    const diagnosisTypeShortName = formData.get("DiagnosisTypeShortName") as string;
-    const isActive = formData.get("IsActive") === 'on';
-    const hospitalID = formData.get("HospitalID") as string;
-    const description = formData.get("Description") as string;
-    const userID = formData.get("UserID") as string;    const id = parseInt(diagnosisTypeID);
+  const diagnosisTypeID = formData.get("DiagnosisTypeID") as string;
+  const diagnosisTypeName = formData.get("DiagnosisTypeName") as string;
+  const diagnosisTypeShortName = formData.get(
+    "DiagnosisTypeShortName",
+  ) as string;
+  const isActive = formData.get("IsActive") === "on";
+  const hospitalID = formData.get("HospitalID") as string;
+  const description = formData.get("Description") as string;
+  const userID = formData.get("UserID") as string;
+  const id = parseInt(diagnosisTypeID);
 
-    await prisma.hop_diagnosistype.update({
-        where: { DiagnosisTypeID: id },
-        data: {
-            DiagnosisTypeName: diagnosisTypeName,
-            DiagnosisTypeShortName: diagnosisTypeShortName,
-            IsActive: isActive,
-            HospitalID: parseInt(hospitalID),
-            Description: description,
-            UserID: parseInt(userID),
-            Modified: new Date(),
-            ModifiedByUserID: currentUserId,
-        },
-    });
+  await prisma.hop_diagnosistype.update({
+    where: { DiagnosisTypeID: id },
+    data: {
+      DiagnosisTypeName: diagnosisTypeName,
+      DiagnosisTypeShortName: diagnosisTypeShortName,
+      IsActive: isActive,
+      HospitalID: parseInt(hospitalID),
+      Description: description,
+      UserID: parseInt(userID),
+      Modified: new Date(),
+      ModifiedByUserID: currentUserId,
+    },
+  });
 
-    const editData = {
-        DiagnosisTypeID: id,
-        IUD: "U",
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-    };
+  const editData = {
+    DiagnosisTypeID: id,
+    IUD: "U",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.hop_log_diagnosistype.create({ data: editData });
+  await prisma.hop_log_diagnosistype.create({ data: editData });
 
-    revalidatePath("/admin/components/hop/diagnosistype");
-    redirect("/admin/components/hop/diagnosistype");
+  revalidatePath("/admin/components/hop/diagnosistype");
+  redirect("/admin/components/hop/diagnosistype");
 }

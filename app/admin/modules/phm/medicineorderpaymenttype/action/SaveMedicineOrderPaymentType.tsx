@@ -12,20 +12,26 @@ export default async function SaveMedicineOrderPaymentType(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const MedicineOrderPaymentTypeName = formData.get("MedicineOrderPaymentTypeName") as string;
+  const MedicineOrderPaymentTypeName = formData.get(
+    "MedicineOrderPaymentTypeName",
+  ) as string;
 
-    await prisma.phm_medicineorderpaymenttype.create({
-        data: {
-            MedicineOrderPaymentTypeName,
-            CreatedByUserID: currentUserId,
-            IsDeleted: false,
-        }
-    });
-    revalidatePath("/admin/components/phm/medicineorderpaymenttype");
-    redirect("/admin/components/phm/medicineorderpaymenttype");
+  await prisma.phm_medicineorderpaymenttype.create({
+    data: {
+      MedicineOrderPaymentTypeName,
+      CreatedByUserID: currentUserId,
+      IsDeleted: false,
+    },
+  });
+  revalidatePath("/admin/components/phm/medicineorderpaymenttype");
+  redirect("/admin/components/phm/medicineorderpaymenttype");
 }

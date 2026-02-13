@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Mail, Phone, MapPin, Send } from "lucide-react"
+import { useState } from "react";
+import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -10,28 +10,32 @@ export default function Contact() {
     phone: "",
     subject: "",
     message: "",
-  })
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle form submission here
-    console.log("Form submitted:", formData)
-    alert("Thank you for your message! We'll get back to you soon.")
+    console.log("Form submitted:", formData);
+    alert("Thank you for your message! We'll get back to you soon.");
     setFormData({
       name: "",
       email: "",
       phone: "",
       subject: "",
       message: "",
-    })
-  }
+    });
+  };
 
   return (
     <main className="min-h-screen bg-white">
@@ -40,7 +44,8 @@ export default function Contact() {
         <div className="text-center mb-5">
           <h1 className="display-5 fw-bold text-dark mb-3">Contact Us</h1>
           <p className="text-secondary lead">
-            We're here to help. Get in touch with us for any questions or concerns.
+            We're here to help. Get in touch with us for any questions or
+            concerns.
           </p>
         </div>
 
@@ -50,7 +55,7 @@ export default function Contact() {
             <div className="card border-0 shadow-sm h-100">
               <div className="card-body p-4">
                 <h3 className="fw-bold mb-4">Get in Touch</h3>
-                
+
                 <div className="mb-4">
                   <div className="d-flex align-items-start gap-3 mb-3">
                     <div className="rounded-circle bg-primary bg-opacity-10 p-2 d-flex align-items-center justify-content-center">
@@ -59,8 +64,10 @@ export default function Contact() {
                     <div>
                       <h6 className="fw-bold mb-1">Address</h6>
                       <p className="text-secondary small mb-0">
-                        123 Healthcare Street,<br />
-                        Medical District,<br />
+                        123 Healthcare Street,
+                        <br />
+                        Medical District,
+                        <br />
                         City 12345
                       </p>
                     </div>
@@ -72,7 +79,10 @@ export default function Contact() {
                     </div>
                     <div>
                       <h6 className="fw-bold mb-1">Phone</h6>
-                      <a href="tel:+1234567890" className="text-secondary text-decoration-none small">
+                      <a
+                        href="tel:+1234567890"
+                        className="text-secondary text-decoration-none small"
+                      >
                         +1 (234) 567-890
                       </a>
                     </div>
@@ -84,7 +94,10 @@ export default function Contact() {
                     </div>
                     <div>
                       <h6 className="fw-bold mb-1">Email</h6>
-                      <a href="mailto:contact@practo.com" className="text-secondary text-decoration-none small">
+                      <a
+                        href="mailto:contact@practo.com"
+                        className="text-secondary text-decoration-none small"
+                      >
                         contact@practo.com
                       </a>
                     </div>
@@ -112,7 +125,7 @@ export default function Contact() {
             <div className="card border-0 shadow-sm">
               <div className="card-body p-4">
                 <h3 className="fw-bold mb-4">Send us a Message</h3>
-                
+
                 <form onSubmit={handleSubmit}>
                   <div className="row g-3">
                     <div className="col-md-6">
@@ -201,7 +214,10 @@ export default function Contact() {
                     </div>
 
                     <div className="col-12">
-                      <button type="submit" className="btn btn-primary px-4 py-2 d-flex align-items-center gap-2">
+                      <button
+                        type="submit"
+                        className="btn btn-primary px-4 py-2 d-flex align-items-center gap-2"
+                      >
                         <Send size={18} />
                         Send Message
                       </button>
@@ -214,6 +230,5 @@ export default function Contact() {
         </div>
       </div>
     </main>
-  )
+  );
 }
-

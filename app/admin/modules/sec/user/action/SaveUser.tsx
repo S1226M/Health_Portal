@@ -13,54 +13,58 @@ export default async function SaveUser(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const UserName = formData.get("UserName") as string;
-    const FullName = formData.get("FullName") as string;
-    const Password = formData.get("Password") as string;
-    const RoleID = parseInt(formData.get("RoleID") as string);
-    const Email = formData.get("Email") as string;
-    const MobileNo = formData.get("MobileNo") as string;
-    const ProfileURL = formData.get("ProfileURL") as string;
-    
-    // Validate unique UserName
-    const existingUser = await prisma.sec_user.findUnique({
-      where: { UserName }
-    });
-    if (existingUser) {
-      throw new Error("A user with this username already exists");
-    }
+  const UserName = formData.get("UserName") as string;
+  const FullName = formData.get("FullName") as string;
+  const Password = formData.get("Password") as string;
+  const RoleID = parseInt(formData.get("RoleID") as string);
+  const Email = formData.get("Email") as string;
+  const MobileNo = formData.get("MobileNo") as string;
+  const ProfileURL = formData.get("ProfileURL") as string;
 
-    const data = {
-        UserName,
-        FullName,
-        Password,
-        RoleID,
-        Email,
-        MobileNo,
-        ProfileURL,
-        IsActive: true,
-        Created: new Date(),
-        Modified: new Date(),
-        CreatedByUserID: currentUserId,
-        IsDeleted: false,
-    };
+  // Validate unique UserName
+  const existingUser = await prisma.sec_user.findUnique({
+    where: { UserName },
+  });
+  if (existingUser) {
+    throw new Error("A user with this username already exists");
+  }
 
-    const addedData = await prisma.sec_user.create({ data });
-    const addedID = addedData.UserID;
+  const data = {
+    UserName,
+    FullName,
+    Password,
+    RoleID,
+    Email,
+    MobileNo,
+    ProfileURL,
+    IsActive: true,
+    Created: new Date(),
+    Modified: new Date(),
+    CreatedByUserID: currentUserId,
+    IsDeleted: false,
+  };
 
-    const logData = {
-        UserID: addedID,
-        IUD: "I",
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-    };
+  const addedData = await prisma.sec_user.create({ data });
+  const addedID = addedData.UserID;
 
-    await prisma.sec_log_user.create({ data: logData });
+  const logData = {
+    UserID: addedID,
+    IUD: "I",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    revalidatePath("/admin/components/sec/user");
-    redirect("/admin/components/sec/user");
+  await prisma.sec_log_user.create({ data: logData });
+
+  revalidatePath("/admin/components/sec/user");
+  redirect("/admin/components/sec/user");
 }

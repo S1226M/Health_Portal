@@ -35,7 +35,7 @@ export async function registerUser(formData: FormData) {
     },
   });
 
-  if(currentUserId === 6){
+  if (currentUserId === 6) {
     revalidatePath("/user");
     redirect("/user");
   }

@@ -1,37 +1,35 @@
-import React from 'react';
-import { PageHeader } from '@/app/admin/components/Common/PageHeader';
-import { FormContainer, FormInput, FormSelect } from '@/app/admin/components/Common/Form';
-import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { getColumns } from '../../../Common/columns';
-import { FormattedColumns } from '../../../Common/formatedColumns';
-import { ViewTable } from '../../../Common/commonViewTable';
+import React from "react";
+import { PageHeader } from "@/app/admin/components/Common/PageHeader";
 
-export default async function StateDetailPage({ params }: { params: Promise<{ stateID: string }> }) {
-    const { stateID } = await params;
-    const id = Number(stateID);
-    if (Number.isNaN(id)) notFound();
-    
-    const[rawColumns, state] = await Promise.all([
-        getColumns('loc_state'),
-        prisma.loc_state.findFirst({ where: { StateID: id } })
-    ])
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getColumns } from "../../../Common/columns";
+import { FormattedColumns } from "../../../Common/formatedColumns";
+import { ViewTable } from "../../../Common/commonViewTable";
 
-    if (!state) notFound();
+export default async function StateDetailPage({
+  params,
+}: {
+  params: Promise<{ stateID: string }>;
+}) {
+  const { stateID } = await params;
+  const id = Number(stateID);
+  if (Number.isNaN(id)) notFound();
 
-    const formattedColumns = FormattedColumns(rawColumns);
+  const [rawColumns, state] = await Promise.all([
+    getColumns("loc_state"),
+    prisma.loc_state.findFirst({ where: { StateID: id } }),
+  ]);
 
-    return (
-        <div className="p-6">
-            <PageHeader
-                title="State Details"
-                backUrl="/admin/components/loc/state"
-            />
+  if (!state) notFound();
 
-            <ViewTable
-                columns={formattedColumns}
-                data={state}
-            />
-        </div>
-    );
+  const formattedColumns = FormattedColumns(rawColumns);
+
+  return (
+    <div className="p-6">
+      <PageHeader title="State Details" backUrl="/admin/components/loc/state" />
+
+      <ViewTable columns={formattedColumns} data={state} />
+    </div>
+  );
 }

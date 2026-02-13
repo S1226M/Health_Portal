@@ -12,21 +12,25 @@ export default async function SaveLabTestType(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const LabTestTypeName = formData.get("LabTestTypeName") as string;
+  const LabTestTypeName = formData.get("LabTestTypeName") as string;
 
-    await prisma.lab_labtesttype.create({
-        data: {
-            LabTestTypeName,
-            CreatedByUserID: currentUserId,
-            IsDeleted: false,
-        }
-    });
+  await prisma.lab_labtesttype.create({
+    data: {
+      LabTestTypeName,
+      CreatedByUserID: currentUserId,
+      IsDeleted: false,
+    },
+  });
 
-    revalidatePath("/admin/components/lab/labtesttype");
-    redirect("/admin/components/lab/labtesttype");
+  revalidatePath("/admin/components/lab/labtesttype");
+  redirect("/admin/components/lab/labtesttype");
 }

@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 
 const PUBLIC_PATHS = ["/login", "/register"];
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // ✅ Allow public pages

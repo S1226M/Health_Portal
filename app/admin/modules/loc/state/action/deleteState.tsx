@@ -1,8 +1,6 @@
-"use server"
+"use server";
 
-
-
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 import jwt from "jsonwebtoken";
@@ -14,24 +12,28 @@ export async function deleteState(id: number) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    await prisma.loc_state.update({
-        where: { StateID: id },
-        data: { IsDeleted: true }
-    });
+  await prisma.loc_state.update({
+    where: { StateID: id },
+    data: { IsDeleted: true },
+  });
 
-    const deleteData = {
-        StateID: id,
-        IUD: 'D',
-        Created: new Date(),
-        CreatedByUserID: currentUserId
-    }
+  const deleteData = {
+    StateID: id,
+    IUD: "D",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.loc_log_state.create({ data: deleteData });
+  await prisma.loc_log_state.create({ data: deleteData });
 
-    revalidatePath('/admin/components/loc/state');
+  revalidatePath("/admin/components/loc/state");
 }

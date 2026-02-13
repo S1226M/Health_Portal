@@ -5,30 +5,40 @@ import SaveHospitalTreatment from "@/app/admin/modules/hop/hospitaltreatment/act
 import { PageHeader } from "../../../Common/PageHeader";
 
 export default async function AddHospitalTreatmentPage() {
-    const columns = await getColumns('hop_hospitaltreatment');
+  const columns = await getColumns("hop_hospitaltreatment");
 
-    const hospital = await prisma.hop_hospital.findMany({ where: { IsDeleted: false } })
-    const treatmentType = await prisma.hop_treatmenttype.findMany({ where: { IsDeleted: false } })
+  const hospital = await prisma.hop_hospital.findMany({
+    where: { IsDeleted: false },
+  });
+  const treatmentType = await prisma.hop_treatmenttype.findMany({
+    where: { IsDeleted: false },
+  });
 
-    const selectOptions = {
-        HospitalID: hospital.map(h => ({ label: h.HospitalName, value: h.HospitalID })),
-        TreatmentTypeID: treatmentType.map(t => ({ label: t.TreatmentTypeName, value: t.TreatmentTypeID }))
-    };
+  const selectOptions = {
+    HospitalID: hospital.map((h) => ({
+      label: h.HospitalName,
+      value: h.HospitalID,
+    })),
+    TreatmentTypeID: treatmentType.map((t) => ({
+      label: t.TreatmentTypeName,
+      value: t.TreatmentTypeID,
+    })),
+  };
 
-    return (
-        <>
-            <PageHeader
-                title="Add Hospital Treatment"
-                backUrl="/admin/components/hop/hospitaltreatment"
-            />
+  return (
+    <>
+      <PageHeader
+        title="Add Hospital Treatment"
+        backUrl="/admin/components/hop/hospitaltreatment"
+      />
 
-            <FormContainer
-                columns={columns}
-                action={SaveHospitalTreatment}
-                onCancelUrl="/admin/components/hop/hospitaltreatment"
-                skipFields={['HospitalTreatmentID','TreatmentTypeID']}
-                selectOptions={selectOptions}
-            />
-        </>
-    )
+      <FormContainer
+        columns={columns}
+        action={SaveHospitalTreatment}
+        onCancelUrl="/admin/components/hop/hospitaltreatment"
+        skipFields={["HospitalTreatmentID", "TreatmentTypeID"]}
+        selectOptions={selectOptions}
+      />
+    </>
+  );
 }

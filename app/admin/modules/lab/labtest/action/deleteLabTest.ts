@@ -6,26 +6,30 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 const deleteLabTest = async (id: number) => {
-    const token = (await cookies()).get("auth_token")?.value;
-    if (!token) {
-        throw new Error("Unauthorized");
-    }
+  const token = (await cookies()).get("auth_token")?.value;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
-    const currentUserId = (decoded.userId ?? decoded.UserID) as number;
-    if (!currentUserId) {
-        throw new Error("Unauthorized");
-    }
-    
-    await prisma.lab_labtest.update({
-        where: {
-            LabTestID: id,
-        },
-        data: {
-            IsDeleted: true,
-        },
-    });
-    revalidatePath("/admin/components/lab/labtest");
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
+  const currentUserId = (decoded.userId ?? decoded.UserID) as number;
+  if (!currentUserId) {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.lab_labtest.update({
+    where: {
+      LabTestID: id,
+    },
+    data: {
+      IsDeleted: true,
+    },
+  });
+  revalidatePath("/admin/components/lab/labtest");
 };
 
 export default deleteLabTest;

@@ -13,43 +13,47 @@ export default async function editSpecialization(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const rawId = formData.get('SpecializationID');
-    const specId = parseInt(rawId as string);
+  const rawId = formData.get("SpecializationID");
+  const specId = parseInt(rawId as string);
 
-    if (isNaN(specId)) {
-        throw new Error("Invalid Specialization ID");
-    }
+  if (isNaN(specId)) {
+    throw new Error("Invalid Specialization ID");
+  }
 
-    const saveObj = {
-        SpecializationName: formData.get('SpecializationName') as string,
-        Description: formData.get('Description') as string
-    };
+  const saveObj = {
+    SpecializationName: formData.get("SpecializationName") as string,
+    Description: formData.get("Description") as string,
+  };
 
-    await prisma.hop_specialization.update({
-        where: {
-            SpecializationID: specId
-        },
-        data: {
-            ...saveObj,
-            ModifiedByUserID: currentUserId,
-            Modified: new Date()
-        }
-    });
+  await prisma.hop_specialization.update({
+    where: {
+      SpecializationID: specId,
+    },
+    data: {
+      ...saveObj,
+      ModifiedByUserID: currentUserId,
+      Modified: new Date(),
+    },
+  });
 
-    const editData = {
-        SpecializationID: specId,
-        IUD: 'U',
-        Created: new Date(),
-        CreatedByUserID: currentUserId
-    }
+  const editData = {
+    SpecializationID: specId,
+    IUD: "U",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.hop_log_specialization.create({ data: editData });
+  await prisma.hop_log_specialization.create({ data: editData });
 
-    revalidatePath('/admin/components/hop/specialization');
-    redirect('/admin/components/hop/specialization');
+  revalidatePath("/admin/components/hop/specialization");
+  redirect("/admin/components/hop/specialization");
 }

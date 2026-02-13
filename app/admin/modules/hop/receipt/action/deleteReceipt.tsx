@@ -13,28 +13,32 @@ export default async function DeleteReceipt(id: number) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    await prisma.hop_receipt.update({
-        where: { ReceiptID: id },
-        data: {
-            IsDeleted: true,
-            Modified: new Date(),
-            ModifiedByUserID: currentUserId
-        }
-    });
+  await prisma.hop_receipt.update({
+    where: { ReceiptID: id },
+    data: {
+      IsDeleted: true,
+      Modified: new Date(),
+      ModifiedByUserID: currentUserId,
+    },
+  });
 
-    const logData = {
-        ReceiptID: id,
-        IUD: "D",
-        Created: new Date(),
-        CreatedByUserID: currentUserId,
-    };
+  const logData = {
+    ReceiptID: id,
+    IUD: "D",
+    Created: new Date(),
+    CreatedByUserID: currentUserId,
+  };
 
-    await prisma.hop_log_receipt.create({ data: logData });
+  await prisma.hop_log_receipt.create({ data: logData });
 
-    revalidatePath("/admin/components/hop/receipt");
+  revalidatePath("/admin/components/hop/receipt");
 }

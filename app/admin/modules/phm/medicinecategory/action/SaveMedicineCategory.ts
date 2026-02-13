@@ -12,21 +12,25 @@ export default async function SaveMedicineCategory(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId?: number; UserID?: number; role?: string; };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+    userId?: number;
+    UserID?: number;
+    role?: string;
+  };
   const currentUserId = (decoded.userId ?? decoded.UserID) as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
-    const CategoryName = formData.get("CategoryName") as string;
-    
-    await prisma.phm_medicinecategory.create({
-        data: {
-            CategoryName,
-            CreatedByUserID: currentUserId,
-            IsDeleted: false,
-        }
-    });
+  const CategoryName = formData.get("CategoryName") as string;
 
-    revalidatePath("/admin/components/phm/medicinecategory");
-    redirect("/admin/components/phm/medicinecategory");
+  await prisma.phm_medicinecategory.create({
+    data: {
+      CategoryName,
+      CreatedByUserID: currentUserId,
+      IsDeleted: false,
+    },
+  });
+
+  revalidatePath("/admin/components/phm/medicinecategory");
+  redirect("/admin/components/phm/medicinecategory");
 }

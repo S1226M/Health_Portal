@@ -53,14 +53,23 @@ function FormDateTimePicker({
   name: string;
   defaultValue: any;
 }) {
+  const [value, setValue] = React.useState<dayjs.Dayjs | null>(
+    defaultValue && dayjs(defaultValue).isValid() ? dayjs(defaultValue) : null,
+  );
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <input
+        type="hidden"
+        name={name}
+        value={value && value.isValid() ? value.toISOString() : ""}
+      />
       <DateTimePicker
         label={label}
-        defaultValue={defaultValue ? dayjs(defaultValue) : null}
+        value={value}
+        onChange={(newValue) => setValue(newValue)}
         slotProps={{
           textField: {
-            name,
             fullWidth: true,
           },
         }}
@@ -95,15 +104,17 @@ export function FormContainer({
         >
           {columns
             ?.filter(
-              (col: DBColumn) =>
-                !allSkipFields.includes(col.COLUMN_NAME)
+              (col: DBColumn) => !allSkipFields.includes(col.COLUMN_NAME),
             )
             .map((col: DBColumn) => {
               const name = col.COLUMN_NAME;
 
               /* ===== FRIENDLY LABEL ===== */
               const label = name.endsWith("ID")
-                ? name.replace("ID", " Name").replace(/([A-Z])/g, " $1").trim()
+                ? name
+                  .replace("ID", " Name")
+                  .replace(/([A-Z])/g, " $1")
+                  .trim()
                 : name.replace(/([A-Z])/g, " $1").trim();
 
               const dataType = String(col.DATA_TYPE || "").toLowerCase();
@@ -121,8 +132,7 @@ export function FormContainer({
                 name.toLowerCase().startsWith("is");
 
               const hasOptions =
-                selectOptions[name] &&
-                selectOptions[name].length > 0;
+                selectOptions[name] && selectOptions[name].length > 0;
 
               /* ===== BOOLEAN ===== */
               if (isBoolean) {
