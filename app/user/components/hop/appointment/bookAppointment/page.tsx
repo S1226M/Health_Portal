@@ -1,40 +1,48 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-    Box,
-    Typography,
-    Grid,
-    TextField,
-    Button,
-    Paper,
-    Container,
-    InputAdornment,
-    Divider,
+    Box, Typography, TextField, Button, Paper, Container,
+    InputAdornment, Checkbox, FormControlLabel,
+    Snackbar, Alert, CircularProgress
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
-import bookAppointment from "@/app/user/modules/appointments/action/bookAppointment";
+import SaveAppointment from "@/app/user/modules/appointments/action/bookAppointment";
 
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import PersonIcon from "@mui/icons-material/Person";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import InfoIcon from "@mui/icons-material/Info";
-import { prisma } from "@/lib/prisma";
 
 function BookAppointmentContent() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const initialDoctorId = searchParams.get("doctorId") || "";
+    const [loading, setLoading] = useState(false);
+    const [isSelf, setIsSelf] = useState(false);
+
+    // Add snackbar state
+    const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: "success" | "error" }>({
+        open: false,
+        message: "",
+        severity: "success"
+    });
 
     const [formData, setFormData] = useState({
         appointmentNo: "APT-" + Math.floor(1000 + Math.random() * 9000),
-        patientId: "1",
         doctorId: initialDoctorId,
         appointmentDateTime: null as Dayjs | null,
         reason: "",
+    });
+
+    const [patientData, setPatientData] = useState({
+        patientName: "",
+        patientAge: "",
+        address: "",
+        city: "",
+        state: "",
+        country: ""
     });
 
     useEffect(() => {
@@ -43,172 +51,201 @@ function BookAppointmentContent() {
         }
     }, [initialDoctorId]);
 
-    const handleChange = (e: any) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!formData.appointmentDateTime) {
+            setSnackbar({ open: true, message: "Please select a date and time", severity: "error" });
+            return;
+        }
 
-        const payload = {
-            ...formData,
-            appointmentDateTime: formData.appointmentDateTime
-                ? formData.appointmentDateTime.toISOString()
-                : null,
-        };
+        if (!isSelf && !patientData.patientName) {
+            setSnackbar({ open: true, message: "Please enter patient name", severity: "error" });
+            return;
+        }
 
+        setLoading(true);
         try {
-            const result = await bookAppointment(payload);
-            if (result && result.success) {
-                alert(result.message);
+            const data = new FormData();
+            data.append("AppointmentNo", formData.appointmentNo);
+            data.append("DoctorID", formData.doctorId);
+            data.append("Reason", formData.reason);
+            data.append("AppointmentDate", formData.appointmentDateTime.toISOString());
+            data.append("IsSelf", isSelf ? "true" : "false");
+
+            if (!isSelf) {
+                data.append("PatientName", patientData.patientName);
+                if (patientData.patientAge) data.append("PatientAge", patientData.patientAge);
+                data.append("Address", patientData.address);
+                data.append("City", patientData.city);
+                data.append("State", patientData.state);
+                data.append("Country", patientData.country);
+            }
+
+            const result = await SaveAppointment(data);
+
+            if (result.success) {
+                setSnackbar({ open: true, message: result.message, severity: "success" });
+                setTimeout(() => {
+                    router.push("/user");
+                }, 1500);
             } else {
-                alert(result.message || "Failed to book appointment.");
+                setSnackbar({ open: true, message: result.message || "Failed to book appointment", severity: "error" });
             }
         } catch (error) {
             console.error("Booking Error:", error);
-            alert("An error occurred while booking the appointment.");
+            setSnackbar({ open: true, message: "An unexpected error occurred.", severity: "error" });
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <Container maxWidth="md" sx={{ py: 8 }}>
-            <Paper
-                elevation={0}
-                sx={{
-                    p: { xs: 3, md: 6 },
-                    borderRadius: 4,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    bgcolor: "#ffffff",
-                    boxShadow: "0px 15px 35px rgba(0,0,0,0.05)",
-                }}
-            >
+            <Paper elevation={0} sx={{ p: { xs: 3, md: 6 }, borderRadius: 4, border: "1px solid", borderColor: "divider", boxShadow: "0px 15px 35px rgba(0,0,0,0.05)" }}>
                 <Box sx={{ mb: 4, textAlign: "center" }}>
-                    <Typography
-                        variant="h3"
-                        sx={{ fontWeight: 800, color: "#1565c0", mb: 1 }}
-                    >
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: "#1565c0", mb: 1 }}>
                         Book Appointment
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Provide your details below to secure your consultation slot.
                     </Typography>
                 </Box>
 
-                <Divider sx={{ mb: 5 }} />
-
                 <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                fullWidth
-                                label="Appointment Number"
-                                value={formData.appointmentNo}
-                                disabled
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <AssignmentIcon color="primary" fontSize="small" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Patient ID"
-                                name="patientId"
-                                value={formData.patientId}
-                                onChange={handleChange}
-                                placeholder="e.g. P-1002"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <PersonIcon color="primary" fontSize="small" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateTimePicker
-                                    label="Date & Time"
-                                    value={formData.appointmentDateTime}
-                                    onChange={(val) =>
-                                        setFormData((p) => ({ ...p, appointmentDateTime: val }))
-                                    }
-                                    slotProps={{
-                                        textField: {
-                                            fullWidth: true,
-                                            required: true,
-                                            InputProps: {
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <CalendarMonthIcon
-                                                            color="primary"
-                                                            fontSize="small"
-                                                        />
-                                                    </InputAdornment>
-                                                ),
-                                            },
-                                        },
-                                    }}
+                    <Box display="flex" flexDirection="column" gap={3}>
+                        <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
+                            <Box flex={1}>
+                                <TextField
+                                    fullWidth
+                                    label="Appointment Number"
+                                    value={formData.appointmentNo}
+                                    InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start"><AssignmentIcon color="primary" /></InputAdornment> }}
                                 />
-                            </LocalizationProvider>
-                        </Grid>
+                            </Box>
+                            <Box flex={1}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker
+                                        label="Date & Time"
+                                        value={formData.appointmentDateTime}
+                                        onChange={(val) => setFormData((p) => ({ ...p, appointmentDateTime: val }))}
+                                        slotProps={{ textField: { fullWidth: true, required: true } }}
+                                        disablePast
+                                    />
+                                </LocalizationProvider>
+                            </Box>
+                        </Box>
 
-                        <Grid size={{ xs: 12 }}>
+                        <Box>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={isSelf}
+                                        onChange={(e) => setIsSelf(e.target.checked)}
+                                        color="primary"
+                                    />
+                                }
+                                label="Book for myself"
+                            />
+                        </Box>
+
+                        {!isSelf && (
+                            <>
+                                <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
+                                    <Box flex={1}>
+                                        <TextField
+                                            fullWidth
+                                            required
+                                            label="Patient Name"
+                                            value={patientData.patientName}
+                                            onChange={(e) => setPatientData({ ...patientData, patientName: e.target.value })}
+                                        />
+                                    </Box>
+                                    <Box flex={1}>
+                                        <TextField
+                                            fullWidth
+                                            type="number"
+                                            label="Patient Age"
+                                            value={patientData.patientAge}
+                                            onChange={(e) => setPatientData({ ...patientData, patientAge: e.target.value })}
+                                        />
+                                    </Box>
+                                </Box>
+
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        label="Address"
+                                        value={patientData.address}
+                                        onChange={(e) => setPatientData({ ...patientData, address: e.target.value })}
+                                    />
+                                </Box>
+
+                                <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
+                                    <Box flex={1}>
+                                        <TextField
+                                            fullWidth
+                                            label="City"
+                                            value={patientData.city}
+                                            onChange={(e) => setPatientData({ ...patientData, city: e.target.value })}
+                                        />
+                                    </Box>
+                                    <Box flex={1}>
+                                        <TextField
+                                            fullWidth
+                                            label="State"
+                                            value={patientData.state}
+                                            onChange={(e) => setPatientData({ ...patientData, state: e.target.value })}
+                                        />
+                                    </Box>
+                                    <Box flex={1}>
+                                        <TextField
+                                            fullWidth
+                                            label="Country"
+                                            value={patientData.country}
+                                            onChange={(e) => setPatientData({ ...patientData, country: e.target.value })}
+                                        />
+                                    </Box>
+                                </Box>
+                            </>
+                        )}
+
+                        <Box>
                             <TextField
                                 fullWidth
                                 required
                                 multiline
                                 rows={3}
                                 label="Reason for Appointment"
-                                name="reason"
                                 value={formData.reason}
-                                onChange={handleChange}
+                                onChange={(e) => setFormData(p => ({ ...p, reason: e.target.value }))}
                                 placeholder="Briefly describe your symptoms..."
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment
-                                            position="start"
-                                            sx={{ alignSelf: "flex-start", mt: 1.5 }}
-                                        >
-                                            <InfoIcon color="primary" fontSize="small" />
-                                        </InputAdornment>
-                                    ),
-                                }}
                             />
-                        </Grid>
+                        </Box>
 
-                        <Grid size={{ xs: 12 }} sx={{ mt: 2 }}>
+                        <Box>
                             <Button
                                 type="submit"
                                 variant="contained"
                                 size="large"
                                 fullWidth
-                                sx={{
-                                    py: 2,
-                                    bgcolor: "#1976d2",
-                                    fontSize: "1.1rem",
-                                    fontWeight: "bold",
-                                    borderRadius: 2,
-                                    textTransform: "none",
-                                    "&:hover": { bgcolor: "#1565c0" },
-                                }}
+                                disabled={loading}
+                                sx={{ py: 1.5, fontWeight: "bold", textTransform: "none" }}
                             >
-                                Confirm Appointment
+                                {loading ? <CircularProgress size={24} color="inherit" /> : "Confirm Appointment"}
                             </Button>
-                        </Grid>
-                    </Grid>
+                        </Box>
+                    </Box>
                 </form>
             </Paper>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }
@@ -216,7 +253,7 @@ function BookAppointmentContent() {
 export default function BookAppointmentPage() {
     return (
         <Box sx={{ bgcolor: "#f4f7f9", minHeight: "100vh" }}>
-            <Suspense fallback={null}>
+            <Suspense fallback={<Box sx={{ p: 5 }}>Loading form...</Box>}>
                 <BookAppointmentContent />
             </Suspense>
         </Box>

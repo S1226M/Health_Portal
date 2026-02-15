@@ -6,31 +6,35 @@ import { redirect } from "next/navigation";
 
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { console } from "inspector";
 
 export default async function SaveAppointment(formData: FormData) {
+  
   const token = (await cookies()).get("auth_token")?.value;
   if (!token) {
     throw new Error("Unauthorized");
   }
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-    userId?: number;
     UserID?: number;
     role?: string;
   };
-  const currentUserId = (decoded.userId ?? decoded.UserID) as number;
+  
+  console.log("Decoded JWT:", decoded.UserID, decoded.role);
+
+  const currentUserId = decoded.UserID as number;
   if (!currentUserId) {
     throw new Error("Unauthorized");
   }
   const appointmentNo = formData.get("AppointmentNo") as string;
-  const patientID = formData.get("PatientID") as string;
   const doctorID = formData.get("DoctorID") as string;
   const appointmentDate = formData.get("AppointmentDate") as string;
   const status = formData.get("Status") as string;
   const reason = formData.get("Reason") as string;
+  
   const data = {
     AppointmentNo: appointmentNo,
-    PatientID: parseInt(patientID),
+    PatientID: decoded.UserID,
     DoctorID: parseInt(doctorID),
     AppointmentDate: new Date(appointmentDate),
     Status: status,

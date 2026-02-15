@@ -8,8 +8,6 @@ import SaveAppointment from "@/app/admin/modules/hop/appointment/action/SaveAppo
 export default async function AddAppointmentPage() {
   const columns = await getColumns("hop_appointment");
 
-  console.log("Columns:", columns);
-
   const patients = await prisma.hop_patient.findMany({
     where: { IsDeleted: false },
     select: { PatientID: true, PatientName: true },
