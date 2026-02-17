@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../lib/generated/prisma"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -9,33 +10,36 @@ datasource db {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model hop_appointment {
-  AppointmentID                                       Int        @id @default(autoincrement())
-  AppointmentNo                                       String     @db.VarChar(50)
+  AppointmentID                                       Int                  @id @default(autoincrement())
+  AppointmentNo                                       String               @db.VarChar(50)
   UserID                                              Int
   DoctorID                                            Int
-  AppointmentDate                                     DateTime   @db.DateTime(0)
-  Status                                              String     @db.VarChar(50)
-  Reason                                              String?    @db.VarChar(250)
-  Created                                             DateTime   @default(now()) @db.DateTime(0)
-  Modified                                            DateTime   @default(now()) @db.DateTime(0)
+  Status                                              String               @db.VarChar(50)
+  Reason                                              String?              @db.VarChar(250)
+  Created                                             DateTime             @default(now()) @db.DateTime(0)
+  Modified                                            DateTime             @default(now()) @db.DateTime(0)
   CreatedByUserID                                     Int
   ModifiedByUserID                                    Int?
-  IsDeleted                                           Boolean    @default(false)
-  PatientName                                         String     @db.VarChar(100)
+  IsDeleted                                           Boolean              @default(false)
+  PatientName                                         String               @db.VarChar(100)
   PatientAge                                          Int?
-  Address                                             String?    @db.VarChar(255)
-  City                                                String?    @db.VarChar(100)
-  State                                               String?    @db.VarChar(100)
-  Country                                             String?    @db.VarChar(100)
-  sec_user_hop_appointment_CreatedByUserIDTosec_user  sec_user   @relation("hop_appointment_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_CreatedBy")
-  sec_user_hop_appointment_ModifiedByUserIDTosec_user sec_user?  @relation("hop_appointment_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_ModifiedBy")
-  hop_doctor                                          hop_doctor @relation(fields: [DoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "hop_appointment_ibfk_2")
+  Address                                             String?              @db.VarChar(255)
+  City                                                String?              @db.VarChar(100)
+  State                                               String?              @db.VarChar(100)
+  Country                                             String?              @db.VarChar(100)
+  SlotID                                              Int?
+  AppointmentDate                                     DateTime?            @db.DateTime(0)
+  hop_timeslot_master                                 hop_timeslot_master? @relation(fields: [SlotID], references: [SlotID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Appt_Slot")
+  sec_user_hop_appointment_CreatedByUserIDTosec_user  sec_user             @relation("hop_appointment_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_CreatedBy")
+  sec_user_hop_appointment_ModifiedByUserIDTosec_user sec_user?            @relation("hop_appointment_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_ModifiedBy")
+  hop_doctor                                          hop_doctor           @relation(fields: [DoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "hop_appointment_ibfk_2")
   hop_opd                                             hop_opd[]
 
   @@index([DoctorID], map: "DoctorID")
   @@index([CreatedByUserID], map: "FK_HOP_Appt_CreatedBy")
   @@index([ModifiedByUserID], map: "FK_HOP_Appt_ModifiedBy")
   @@index([UserID], map: "PatientID")
+  @@index([SlotID], map: "FK_Appt_Slot")
 }
 
 model hop_diagnosistype {
@@ -64,23 +68,24 @@ model hop_diagnosistype {
 }
 
 model hop_doctor {
-  DoctorID                                       Int                  @id @default(autoincrement())
-  DoctorName                                     String               @db.VarChar(250)
+  DoctorID                                       Int                       @id @default(autoincrement())
+  DoctorName                                     String                    @db.VarChar(250)
   HospitalID                                     Int
   SpecializationID                               Int?
-  Description                                    String?              @db.VarChar(250)
+  Description                                    String?                   @db.VarChar(250)
   UserID                                         Int
-  Created                                        DateTime             @default(now()) @db.DateTime(0)
-  Modified                                       DateTime             @default(now()) @db.DateTime(0)
+  Created                                        DateTime                  @default(now()) @db.DateTime(0)
+  Modified                                       DateTime                  @default(now()) @db.DateTime(0)
   CreatedByUserID                                Int
   ModifiedByUserID                               Int?
-  IsDeleted                                      Boolean              @default(false)
+  IsDeleted                                      Boolean                   @default(false)
   hop_appointment                                hop_appointment[]
-  sec_user_hop_doctor_CreatedByUserIDTosec_user  sec_user             @relation("hop_doctor_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_CreatedBy")
-  sec_user_hop_doctor_ModifiedByUserIDTosec_user sec_user?            @relation("hop_doctor_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_ModifiedBy")
-  hop_hospital                                   hop_hospital         @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_1")
-  sec_user_hop_doctor_UserIDTosec_user           sec_user             @relation("hop_doctor_UserIDTosec_user", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_2")
-  hop_specialization                             hop_specialization?  @relation(fields: [SpecializationID], references: [SpecializationID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_3")
+  sec_user_hop_doctor_CreatedByUserIDTosec_user  sec_user                  @relation("hop_doctor_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_CreatedBy")
+  sec_user_hop_doctor_ModifiedByUserIDTosec_user sec_user?                 @relation("hop_doctor_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_ModifiedBy")
+  hop_hospital                                   hop_hospital              @relation(fields: [HospitalID], references: [HospitalID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_1")
+  sec_user_hop_doctor_UserIDTosec_user           sec_user                  @relation("hop_doctor_UserIDTosec_user", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_2")
+  hop_specialization                             hop_specialization?       @relation(fields: [SpecializationID], references: [SpecializationID], onDelete: NoAction, onUpdate: NoAction, map: "hop_doctor_ibfk_3")
+  hop_doctor_slot_mapping                        hop_doctor_slot_mapping[]
   hop_doctorreview                               hop_doctorreview[]
   hop_opd                                        hop_opd[]
   sur_surgerybooking                             sur_surgerybooking[]
@@ -1042,4 +1047,27 @@ model sur_surgeryitem {
   @@index([MedicineID], map: "MedicineID")
   @@index([SubTreatmentTypeID], map: "SubTreatmentTypeID")
   @@index([SurgeryBookingID], map: "SurgeryBookingID")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model hop_doctor_slot_mapping {
+  MappingID           Int                 @id @default(autoincrement())
+  DoctorID            Int
+  SlotID              Int
+  DayOfWeek           Int
+  IsActive            Boolean?            @default(true)
+  hop_doctor          hop_doctor          @relation(fields: [DoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Doctor_Mapping")
+  hop_timeslot_master hop_timeslot_master @relation(fields: [SlotID], references: [SlotID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Slot_Mapping")
+
+  @@unique([DoctorID, SlotID, DayOfWeek], map: "DoctorID")
+  @@index([SlotID], map: "FK_Slot_Mapping")
+}
+
+model hop_timeslot_master {
+  SlotID                  Int                       @id @default(autoincrement())
+  StartTime               DateTime                  @db.Time(0)
+  EndTime                 DateTime                  @db.Time(0)
+  SlotName                String                    @db.VarChar(20)
+  hop_appointment         hop_appointment[]
+  hop_doctor_slot_mapping hop_doctor_slot_mapping[]
 }

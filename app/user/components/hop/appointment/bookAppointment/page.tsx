@@ -4,97 +4,68 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
     Box, Typography, TextField, Button, Paper, Container,
-    InputAdornment, Checkbox, FormControlLabel,
-    Snackbar, Alert, CircularProgress
+    Checkbox, FormControlLabel, Snackbar, Alert, CircularProgress, MenuItem, Select, FormControl, InputLabel, Grid
 } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { getDoctorSlots } from "@/app/user/modules/appointments/action/getDoctorSlots";
 import SaveAppointment from "@/app/user/modules/appointments/action/bookAppointment";
 
-import AssignmentIcon from "@mui/icons-material/Assignment";
-
+// Component to wrap in Suspense because of useSearchParams
 function BookAppointmentContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const initialDoctorId = searchParams.get("doctorId") || "";
+    const doctorId = searchParams.get("doctorId") || "";
+
     const [loading, setLoading] = useState(false);
-    const [isSelf, setIsSelf] = useState(false);
+    const [isSelf, setIsSelf] = useState(true);
+    const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedSlot, setSelectedSlot] = useState<any>(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
 
-    // Add snackbar state
-    const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: "success" | "error" }>({
-        open: false,
-        message: "",
-        severity: "success"
-    });
-
-    const [formData, setFormData] = useState({
-        appointmentNo: "APT-" + Math.floor(1000 + Math.random() * 9000),
-        doctorId: initialDoctorId,
-        appointmentDateTime: null as Dayjs | null,
-        reason: "",
-    });
-
-    const [patientData, setPatientData] = useState({
-        patientName: "",
-        patientAge: "",
-        address: "",
-        city: "",
-        state: "",
-        country: ""
-    });
-
+    // Fetch slots when date changes
     useEffect(() => {
-        if (initialDoctorId) {
-            setFormData((prev) => ({ ...prev, doctorId: initialDoctorId }));
+        if (doctorId && selectedDate) {
+            setLoading(true);
+            getDoctorSlots(parseInt(doctorId), selectedDate)
+                .then(res => {
+                    if (res.success) {
+                        setAvailableSlots(res.slots || []);
+                    } else {
+                        setSnackbar({ open: true, message: res.message || "Failed to fetch slots", severity: "error" });
+                    }
+                })
+                .catch(() => {
+                    setSnackbar({ open: true, message: "Error fetching slots", severity: "error" });
+                })
+                .finally(() => setLoading(false));
         }
-    }, [initialDoctorId]);
+    }, [selectedDate, doctorId]);
 
-    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!formData.appointmentDateTime) {
-            setSnackbar({ open: true, message: "Please select a date and time", severity: "error" });
-            return;
-        }
-
-        if (!isSelf && !patientData.patientName) {
-            setSnackbar({ open: true, message: "Please enter patient name", severity: "error" });
-            return;
-        }
+        if (!selectedSlot) return setSnackbar({ open: true, message: "Please select a time slot", severity: "error" });
 
         setLoading(true);
+        const formData = new FormData(e.currentTarget);
+
+        // Explicitly append missing fields or override values if needed
+        // Note: fields with 'name' attribute are automatically in FormData
+        formData.append("DoctorID", doctorId);
+        formData.append("SlotID", selectedSlot.slotId.toString());
+        formData.append("AppointmentDate", selectedSlot.fullDateTime);
+        formData.append("IsSelf", isSelf ? "true" : "false");
+
         try {
-            const data = new FormData();
-            data.append("AppointmentNo", formData.appointmentNo);
-            data.append("DoctorID", formData.doctorId);
-            data.append("Reason", formData.reason);
-            data.append("AppointmentDate", formData.appointmentDateTime.toISOString());
-            data.append("IsSelf", isSelf ? "true" : "false");
-
-            if (!isSelf) {
-                data.append("PatientName", patientData.patientName);
-                if (patientData.patientAge) data.append("PatientAge", patientData.patientAge);
-                data.append("Address", patientData.address);
-                data.append("City", patientData.city);
-                data.append("State", patientData.state);
-                data.append("Country", patientData.country);
-            }
-
-            const result = await SaveAppointment(data);
+            const result = await SaveAppointment(formData);
 
             if (result.success) {
-                setSnackbar({ open: true, message: result.message, severity: "success" });
-                setTimeout(() => {
-                    router.push("/user");
-                }, 1500);
+                setSnackbar({ open: true, message: result.message || "Appointment booked!", severity: "success" });
+                setTimeout(() => router.push("/user"), 1500);
             } else {
                 setSnackbar({ open: true, message: result.message || "Failed to book appointment", severity: "error" });
             }
         } catch (error) {
-            console.error("Booking Error:", error);
             setSnackbar({ open: true, message: "An unexpected error occurred.", severity: "error" });
         } finally {
             setLoading(false);
@@ -102,147 +73,108 @@ function BookAppointmentContent() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ py: 8 }}>
-            <Paper elevation={0} sx={{ p: { xs: 3, md: 6 }, borderRadius: 4, border: "1px solid", borderColor: "divider", boxShadow: "0px 15px 35px rgba(0,0,0,0.05)" }}>
-                <Box sx={{ mb: 4, textAlign: "center" }}>
-                    <Typography variant="h4" sx={{ fontWeight: 800, color: "#1565c0", mb: 1 }}>
-                        Book Appointment
-                    </Typography>
-                </Box>
+        <Container maxWidth="md" sx={{ py: 4 }}>
+            <Paper sx={{ p: 4, borderRadius: 3, boxShadow: 3 }}>
+                <Typography variant="h5" color="primary" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
+                    Book Appointment
+                </Typography>
 
                 <form onSubmit={handleSubmit}>
                     <Box display="flex" flexDirection="column" gap={3}>
                         <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
-                            <Box flex={1}>
-                                <TextField
-                                    fullWidth
-                                    label="Appointment Number"
-                                    value={formData.appointmentNo}
-                                    InputProps={{ readOnly: true, startAdornment: <InputAdornment position="start"><AssignmentIcon color="primary" /></InputAdornment> }}
-                                />
-                            </Box>
-                            <Box flex={1}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateTimePicker
-                                        label="Date & Time"
-                                        value={formData.appointmentDateTime}
-                                        onChange={(val) => setFormData((p) => ({ ...p, appointmentDateTime: val }))}
-                                        slotProps={{ textField: { fullWidth: true, required: true } }}
-                                        disablePast
-                                    />
-                                </LocalizationProvider>
-                            </Box>
-                        </Box>
-
-                        <Box>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={isSelf}
-                                        onChange={(e) => setIsSelf(e.target.checked)}
-                                        color="primary"
-                                    />
-                                }
-                                label="Book for myself"
+                            <TextField
+                                name="AppointmentNo"
+                                label="Appt No"
+                                defaultValue={`APT-${Math.floor(1000 + Math.random() * 9000)}`}
+                                fullWidth
+                                InputProps={{ readOnly: true }}
+                            />
+                            <TextField
+                                label="Select Date"
+                                type="date"
+                                fullWidth
+                                value={selectedDate}
+                                onChange={(e) => {
+                                    setSelectedDate(e.target.value);
+                                    setSelectedSlot(null); // Reset slot ensuring user re-selects
+                                }}
+                                InputLabelProps={{ shrink: true }}
+                                inputProps={{ min: dayjs().format("YYYY-MM-DD") }} // Disable past dates
+                                required
                             />
                         </Box>
+
+                        <FormControl fullWidth required disabled={!selectedDate || availableSlots.length === 0}>
+                            <InputLabel>Available Time Slots</InputLabel>
+                            <Select
+                                value={selectedSlot?.slotId || ""}
+                                label="Available Time Slots"
+                                onChange={(e) => setSelectedSlot(availableSlots.find(s => s.slotId === e.target.value))}
+                            >
+                                {availableSlots.length > 0 ? (
+                                    availableSlots.map((slot) => (
+                                        <MenuItem key={slot.slotId} value={slot.slotId} disabled={slot.isBooked}>
+                                            {slot.displayTime} {slot.isBooked ? "(Booked)" : ""}
+                                        </MenuItem>
+                                    ))
+                                ) : (
+                                    <MenuItem disabled value="">
+                                        {selectedDate ? "No slots available" : "Select a date first"}
+                                    </MenuItem>
+                                )}
+                            </Select>
+                        </FormControl>
+
+                        <FormControlLabel
+                            control={<Checkbox checked={isSelf} onChange={(e) => setIsSelf(e.target.checked)} />}
+                            label="Book for myself"
+                        />
 
                         {!isSelf && (
-                            <>
+                            <Box display="flex" flexDirection="column" gap={2} sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
+                                <Typography variant="subtitle2" color="text.secondary">Patient Details</Typography>
                                 <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
-                                    <Box flex={1}>
-                                        <TextField
-                                            fullWidth
-                                            required
-                                            label="Patient Name"
-                                            value={patientData.patientName}
-                                            onChange={(e) => setPatientData({ ...patientData, patientName: e.target.value })}
-                                        />
-                                    </Box>
-                                    <Box flex={1}>
-                                        <TextField
-                                            fullWidth
-                                            type="number"
-                                            label="Patient Age"
-                                            value={patientData.patientAge}
-                                            onChange={(e) => setPatientData({ ...patientData, patientAge: e.target.value })}
-                                        />
-                                    </Box>
+                                    <TextField name="PatientName" label="Patient Name" fullWidth required />
+                                    <TextField name="PatientAge" label="Age" type="number" sx={{ width: { xs: '100%', sm: 120 } }} required />
                                 </Box>
-
-                                <Box>
-                                    <TextField
-                                        fullWidth
-                                        label="Address"
-                                        value={patientData.address}
-                                        onChange={(e) => setPatientData({ ...patientData, address: e.target.value })}
-                                    />
-                                </Box>
-
+                                <TextField name="Address" label="Full Address" fullWidth required />
                                 <Box display="flex" gap={2} flexDirection={{ xs: 'column', sm: 'row' }}>
-                                    <Box flex={1}>
-                                        <TextField
-                                            fullWidth
-                                            label="City"
-                                            value={patientData.city}
-                                            onChange={(e) => setPatientData({ ...patientData, city: e.target.value })}
-                                        />
-                                    </Box>
-                                    <Box flex={1}>
-                                        <TextField
-                                            fullWidth
-                                            label="State"
-                                            value={patientData.state}
-                                            onChange={(e) => setPatientData({ ...patientData, state: e.target.value })}
-                                        />
-                                    </Box>
-                                    <Box flex={1}>
-                                        <TextField
-                                            fullWidth
-                                            label="Country"
-                                            value={patientData.country}
-                                            onChange={(e) => setPatientData({ ...patientData, country: e.target.value })}
-                                        />
-                                    </Box>
+                                    <TextField name="City" label="City" fullWidth required />
+                                    <TextField name="State" label="State" fullWidth required />
+                                    <TextField name="Country" label="Country" fullWidth required />
                                 </Box>
-                            </>
+                            </Box>
                         )}
 
-                        <Box>
-                            <TextField
-                                fullWidth
-                                required
-                                multiline
-                                rows={3}
-                                label="Reason for Appointment"
-                                value={formData.reason}
-                                onChange={(e) => setFormData(p => ({ ...p, reason: e.target.value }))}
-                                placeholder="Briefly describe your symptoms..."
-                            />
-                        </Box>
+                        <TextField
+                            name="Reason"
+                            label="Reason for Appointment"
+                            multiline
+                            rows={3}
+                            required
+                            placeholder="Describe your symptoms or reason for visiting..."
+                        />
 
-                        <Box>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                size="large"
-                                fullWidth
-                                disabled={loading}
-                                sx={{ py: 1.5, fontWeight: "bold", textTransform: "none" }}
-                            >
-                                {loading ? <CircularProgress size={24} color="inherit" /> : "Confirm Appointment"}
-                            </Button>
-                        </Box>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={loading || !selectedSlot}
+                            size="large"
+                            sx={{ py: 1.5, mt: 2 }}
+                        >
+                            {loading ? <CircularProgress size={24} color="inherit" /> : "Confirm Appointment"}
+                        </Button>
                     </Box>
                 </form>
             </Paper>
+
             <Snackbar
                 open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
+                autoHideDuration={4000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
                     {snackbar.message}
                 </Alert>
             </Snackbar>
@@ -253,7 +185,7 @@ function BookAppointmentContent() {
 export default function BookAppointmentPage() {
     return (
         <Box sx={{ bgcolor: "#f4f7f9", minHeight: "100vh" }}>
-            <Suspense fallback={<Box sx={{ p: 5 }}>Loading form...</Box>}>
+            <Suspense fallback={<Box sx={{ p: 5, display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>}>
                 <BookAppointmentContent />
             </Suspense>
         </Box>

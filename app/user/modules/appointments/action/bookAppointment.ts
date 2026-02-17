@@ -37,6 +37,8 @@ export default async function SaveAppointment(formData: FormData) {
   let state = "";
   let country = "";
 
+  const slotId = formData.get("SlotID");
+
   if (isSelf) {
     // Try to find existing patient details to autofill address/etc
     const patientProfile = await prisma.hop_patient.findFirst({
@@ -74,6 +76,7 @@ export default async function SaveAppointment(formData: FormData) {
     AppointmentNo: appointmentNo,
     UserID: currentUserId,
     DoctorID: parseInt(doctorID),
+    SlotID: slotId ? parseInt(slotId as string) : null,
     AppointmentDate: new Date(appointmentDate),
     Status: status,
     Reason: reason,
