@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
+import { cookies } from "next/headers";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -31,11 +32,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth_token");
+  const isLogin = !!token;
+
   return (
     <html lang="en">
       <head>
@@ -47,7 +52,7 @@ export default function RootLayout({
         ></link>
       </head>
       <body className={`font-sans antialiased`}>
-        <Header />
+        <Header isLogin={isLogin} />
         {children}
         <Footer />
         <script

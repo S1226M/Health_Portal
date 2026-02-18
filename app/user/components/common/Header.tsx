@@ -2,220 +2,125 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu, X } from "lucide-react";
+import Image from "next/image";
+import { BellIcon, Menu, X } from "lucide-react";
 
-// 1. Define the shape of your static data items
+/* ---------- Types ---------- */
 interface NavItem {
   label: string;
   href: string;
 }
 
-// 2. Define the props for the Dropdown component
-interface NavDropdownProps {
-  label: string;
-  items: NavItem[];
-}
-
-export default function Header() {
+/* ---------- Component ---------- */
+export default function Header({ isLogin }: { isLogin: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  // These arrays are your "Static Data"
-  // TypeScript will now infer they match the NavItem structure
   const navItems: NavItem[] = [
-    { label: "Find Doctors", href: "/" },
     {
       label: "Book Appointment",
       href: "/user/components/hop/appointment/doctorListPage",
     },
-    { label: "Lab Tests", href: "/user/components/lab/labTest" },
-    { label: "Surgeries", href: "/user/components/sur/surgery" },
   ];
-
-  const corporateItems: NavItem[] = [
-    { label: "Corporate Health", href: "#" },
-    { label: "Employee Wellness", href: "#" },
-    { label: "Bulk Tests", href: "#" },
-  ];
-
-  const providerItems: NavItem[] = [
-    { label: "Doctor Registration", href: "#" },
-    { label: "Partner with us", href: "#" },
-    { label: "Business Support", href: "#" },
-  ];
-
-  const securityItems: NavItem[] = [
-    { label: "Security & Privacy", href: "#" },
-    { label: "Help Center", href: "#" },
-    { label: "Contact Us", href: "/contact" },
-  ];
-
-  // 3. Apply the type to the component props here: ({ label, items }: NavDropdownProps)
-  const NavDropdown = ({ label, items }: NavDropdownProps) => (
-    <div className="dropdown d-inline-block">
-      <button
-        className="btn btn-link text-decoration-none text-secondary fw-medium d-flex align-items-center gap-1 p-0 border-0 bg-transparent"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        {label}
-        <ChevronDown size={16} />
-      </button>
-      <ul className="dropdown-menu dropdown-menu-end">
-        {items.map((item) => (
-          <li key={item.label}>
-            {item.href.startsWith("/") ? (
-              <Link className="dropdown-item" href={item.href}>
-                {item.label}
-              </Link>
-            ) : (
-              <a className="dropdown-item" href={item.href}>
-                {item.label}
-              </a>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 
   return (
     <header className="sticky-top bg-white border-bottom shadow-sm">
       <nav className="container py-3">
-        <div className="d-flex align-items-center justify-content-between">
+        <div className="d-flex justify-content-between align-items-center">
           {/* Logo */}
-          <Link href="/" className="text-decoration-none">
-            <div className="d-flex align-items-center gap-2">
-              <div className="d-flex align-items-center gap-1">
-                <span
-                  className="rounded-circle bg-primary"
-                  style={{ width: "8px", height: "8px" }}
-                ></span>
-                <span className="fw-bold fs-4 text-dark">practo</span>
-                <span
-                  className="rounded-circle bg-success"
-                  style={{ width: "8px", height: "8px" }}
-                ></span>
-              </div>
-            </div>
+          <Link href="/" className="fw-bold fs-4 text-dark text-decoration-none">
+            practo
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="d-none d-md-flex align-items-center gap-4">
-            {navItems.map((item) =>
-              item.href.startsWith("/") ? (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="text-decoration-none text-secondary fw-medium small hover-primary"
-                  style={{ fontSize: "0.9rem" }}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-decoration-none text-secondary fw-medium small hover-primary"
-                  style={{ fontSize: "0.9rem" }}
-                >
-                  {item.label}
-                </a>
-              ),
-            )}
+          {/* Desktop Nav */}
+          <div className="d-none d-md-flex gap-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-secondary text-decoration-none fw-medium"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Right Section - Desktop */}
+          {/* Right Section */}
           <div className="d-none d-md-flex align-items-center gap-3">
-            <NavDropdown label="For Corporates" items={corporateItems} />
-            <NavDropdown label="For Providers" items={providerItems} />
-            <NavDropdown label="Security & help" items={securityItems} />
+            {!isLogin ? (
+              <Link href="/login" className="btn btn-primary btn-sm px-3">
+                Login / Signup
+              </Link>
+            ) : (
+              <div style={{ position: "relative" }}>
+                <Image
+                  src="/profile.svg"
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="rounded-circle"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setOpen(!open)}
+                />
+                {/* notification icon */}
+                <BellIcon className="w-6 h-6" />
 
-            <span
-              className="badge rounded-pill bg-primary text-white"
-              style={{ fontSize: "0.7rem" }}
-            >
-              NEW
-            </span>
-
-            <Link
-              href="/login"
-              className="btn btn-primary btn-sm fw-medium px-3 text-decoration-none"
-            >
-              Login / Signup
-            </Link>
+                {open && (
+                  <div
+                  className="shadow-sm"
+                  style={{
+                    position: "absolute",
+                      top: "50px",
+                      right: 0,
+                      background: "#fff",
+                      border: "1px solid #ddd",
+                      borderRadius: "6px",
+                      width: "150px",
+                    }}
+                    >
+                    <Link href="/profile" className="dropdown-item">
+                      Profile
+                    </Link>
+                    <Link href="/settings" className="dropdown-item">
+                      Settings
+                    </Link>
+                    <Link href="/logout" className="dropdown-item text-danger">
+                      Logout
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Button */}
           <button
-            className="btn btn-light d-md-none border-0 bg-transparent p-0"
+            className="btn d-md-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
           >
-            {isMenuOpen ? (
-              <X className="text-dark" />
-            ) : (
-              <Menu className="text-dark" />
-            )}
+            {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="d-md-none border-top bg-white">
-          <div className="p-3 d-flex flex-column gap-2">
-            {navItems.map((item) =>
-              item.href.startsWith("/") ? (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="text-decoration-none text-secondary fw-medium py-2 px-2 rounded hover-bg-light"
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-decoration-none text-secondary fw-medium py-2 px-2 rounded hover-bg-light"
-                >
-                  {item.label}
-                </a>
-              ),
-            )}
-            <hr className="my-2" />
-
-            {/* We can also reuse static data here for cleaner code */}
-            {[...corporateItems, ...providerItems, ...securityItems].map(
-              (item) =>
-                item.href.startsWith("/") ? (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="text-decoration-none text-secondary fw-medium py-2 px-2"
-                  >
-                    {item.label}
-                  </Link>
-                ) : (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="text-decoration-none text-secondary fw-medium py-2 px-2"
-                  >
-                    {item.label}
-                  </a>
-                ),
-            )}
-
-            <hr className="my-2" />
+        <div className="d-md-none p-3 border-top">
+          {navItems.map((item) => (
             <Link
-              href="/login"
-              className="btn btn-primary w-100 fw-medium text-decoration-none"
+              key={item.label}
+              href={item.href}
+              className="d-block py-2 text-secondary text-decoration-none"
             >
+              {item.label}
+            </Link>
+          ))}
+
+          {!isLogin && (
+            <Link href="/login" className="btn btn-primary w-100 mt-3">
               Login / Signup
             </Link>
-          </div>
+          )}
         </div>
       )}
     </header>

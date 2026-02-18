@@ -17,11 +17,9 @@ export default async function SaveAppointment(formData: FormData) {
     role?: string;
   };
 
-  // console.log("Decoded JWT:", decoded.UserID, decoded.role);
-
   const currentUserId = decoded.UserID as number;
   if (!currentUserId) {
-    throw new Error("Unauthorized");
+    throw new Error("Una  uthorized");
   }
   const isSelf = formData.get("IsSelf") === "true";
   const appointmentNo = formData.get("AppointmentNo") as string;
