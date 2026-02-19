@@ -5,6 +5,8 @@ import "./globals.css";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -38,8 +40,31 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token");
-  const isLogin = !!token;
+  const token = cookieStore.get("auth_token")?.value;
+
+  let isLogin = false;
+  let userProfile = undefined;
+
+  if (token) {
+    const payload = verifyToken(token) as any;
+    if (payload?.UserID) {
+      const user = await prisma.sec_user.findUnique({
+        where: { UserID: payload.UserID },
+        select: {
+          ProfileURL: true,
+          FullName: true,
+        },
+      });
+
+      if (user) {
+        isLogin = true;
+        userProfile = {
+          profileUrl: user.ProfileURL,
+          fullName: user.FullName,
+        };
+      }
+    }
+  }
 
   return (
     <html lang="en">
@@ -52,7 +77,7 @@ export default async function RootLayout({
         ></link>
       </head>
       <body className={`font-sans antialiased`}>
-        <Header isLogin={isLogin} />
+        <Header isLogin={isLogin} userProfile={userProfile} />
         {children}
         <Footer />
         <script

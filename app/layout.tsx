@@ -18,10 +18,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // \u2705 CORRECT WAY
-  // const cookieStore = await cookies();
-  // const token = cookieStore.get("auth_token")?.value;
-  // const isLogin = !!token;
 
   return (
     <html lang="en">
