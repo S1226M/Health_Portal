@@ -11,7 +11,7 @@ export default function LoginPage() {
       sx={{
         minHeight: "100vh",
         width: "100%",
-        bgcolor: "#f0f2f5", // Matches admin background
+        bgcolor: "#f0f2f5",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -32,7 +32,6 @@ export default function LoginPage() {
             alignItems: "center",
           }}
         >
-          {/* Logo or Brand Element */}
           <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
             <Box
               sx={{

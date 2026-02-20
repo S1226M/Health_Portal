@@ -24,11 +24,14 @@ export async function getViewBookedAppointments() {
             where: {
                 CreatedByUserID: currentUserId,
                 IsDeleted: false,
+                AppointmentDate:{
+                    gt:new Date()
+                }
             },
             select: {
                 AppointmentID: true,
                 AppointmentNo: true,
-                AppointmentDate: true,
+                AppointmentDate: true,  
                 Status: true,
                 Reason: true,
                 PatientName: true,

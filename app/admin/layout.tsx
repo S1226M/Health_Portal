@@ -206,7 +206,6 @@ export default function AdminLayout({
     fetch("/api/user/profile")
       .then((res) => res.json())
       .then((data) => {
-        console.log("IMAGE URL:", data?.ProfileURL);
         setImageUrl(data?.ProfileURL);
       });
   }, []);

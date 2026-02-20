@@ -38,7 +38,7 @@ export async function seedDoctorSlots(doctorId: number) {
             });
 
             if (!existing) {
-                const mappings = allSlots.map(slot => ({
+                const mappings = allSlots.map((slot: { SlotID: number }) => ({
                     DoctorID: doctorId,
                     SlotID: slot.SlotID,
                     DayOfWeek: day,

@@ -20,14 +20,14 @@ export default async function RootLayout({
 }) {
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {/* <Header isLogin={isLogin} /> */}
         {children}
       </body>

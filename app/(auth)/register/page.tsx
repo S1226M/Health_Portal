@@ -32,7 +32,6 @@ export default function RegisterPage() {
             alignItems: "center",
           }}
         >
-          {/* Logo or Brand Element */}
           <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Box
               sx={{

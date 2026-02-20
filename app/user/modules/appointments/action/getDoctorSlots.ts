@@ -34,20 +34,45 @@ export async function getDoctorSlots(doctorId: number, dateStr: string) {
 
     const bookedSlotIds = bookings.map((b) => b.SlotID);
 
-    // 3. Prepare slot data for the dropdown
-    const slots = schedule.map((item) => {
-      const slot = item.hop_timeslot_master;
-      // Format time for display and create ISO string for the appointment date
-      const startTime = dayjs(slot.StartTime).format("HH:mm:ss");
-      const fullDateTime = `${selectedDate.format("YYYY-MM-DD")}T${startTime}`;
+    // Helper function to format time values (handles Time type from database)
+    const formatTime = (date: Date | string) => {
+      if (!date) return "";
+      // Handle Time values by prepending a date
+      const timeStr = dayjs(date).format("HH:mm:ss");
+      return dayjs(`1970-01-01 ${timeStr}`).format("hh:mm A");
+    };
 
-      return {
-        slotId: item.SlotID,
-        displayTime: `${dayjs(slot.StartTime).format("hh:mm A")} - ${dayjs(slot.EndTime).format("hh:mm A")}`,
-        isBooked: bookedSlotIds.includes(item.SlotID),
-        fullDateTime: fullDateTime, // This is what we save to the DB
-      };
-    });
+    // 3. Prepare slot data for the dropdown
+    const slots = schedule
+      .filter((item) => item.hop_timeslot_master !== null) // Filter out null slots
+      .map((item) => {
+        const slot = item.hop_timeslot_master!; // Non-null assertion after filter
+        // Validate that StartTime and EndTime exist
+        if (!slot.StartTime || !slot.EndTime) {
+          return null;
+        }
+
+        // Format time for display and create ISO string for the appointment date
+        const startTimeStr = dayjs(slot.StartTime).format("HH:mm:ss");
+        const fullDateTime = `${selectedDate.format("YYYY-MM-DD")}T${startTimeStr}`;
+
+        // Format times using the helper function
+        const startTimeFormatted = formatTime(slot.StartTime);
+        const endTimeFormatted = formatTime(slot.EndTime);
+
+        return {
+          slotId: item.SlotID,
+          displayTime: `${startTimeFormatted} - ${endTimeFormatted}`,
+          isBooked: bookedSlotIds.includes(item.SlotID),
+          fullDateTime: fullDateTime,
+        };
+      })
+      .filter((slot) => slot !== null) as Array<{
+        slotId: number;
+        displayTime: string;
+        isBooked: boolean;
+        fullDateTime: string;
+      }>;
 
     return { success: true, slots };
   } catch (error) {
