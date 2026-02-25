@@ -3,6 +3,11 @@
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { releaseExpiredSlots } from "./releaseExpiredSlots";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export async function getViewBookedAppointments() {
     try {
@@ -20,21 +25,29 @@ export async function getViewBookedAppointments() {
             return { success: false, message: "Invalid token" };
         }
 
+        // Release expired slots before fetching appointments
+        await releaseExpiredSlots();
+
+        const now = new Date();
+
+        // Fetch ALL appointments (both upcoming and past)
         const appointments = await prisma.hop_appointment.findMany({
             where: {
-                CreatedByUserID: currentUserId,
+                OR: [
+                    { UserID: currentUserId },
+                    { CreatedByUserID: currentUserId },
+                ],
                 IsDeleted: false,
-                AppointmentDate:{
-                    gt:new Date()
-                }
             },
             select: {
                 AppointmentID: true,
                 AppointmentNo: true,
-                AppointmentDate: true,  
+                AppointmentDate: true,
                 Status: true,
                 Reason: true,
                 PatientName: true,
+                SlotID: true,
+                DoctorID: true,
                 hop_doctor: {
                     select: {
                         DoctorName: true,
@@ -64,7 +77,34 @@ export async function getViewBookedAppointments() {
             }
         });
 
-        return { success: true, data: appointments };
+        // Add an "appointmentStatus" field: "Upcoming" or "Completed"
+        const enrichedAppointments = appointments.map((appt) => {
+            const apptDate = appt.AppointmentDate ? new Date(appt.AppointmentDate) : null;
+            let appointmentStatus = "Upcoming";
+
+            if (appt.Status === "Cancelled") {
+                appointmentStatus = "Cancelled";
+            } else if (appt.Status === "Completed") {
+                appointmentStatus = "Completed";
+            } else if (apptDate && apptDate < now) {
+                appointmentStatus = "Completed";
+            }
+
+            // Format timeslot times in UTC to avoid timezone shift
+            const formattedTimeslot = appt.hop_timeslot_master ? {
+                StartTime: dayjs.utc(appt.hop_timeslot_master.StartTime).format("hh:mm A"),
+                EndTime: dayjs.utc(appt.hop_timeslot_master.EndTime).format("hh:mm A"),
+                SlotName: appt.hop_timeslot_master.SlotName,
+            } : null;
+
+            return {
+                ...appt,
+                appointmentStatus,
+                hop_timeslot_master: formattedTimeslot,
+            };
+        });
+
+        return { success: true, data: enrichedAppointments };
 
     } catch (error: any) {
         console.error("Error fetching appointments:", error);

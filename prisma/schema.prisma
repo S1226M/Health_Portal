@@ -1054,7 +1054,7 @@ model hop_doctor_slot_mapping {
   MappingID           Int                 @id @default(autoincrement())
   DoctorID            Int
   SlotID              Int
-  DayOfWeek           Int
+  DayOfWeek           Int?
   IsActive            Boolean?            @default(true)
   hop_doctor          hop_doctor          @relation(fields: [DoctorID], references: [DoctorID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Doctor_Mapping")
   hop_timeslot_master hop_timeslot_master @relation(fields: [SlotID], references: [SlotID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Slot_Mapping")

@@ -2,6 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export async function getDoctorSlots(doctorId: number, dateStr: string) {
   try {
@@ -12,7 +15,14 @@ export async function getDoctorSlots(doctorId: number, dateStr: string) {
     console.log(`Fetching schedule for DoctorID: ${doctorId}, Day: ${dayOfWeek}`);
 
     const schedule = await prisma.hop_doctor_slot_mapping.findMany({
-      where: { DoctorID: doctorId, DayOfWeek: dayOfWeek, IsActive: true },
+      where: {
+        DoctorID: doctorId,
+        IsActive: true,
+        OR: [
+          { DayOfWeek: dayOfWeek },
+          { DayOfWeek: null },       // NULL means available for all days
+        ],
+      },
       include: { hop_timeslot_master: true },
     });
 
@@ -27,7 +37,7 @@ export async function getDoctorSlots(doctorId: number, dateStr: string) {
           lte: selectedDate.endOf("day").toDate(),
         },
         IsDeleted: false,
-        Status: { not: "Cancelled" },
+        Status: { notIn: ["Cancelled", "Completed"] },
       },
       select: { SlotID: true },
     });
@@ -35,11 +45,10 @@ export async function getDoctorSlots(doctorId: number, dateStr: string) {
     const bookedSlotIds = bookings.map((b) => b.SlotID);
 
     // Helper function to format time values (handles Time type from database)
+    // Use UTC mode to avoid local timezone shifting MySQL Time(0) values
     const formatTime = (date: Date | string) => {
       if (!date) return "";
-      // Handle Time values by prepending a date
-      const timeStr = dayjs(date).format("HH:mm:ss");
-      return dayjs(`1970-01-01 ${timeStr}`).format("hh:mm A");
+      return dayjs.utc(date).format("hh:mm A");
     };
 
     // 3. Prepare slot data for the dropdown
@@ -53,7 +62,7 @@ export async function getDoctorSlots(doctorId: number, dateStr: string) {
         }
 
         // Format time for display and create ISO string for the appointment date
-        const startTimeStr = dayjs(slot.StartTime).format("HH:mm:ss");
+        const startTimeStr = dayjs.utc(slot.StartTime).format("HH:mm:ss");
         const fullDateTime = `${selectedDate.format("YYYY-MM-DD")}T${startTimeStr}`;
 
         // Format times using the helper function
