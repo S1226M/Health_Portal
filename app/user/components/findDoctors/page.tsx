@@ -1,10 +1,17 @@
 import React from "react";
 import { getAllDoctor } from "@/app/user/modules/appointments/action/getAllDoctor";
+import { getDoctorBySpecializationId } from "@/app/user/modules/appointments/action/getDoctorBySpecializationId";
 import { Search, MapPin, Star, Clock, ShieldCheck, HeartPulse, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
-export default async function FindDoctorPage() {
-    const allDoctors = await getAllDoctor();
+export default async function FindDoctorPage({ searchParams }: { searchParams: Promise<{ specId?: string }> }) {
+    const resolvedParams = await searchParams;
+    const specId = resolvedParams.specId ? parseInt(resolvedParams.specId) : null;
+
+    // Fetch specifically by specialization if specId is passed!
+    const allDoctors = specId && !isNaN(specId)
+        ? await getDoctorBySpecializationId(specId)
+        : await getAllDoctor();
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
