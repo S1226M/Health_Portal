@@ -97,7 +97,7 @@ export default function Header({
 
   const navItems: NavItem[] = [
     { label: "Book Appointment", href: "/user/components/hop/appointment/doctorListPage" },
-    { label: "Find Doctors", href: "/hop/doctor" },
+    { label: "Find Doctors", href: "/user/components/findDoctors" },
     // { label: "Video Consult", href: "/videoconsult" },
     { label: "Medicines", href: "/phm/medicine" },
     { label: "Lab Tests", href: "/lab/labtest" },
