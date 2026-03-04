@@ -98,7 +98,7 @@ export default function Header({
   const navItems: NavItem[] = [
     { label: "Book Appointment", href: "/user/components/hop/appointment/doctorListPage" },
     { label: "Find Doctors", href: "/hop/doctor" },
-    { label: "Video Consult", href: "/videoconsult" },
+    // { label: "Video Consult", href: "/videoconsult" },
     { label: "Medicines", href: "/phm/medicine" },
     { label: "Lab Tests", href: "/lab/labtest" },
     { label: "Surgeries", href: "/sur/surgery" },
@@ -106,28 +106,33 @@ export default function Header({
 
   /* 🔔 Fetch future appointments */
   useEffect(() => {
-    if (!isLogin) {
+  let isMounted = true;
+
+  if (!isLogin) {
+    if (isMounted) {
       setHasFutureAppt(false);
       setNotifications([]);
-      return;
     }
+    return;
+  }
 
-    getFutureAppointments()
-      .then((res) => {
-        if (res.count > 0) {
-          setHasFutureAppt(true);
-          setNotifications(res.appointments);
-        } else {
-          setHasFutureAppt(false);
-          setNotifications([]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching appointments:", error);
-        setHasFutureAppt(false);
-        setNotifications([]);
-      });
-  }, [isLogin]);
+  getFutureAppointments()
+    .then((res) => {
+      if (!isMounted) return;
+
+      setHasFutureAppt(res.count > 0);
+      setNotifications(res.count > 0 ? res.appointments : []);
+    })
+    .catch(() => {
+      if (!isMounted) return;
+      setHasFutureAppt(false);
+      setNotifications([]);
+    });
+
+  return () => {
+    isMounted = false;
+  };
+}, [isLogin]);
 
   /* 🔔 Close notification panel when clicking outside */
   useEffect(() => {
