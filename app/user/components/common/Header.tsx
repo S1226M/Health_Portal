@@ -161,7 +161,7 @@ export default function Header({
 
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold no-underline">
-            practo
+            Health Portal
           </Link>
 
           {/* Desktop Nav */}

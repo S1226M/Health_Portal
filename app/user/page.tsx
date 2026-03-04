@@ -142,7 +142,7 @@ export default async function Home() {
       </div>
 
       {/* --- DYNAMIC DOCTORS SECTION (Horizontal Scroll) --- */}
-      <div className="container max-w-7xl mx-auto px-4 mb-20">
+      {/* <div className="container max-w-7xl mx-auto px-4 mb-20">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Book an In-Clinic Appointment</h2>
@@ -195,7 +195,7 @@ export default async function Home() {
             No doctors available right now.
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* --- COMING SOON: TOP ARTICLES SECTION --- */}
       <div className="container max-w-7xl mx-auto px-4 mb-10">

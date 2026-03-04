@@ -264,6 +264,8 @@ export default function AppointmentPage() {
                     Book Appointment
                   </Button>
                   <Button
+                    component={Link}
+                    href={`/user/components/findDoctors/${doc.DoctorID}`}
                     variant="outlined"
                     sx={{
                       borderRadius: 2,
