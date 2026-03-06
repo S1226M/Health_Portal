@@ -96,43 +96,44 @@ export default function Header({
   const userName = userProfile?.fullName || "User";
 
   const navItems: NavItem[] = [
+    { label: "Home", href: "/user" },
     { label: "Book Appointment", href: "/user/components/hop/appointment/doctorListPage" },
     { label: "Find Doctors", href: "/user/components/findDoctors" },
     // { label: "Video Consult", href: "/videoconsult" },
-    { label: "Medicines", href: "/phm/medicine" },
-    { label: "Lab Tests", href: "/lab/labtest" },
-    { label: "Surgeries", href: "/sur/surgery" },
+    // { label: "Medicines", href: "/phm/medicine" },
+    // { label: "Lab Tests", href: "/lab/labtest" },
+    // { label: "Surgeries", href: "/sur/surgery" },
   ];
 
   /* 🔔 Fetch future appointments */
   useEffect(() => {
-  let isMounted = true;
+    let isMounted = true;
 
-  if (!isLogin) {
-    if (isMounted) {
-      setHasFutureAppt(false);
-      setNotifications([]);
+    if (!isLogin) {
+      if (isMounted) {
+        setHasFutureAppt(false);
+        setNotifications([]);
+      }
+      return;
     }
-    return;
-  }
 
-  getFutureAppointments()
-    .then((res) => {
-      if (!isMounted) return;
+    getFutureAppointments()
+      .then((res) => {
+        if (!isMounted) return;
 
-      setHasFutureAppt(res.count > 0);
-      setNotifications(res.count > 0 ? res.appointments : []);
-    })
-    .catch(() => {
-      if (!isMounted) return;
-      setHasFutureAppt(false);
-      setNotifications([]);
-    });
+        setHasFutureAppt(res.count > 0);
+        setNotifications(res.count > 0 ? res.appointments : []);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setHasFutureAppt(false);
+        setNotifications([]);
+      });
 
-  return () => {
-    isMounted = false;
-  };
-}, [isLogin]);
+    return () => {
+      isMounted = false;
+    };
+  }, [isLogin]);
 
   /* 🔔 Close notification panel when clicking outside */
   useEffect(() => {
@@ -155,28 +156,28 @@ export default function Header({
   }, [showNotification]);
 
   return (
-    <header className="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-50">
+    <header className="sticky top-0 bg-white border-b border-industrial-200 z-50 shadow-[0_1px_3px_rgb(0,0,0,0.05)]">
       <nav className="container mx-auto px-4 h-16">
         <div className="flex justify-between items-center h-full">
 
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold no-underline">
+          <Link href="/" className="text-xl font-bold text-industrial-900 tracking-tight no-underline">
             Health Portal
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex gap-6">
+          <div className="hidden md:flex gap-8">
             {navItems.map((item) => (
-              <Link key={item.label} href={item.href} className="text-sm text-gray-600 hover:text-blue-600 no-underline">
+              <Link key={item.label} href={item.href} className="text-[15px] font-medium text-industrial-600 hover:text-primary-600 transition-colors duration-200 no-underline">
                 {item.label}
               </Link>
             ))}
           </div>
 
           {/* Right Section */}
-          <div className="hidden md:flex items-center gap-4 relative">
+          <div className="hidden md:flex items-center gap-5 relative">
             {!isLogin ? (
-              <Link href="/login" className="border px-4 py-2 rounded-md text-sm no-underline">
+              <Link href="/login" className="bg-industrial-900 text-white px-6 py-2.5 rounded-md text-sm font-medium hover:bg-industrial-800 transition-colors shadow-sm no-underline active:scale-[0.98]">
                 Login / Signup
               </Link>
             ) : (
@@ -188,7 +189,7 @@ export default function Header({
                   aria-label="Notifications"
                 >
                   <BellIcon
-                    className={`w-6 h-6 ${hasFutureAppt ? "text-red-500" : "text-gray-500"
+                    className={`w-5 h-5 ${hasFutureAppt ? "text-primary-600" : "text-industrial-500"
                       }`}
                   />
                   {hasFutureAppt && (
@@ -203,15 +204,15 @@ export default function Header({
                 {showNotification && (
                   <div
                     ref={notificationRef}
-                    className="absolute right-0 top-12 w-96 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto"
+                    className="absolute right-0 top-12 w-96 bg-white border border-industrial-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-slideUpFade"
                   >
-                    <div className="p-4 border-b border-gray-200 bg-gray-50">
+                    <div className="p-4 border-b border-industrial-100 bg-industrial-50/50">
                       <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-800">
+                        <h3 className="font-semibold text-industrial-900 text-sm">
                           Upcoming Appointments
                         </h3>
                         {hasFutureAppt && (
-                          <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                          <span className="px-2 py-0.5 text-xs font-semibold bg-primary-50 text-primary-700 rounded-md border border-primary-100">
                             {notifications.length}
                           </span>
                         )}
@@ -228,7 +229,7 @@ export default function Header({
                           return (
                             <div
                               key={appt.AppointmentID}
-                              className="px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                              className="px-4 py-3 hover:bg-industrial-50 border-b border-industrial-50 last:border-0 transition-colors cursor-pointer group"
                               onClick={() => {
                                 setShowNotification(false);
                                 router.push("/user/components/hop/appointment/viewBookedAppointment");
@@ -236,21 +237,21 @@ export default function Header({
                             >
                               <div className="flex justify-between items-start mb-2">
                                 <div className="flex-1">
-                                  <div className="font-semibold text-gray-900 mb-1">
+                                  <div className="font-semibold text-industrial-900 mb-0.5 text-sm group-hover:text-primary-600 transition-colors">
                                     {appt.hop_doctor?.DoctorName || "Doctor"}
                                   </div>
                                   {appt.hop_doctor?.hop_specialization?.SpecializationName && (
-                                    <div className="text-xs text-gray-500 mb-1">
+                                    <div className="text-xs text-industrial-500 mb-2">
                                       {appt.hop_doctor.hop_specialization.SpecializationName}
                                     </div>
                                   )}
                                 </div>
                                 <span
-                                  className={`px-2 py-1 text-xs font-medium rounded ${appt.Status === "Confirmed"
-                                    ? "bg-green-100 text-green-700"
+                                  className={`px-2 py-1 text-[11px] font-semibold tracking-wide uppercase rounded-md border ${appt.Status === "Confirmed"
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                                     : appt.Status === "Pending"
-                                      ? "bg-yellow-100 text-yellow-700"
-                                      : "bg-gray-100 text-gray-700"
+                                      ? "bg-amber-50 text-amber-700 border-amber-100"
+                                      : "bg-industrial-50 text-industrial-700 border-industrial-200"
                                     }`}
                                 >
                                   {appt.Status}
@@ -290,27 +291,29 @@ export default function Header({
                 )}
 
                 {/* Profile */}
-                <div onClick={() => setOpen(!open)} className="cursor-pointer">
+                <div onClick={() => setOpen(!open)} className="cursor-pointer flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Image
                     src={profileImageSrc}
                     alt={userName}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
+                    width={36}
+                    height={36}
+                    className="rounded-md ring-1 ring-industrial-200 object-cover"
                     unoptimized
                   />
+                  <span className="hidden lg:inline text-sm font-medium text-industrial-700">{userName}</span>
                 </div>
 
                 {open && (
-                  <div className="absolute right-0 top-10 w-48 bg-white border rounded-md shadow-lg">
-                    <Link href="/user/components/userProfile/myProfile" className="block px-4 py-2 text-sm no-underline">
+                  <div className="absolute right-0 top-14 w-48 bg-white border border-industrial-200 rounded-md shadow-lg py-1 animate-slideUpFade">
+                    <Link href="/user/components/userProfile/myProfile" className="block px-4 py-2.5 text-sm font-medium text-industrial-700 hover:bg-industrial-50 hover:text-primary-600 transition-colors no-underline">
                       My Profile
                     </Link>
-                    <Link href="/user/components/hop/appointment/viewBookedAppointment" className="block px-4 py-2 text-sm no-underline">
+                    <Link href="/user/components/hop/appointment/viewBookedAppointment" className="block px-4 py-2.5 text-sm font-medium text-industrial-700 hover:bg-industrial-50 hover:text-primary-600 transition-colors no-underline">
                       My Appointments
                     </Link>
+                    <div className="h-px bg-industrial-100 my-1"></div>
                     <form action={logout}>
-                      <button className="w-full text-left px-4 py-2 text-sm text-red-600">
+                      <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
                         Logout
                       </button>
                     </form>

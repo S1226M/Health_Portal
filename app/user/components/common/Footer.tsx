@@ -13,98 +13,62 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-dark text-white mt-auto">
-      <div className="container py-5">
-        <div className="row g-4">
-          <div className="col-md-3 col-sm-6">
-            <div className="d-flex align-items-center gap-2 mb-3">
-              <span
-                className="rounded-circle bg-primary"
-                style={{ width: "8px", height: "8px" }}
-              ></span>
-              <span className="fw-bold fs-4 text-white">practo</span>
-              <span
-                className="rounded-circle bg-success"
-                style={{ width: "8px", height: "8px" }}
-              ></span>
+    <footer className="bg-industrial-900 text-white mt-auto border-t border-industrial-800 font-sans">
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
+
+          {/* Brand & Description */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-3 mb-5 group">
+              <span className="w-2.5 h-2.5 rounded-[2px] bg-primary-600 transition-transform group-hover:scale-110"></span>
+              <span className="font-extrabold text-2xl tracking-tight text-white">Health Portal</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 opacity-80"></span>
             </div>
-            <p className="text-secondary small mb-3">
-              Your trusted healthcare partner. Connecting patients with quality
-              healthcare services.
+            <p className="text-industrial-400 text-[15px] mb-6 max-w-sm leading-relaxed font-medium">
+              Your trusted enterprise healthcare partner. Connecting patients with premium quality healthcare services through a secure infrastructure.
             </p>
-            <div className="d-flex gap-3">
-              <a
-                href="#"
-                className="text-secondary text-decoration-none"
-                aria-label="Facebook"
-              >
-                <Facebook size={20} />
+            <div className="flex gap-4">
+              <a href="#" className="p-2 bg-industrial-800 text-industrial-400 rounded-md hover:bg-primary-600 hover:text-white transition-colors border border-industrial-700 hover:border-primary-600" aria-label="Facebook">
+                <Facebook size={18} />
               </a>
-              <a
-                href="#"
-                className="text-secondary text-decoration-none"
-                aria-label="Twitter"
-              >
-                <Twitter size={20} />
+              <a href="#" className="p-2 bg-industrial-800 text-industrial-400 rounded-md hover:bg-primary-600 hover:text-white transition-colors border border-industrial-700 hover:border-primary-600" aria-label="Twitter">
+                <Twitter size={18} />
               </a>
-              <a
-                href="#"
-                className="text-secondary text-decoration-none"
-                aria-label="Instagram"
-              >
-                <Instagram size={20} />
+              <a href="#" className="p-2 bg-industrial-800 text-industrial-400 rounded-md hover:bg-primary-600 hover:text-white transition-colors border border-industrial-700 hover:border-primary-600" aria-label="Instagram">
+                <Instagram size={18} />
               </a>
-              <a
-                href="#"
-                className="text-secondary text-decoration-none"
-                aria-label="LinkedIn"
-              >
-                <Linkedin size={20} />
+              <a href="#" className="p-2 bg-industrial-800 text-industrial-400 rounded-md hover:bg-primary-600 hover:text-white transition-colors border border-industrial-700 hover:border-primary-600" aria-label="LinkedIn">
+                <Linkedin size={18} />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="col-md-2 col-sm-6">
-            <h5 className="fw-bold mb-3">Quick Links</h5>
-            <ul className="list-unstyled">
-              <li className="mb-2">
-                <Link
-                  href="/"
-                  className="text-secondary text-decoration-none small"
-                >
+          <div>
+            <h5 className="font-bold text-lg mb-6 text-industrial-100">Quick Links</h5>
+            <ul className="space-y-4">
+              <li>
+                <Link href="/" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Home
                 </Link>
               </li>
-              <li className="mb-2">
-                <Link
-                  href="/contact"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <Link href="/contact" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Contact Us
                 </Link>
               </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Find Doctors
                 </a>
               </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Video Consult
                 </a>
               </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Lab Tests
                 </a>
               </li>
@@ -112,146 +76,74 @@ export default function Footer() {
           </div>
 
           {/* For Patients */}
-          <div className="col-md-2 col-sm-6">
-            <h5 className="fw-bold mb-3">For Patients</h5>
-            <ul className="list-unstyled">
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+          <div>
+            <h5 className="font-bold text-lg mb-6 text-industrial-100">For Patients</h5>
+            <ul className="space-y-4">
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Search for Doctors
                 </a>
               </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Book Appointments
                 </a>
               </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Order Medicines
                 </a>
               </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li>
+                <a href="#" className="text-industrial-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline">
                   Health Records
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* For Providers */}
-          <div className="col-md-2 col-sm-6">
-            <h5 className="fw-bold mb-3">For Providers</h5>
-            <ul className="list-unstyled">
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Doctor Registration
-                </a>
-              </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Partner with us
-                </a>
-              </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Business Support
-                </a>
-              </li>
-              <li className="mb-2">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Provider Dashboard
-                </a>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Info */}
-          <div className="col-md-3 col-sm-6">
-            <h5 className="fw-bold mb-3">Contact Info</h5>
-            <ul className="list-unstyled">
-              <li className="mb-3 d-flex align-items-start gap-2">
-                <MapPin size={18} className="text-primary mt-1" />
-                <span className="text-secondary small">
-                  123 Healthcare Street,
-                  <br />
-                  Medical District, City 12345
+          <div>
+            <h5 className="font-bold text-lg mb-6 text-industrial-100">Contact</h5>
+            <ul className="space-y-4 text-industrial-400 text-[14px] font-medium">
+              <li className="flex items-start gap-3">
+                <MapPin size={18} className="text-primary-500 mt-0.5 shrink-0" />
+                <span>
+                  123 Healthcare Avenue,<br />
+                  Medical District, Enterprise Box 12345
                 </span>
               </li>
-              <li className="mb-3 d-flex align-items-center gap-2">
-                <Phone size={18} className="text-primary" />
-                <a
-                  href="tel:+1234567890"
-                  className="text-secondary text-decoration-none small"
-                >
+              <li className="flex items-center gap-3">
+                <Phone size={18} className="text-primary-500 shrink-0" />
+                <a href="tel:+1234567890" className="hover:text-primary-400 transition-colors no-underline">
                   +1 (234) 567-890
                 </a>
               </li>
-              <li className="mb-3 d-flex align-items-center gap-2">
-                <Mail size={18} className="text-primary" />
-                <a
-                  href="mailto:contact@practo.com"
-                  className="text-secondary text-decoration-none small"
-                >
-                  contact@practo.com
+              <li className="flex items-center gap-3">
+                <Mail size={18} className="text-primary-500 shrink-0" />
+                <a href="mailto:enterprise@healthportal.com" className="hover:text-primary-400 transition-colors break-all no-underline">
+                  enterprise@healthportal.com
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <hr className="my-4 border-secondary" />
-
-        {/* Copyright */}
-        <div className="row">
-          <div className="col-12">
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-              <p className="text-secondary small mb-0">
-                © {new Date().getFullYear()} Practo. All rights reserved.
-              </p>
-              <div className="d-flex gap-4">
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Privacy Policy
-                </a>
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Terms of Service
-                </a>
-                <a
-                  href="#"
-                  className="text-secondary text-decoration-none small"
-                >
-                  Cookie Policy
-                </a>
-              </div>
+        <div className="mt-16 pt-8 border-t border-industrial-800">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-industrial-500 text-[13px] font-medium mb-0 text-center md:text-left">
+              &copy; {new Date().getFullYear()} Health Portal. All rights reserved.
+            </p>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="#" className="text-industrial-500 hover:text-white transition-colors text-[13px] font-medium no-underline">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-industrial-500 hover:text-white transition-colors text-[13px] font-medium no-underline">
+                Terms of Service
+              </a>
+              <a href="#" className="text-industrial-500 hover:text-white transition-colors text-[13px] font-medium no-underline">
+                Security & Compliance
+              </a>
             </div>
           </div>
         </div>
