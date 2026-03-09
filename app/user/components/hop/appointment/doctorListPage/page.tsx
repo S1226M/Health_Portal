@@ -27,12 +27,19 @@ import { getAllDoctor } from "@/app/user/modules/appointments/action/getAllDocto
 export default function AppointmentPage() {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    doctorName: '',
+    specialization: null as string | null,
+    city: null as string | null,
+  });
+  const [filteredDoctors, setFilteredDoctors] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
         const data = await getAllDoctor();
         setDoctors(data);
+        setFilteredDoctors(data);
       } catch (error) {
         console.error("Failed to fetch doctors:", error);
       } finally {
@@ -41,6 +48,32 @@ export default function AppointmentPage() {
     };
     fetchDoctors();
   }, []);
+
+  const specializationOptions = [...new Set(doctors.map(doc => doc.hop_specialization?.Name).filter(Boolean))];
+  const cityOptions = [...new Set(doctors.map(doc => doc.hop_hospital?.loc_city?.CityName).filter(Boolean))];
+
+  const applyFilters = () => {
+    let filtered = doctors;
+    if (filters.doctorName) {
+      filtered = filtered.filter(doc => doc.DoctorName.toLowerCase().includes(filters.doctorName.toLowerCase()));
+    }
+    if (filters.specialization) {
+      filtered = filtered.filter(doc => doc.hop_specialization?.Name === filters.specialization);
+    }
+    if (filters.city) {
+      filtered = filtered.filter(doc => doc.hop_hospital?.loc_city?.CityName === filters.city);
+    }
+    setFilteredDoctors(filtered);
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      doctorName: '',
+      specialization: null,
+      city: null,
+    });
+    setFilteredDoctors(doctors);
+  };
 
   console.log("Fetched Doctors:", doctors);
 
@@ -66,66 +99,63 @@ export default function AppointmentPage() {
 
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <TextField
+                label="Doctor Name"
+                size="small"
+                value={filters.doctorName}
+                onChange={(e) => setFilters({ ...filters, doctorName: e.target.value })}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Autocomplete
-                options={["USA", "India"]}
+                options={specializationOptions}
+                value={filters.specialization}
+                onChange={(_, value) => setFilters({ ...filters, specialization: value })}
                 renderInput={(params) => (
-                  <TextField {...params} label="Country" size="small" />
+                  <TextField {...params} label="Specialization" size="small" />
                 )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Autocomplete
-                options={["Gujarat", "New York"]}
-                renderInput={(params) => (
-                  <TextField {...params} label="State" size="small" />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Autocomplete
-                options={["Ahmedabad", "Brooklyn"]}
+                options={cityOptions}
+                value={filters.city}
+                onChange={(_, value) => setFilters({ ...filters, city: value })}
                 renderInput={(params) => (
                   <TextField {...params} label="City" size="small" />
                 )}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Autocomplete
-                options={["Cardiology", "Dermatology", "Pediatrics"]}
-                renderInput={(params) => (
-                  <TextField {...params} label="Specialization" size="small" />
-                )}
-              />
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<RestartAltIcon />}
+                  onClick={resetFilters}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Reset
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<SearchIcon />}
+                  onClick={applyFilters}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontWeight: "bold",
+                    px: 4,
+                  }}
+                >
+                  Apply Filters
+                </Button>
+              </Box>
             </Grid>
           </Grid>
-
-          <Box
-            sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}
-          >
-            <Button
-              variant="outlined"
-              startIcon={<RestartAltIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: "bold",
-              }}
-            >
-              Reset
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: "bold",
-                px: 4,
-              }}
-            >
-              Apply Filters
-            </Button>
-          </Box>
         </CardContent>
       </Card>
 
@@ -135,7 +165,7 @@ export default function AppointmentPage() {
           <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
             <CircularProgress />
           </Box>
-        ) : doctors.length === 0 ? (
+        ) : filteredDoctors.length === 0 ? (
           <Box
             sx={{
               textAlign: "center",
@@ -144,10 +174,10 @@ export default function AppointmentPage() {
               borderRadius: 3,
             }}
           >
-            <Typography color="text.secondary">No doctors found.</Typography>
+            <Typography color="text.secondary">No doctors found matching the filters.</Typography>
           </Box>
         ) : (
-          doctors.map((doc) => (
+          filteredDoctors.map((doc) => (
             <Card
               key={doc.DoctorID}
               sx={{

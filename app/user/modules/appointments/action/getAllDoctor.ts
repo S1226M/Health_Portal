@@ -8,9 +8,13 @@ export async function getAllDoctor() {
       IsDeleted: false,
     },
     include: {
-      hop_hospital: true,
+      hop_hospital: {
+        include: {
+          loc_city: true,
+        },
+      },
       hop_specialization: true,
     },
   });
-  return data;
+  return JSON.parse(JSON.stringify(data));
 }

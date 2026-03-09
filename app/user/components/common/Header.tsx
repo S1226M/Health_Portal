@@ -99,10 +99,7 @@ export default function Header({
     { label: "Home", href: "/user" },
     { label: "Book Appointment", href: "/user/components/hop/appointment/doctorListPage" },
     { label: "Find Doctors", href: "/user/components/findDoctors" },
-    // { label: "Video Consult", href: "/videoconsult" },
-    // { label: "Medicines", href: "/phm/medicine" },
-    // { label: "Lab Tests", href: "/lab/labtest" },
-    // { label: "Surgeries", href: "/sur/surgery" },
+    { label: "Order Medicines", href: "/user/components/phm/medicines" },
   ];
 
   /* 🔔 Fetch future appointments */

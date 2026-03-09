@@ -15,7 +15,15 @@ import {
     Stack,
     Paper,
     Tabs,
-    Tab
+    Tab,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Rating,
+    Alert,
+    Snackbar
 } from "@mui/material";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -24,9 +32,12 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import UpcomingIcon from '@mui/icons-material/Upcoming';
 import HistoryIcon from '@mui/icons-material/History';
 import CancelIcon from '@mui/icons-material/Cancel';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import StarIcon from '@mui/icons-material/Star';
 import Link from "next/link";
 import dayjs from "dayjs";
 import { getViewBookedAppointments } from "@/app/user/modules/appointments/action/getViewBookedAppointments";
+import { submitDoctorReview } from "@/app/user/modules/appointments/action/submitDoctorReview";
 
 interface Appointment {
     AppointmentID: number;
@@ -35,6 +46,7 @@ interface Appointment {
     Status: string;
     Reason: string | null;
     PatientName: string;
+    DoctorID: number;
     appointmentStatus: string; // "Upcoming" | "Completed" | "Cancelled"
     hop_doctor: {
         DoctorName: string;
@@ -57,7 +69,15 @@ export default function ViewBookedAppointment() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [activeTab, setActiveTab] = useState(0); // 0 = All, 1 = Upcoming, 2 = Completed
+    const [activeTab, setActiveTab] = useState(0);
+
+    // Review modal state
+    const [reviewOpen, setReviewOpen] = useState(false);
+    const [reviewAppt, setReviewAppt] = useState<Appointment | null>(null);
+    const [reviewRating, setReviewRating] = useState<number | null>(0);
+    const [reviewText, setReviewText] = useState("");
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
+    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -121,14 +141,12 @@ export default function ViewBookedAppointment() {
 
     const formatTime = (time?: string | Date) => {
         if (!time) return "";
-        // Server now sends pre-formatted time strings (e.g., "09:00 AM")
-        if (typeof time === "string" && time.includes("AM" || "PM")) return time;
+        if (typeof time === "string" && (time.includes("AM") || time.includes("PM"))) return time;
         return dayjs(time).format("h:mm A");
     };
 
-    // Filter appointments based on active tab
     const filteredAppointments = appointments.filter((appt) => {
-        if (activeTab === 0) return true; // All
+        if (activeTab === 0) return true;
         if (activeTab === 1) return appt.appointmentStatus === "Upcoming";
         if (activeTab === 2) return appt.appointmentStatus === "Completed";
         return true;
@@ -136,6 +154,46 @@ export default function ViewBookedAppointment() {
 
     const upcomingCount = appointments.filter(a => a.appointmentStatus === "Upcoming").length;
     const completedCount = appointments.filter(a => a.appointmentStatus === "Completed").length;
+
+    const handleOpenReview = (appt: Appointment) => {
+        setReviewAppt(appt);
+        setReviewRating(0);
+        setReviewText("");
+        setReviewOpen(true);
+    };
+
+    const handleSubmitReview = async () => {
+        if (!reviewAppt || !reviewRating || reviewRating === 0) {
+            setSnackbar({ open: true, message: "Please select a rating.", severity: 'error' });
+            return;
+        }
+
+        setReviewSubmitting(true);
+        try {
+            const result = await submitDoctorReview({
+                doctorId: reviewAppt.DoctorID,
+                rating: reviewRating,
+                reviewText: reviewText.trim(),
+                appointmentId: reviewAppt.AppointmentID,
+            });
+
+            if (result.success) {
+                setSnackbar({ open: true, message: result.message, severity: 'success' });
+                setReviewOpen(false);
+                // Refresh appointments
+                const refreshResult = await getViewBookedAppointments();
+                if (refreshResult.success && refreshResult.data) {
+                    setAppointments(refreshResult.data as any);
+                }
+            } else {
+                setSnackbar({ open: true, message: result.message, severity: 'error' });
+            }
+        } catch (err) {
+            setSnackbar({ open: true, message: "Failed to submit review.", severity: 'error' });
+        } finally {
+            setReviewSubmitting(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -228,6 +286,7 @@ export default function ViewBookedAppointment() {
                 <Grid container spacing={3}>
                     {filteredAppointments.map((appt) => {
                         const statusColors = getAppointmentStatusColor(appt.appointmentStatus);
+                        const isCompletedOrPast = appt.appointmentStatus === "Completed";
                         return (
                             <Grid size={{ xs: 12, md: 6, lg: 4 }} key={appt.AppointmentID}>
                                 <Card
@@ -239,7 +298,7 @@ export default function ViewBookedAppointment() {
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                                         transition: 'transform 0.2s, box-shadow 0.2s',
                                         borderLeft: `4px solid ${statusColors.border}`,
-                                        opacity: appt.appointmentStatus === 'Completed' ? 0.85 : 1,
+                                        opacity: isCompletedOrPast ? 0.85 : 1,
                                         '&:hover': {
                                             transform: 'translateY(-4px)',
                                             boxShadow: '0 12px 24px rgba(0,0,0,0.1)'
@@ -252,7 +311,6 @@ export default function ViewBookedAppointment() {
                                                 #{appt.AppointmentNo}
                                             </Typography>
                                             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                                                {/* Appointment Status Badge (Upcoming / Completed) */}
                                                 <Chip
                                                     icon={getAppointmentStatusIcon(appt.appointmentStatus) as any}
                                                     label={appt.appointmentStatus}
@@ -267,7 +325,6 @@ export default function ViewBookedAppointment() {
                                                         }
                                                     }}
                                                 />
-                                                {/* Original Status Chip */}
                                                 <Chip
                                                     label={appt.Status}
                                                     color={getStatusColor(appt.Status) as any}
@@ -337,6 +394,32 @@ export default function ViewBookedAppointment() {
                                             </Typography>
                                         </Box>
 
+                                        {/* Review Button for Completed Appointments */}
+                                        {isCompletedOrPast && (
+                                            <Box sx={{ mt: 2.5 }}>
+                                                <Button
+                                                    variant="outlined"
+                                                    size="small"
+                                                    fullWidth
+                                                    startIcon={<RateReviewIcon />}
+                                                    onClick={() => handleOpenReview(appt)}
+                                                    sx={{
+                                                        textTransform: 'none',
+                                                        fontWeight: 'bold',
+                                                        borderRadius: 2,
+                                                        borderColor: '#f59e0b',
+                                                        color: '#d97706',
+                                                        '&:hover': {
+                                                            borderColor: '#d97706',
+                                                            bgcolor: '#fffbeb',
+                                                        }
+                                                    }}
+                                                >
+                                                    Rate & Review Doctor
+                                                </Button>
+                                            </Box>
+                                        )}
+
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -344,6 +427,116 @@ export default function ViewBookedAppointment() {
                     })}
                 </Grid>
             )}
+
+            {/* Review Dialog */}
+            <Dialog
+                open={reviewOpen}
+                onClose={() => setReviewOpen(false)}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: { borderRadius: 3, overflow: 'hidden' }
+                }}
+            >
+                <DialogTitle sx={{ bgcolor: '#fffbeb', borderBottom: '1px solid #fde68a', pb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <StarIcon sx={{ color: '#f59e0b' }} />
+                        <Typography variant="h6" fontWeight="bold">
+                            Review Dr. {reviewAppt?.hop_doctor?.DoctorName}
+                        </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Share your experience to help other patients
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ pt: 4, mt: 1 }}>
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                            How was your experience?
+                        </Typography>
+                        <Rating
+                            value={reviewRating}
+                            onChange={(_, newValue) => setReviewRating(newValue)}
+                            size="large"
+                            sx={{
+                                '& .MuiRating-iconFilled': { color: '#f59e0b' },
+                                '& .MuiRating-iconHover': { color: '#d97706' },
+                                fontSize: '3rem'
+                            }}
+                        />
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            {reviewRating === 1 && "Poor"}
+                            {reviewRating === 2 && "Below Average"}
+                            {reviewRating === 3 && "Average"}
+                            {reviewRating === 4 && "Good"}
+                            {reviewRating === 5 && "Excellent!"}
+                        </Typography>
+                    </Box>
+
+                    <TextField
+                        multiline
+                        rows={4}
+                        fullWidth
+                        label="Write your review (optional)"
+                        placeholder="Tell us about your experience with the doctor, treatment quality, waiting time, etc."
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                            }
+                        }}
+                    />
+
+                    {reviewAppt && (
+                        <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f4f8', borderRadius: 2 }}>
+                            <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                                Appointment Details
+                            </Typography>
+                            <Typography variant="body2">
+                                #{reviewAppt.AppointmentNo} • {dayjs(reviewAppt.AppointmentDate).format("MMM D, YYYY")} • {reviewAppt.hop_doctor?.hop_specialization?.SpecializationName}
+                            </Typography>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 3, borderTop: '1px solid #e5e7eb' }}>
+                    <Button onClick={() => setReviewOpen(false)} sx={{ textTransform: 'none' }}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleSubmitReview}
+                        disabled={reviewSubmitting || !reviewRating}
+                        startIcon={reviewSubmitting ? <CircularProgress size={16} /> : <StarIcon />}
+                        sx={{
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                            borderRadius: 2,
+                            bgcolor: '#f59e0b',
+                            '&:hover': { bgcolor: '#d97706' }
+                        }}
+                    >
+                        {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Snackbar */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }

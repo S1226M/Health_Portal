@@ -18,16 +18,46 @@ export async function getDoctorById(doctorId: number) {
                                 }
                             }
                         }
-                    }
+                    },
+                    hop_hospitaltreatment: {
+                        include: {
+                            hop_treatmenttype: true
+                        }
+                    },
+                    pay_paymentmode: true
                 }
             },
             hop_specialization: true,
             hop_doctorreview: {
                 include: {
                     hop_patient: true
+                },
+                orderBy: {
+                    Created: 'desc'
                 }
+            },
+            hop_doctor_slot_mapping: {
+                include: {
+                    hop_timeslot_master: true
+                }
+            },
+            hop_appointment: {
+                where: {
+                    Status: 'Confirmed',
+                    AppointmentDate: {
+                        gte: new Date()
+                    }
+                },
+                orderBy: {
+                    AppointmentDate: 'asc'
+                },
+                take: 5
             }
         },
     });
-    return data;
+
+    if (!data) return null;
+
+    // Deep-clone to plain JSON to handle Prisma Decimal types
+    return JSON.parse(JSON.stringify(data));
 }

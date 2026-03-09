@@ -79,6 +79,7 @@ model hop_doctor {
   CreatedByUserID                                Int
   ModifiedByUserID                               Int?
   IsDeleted                                      Boolean                   @default(false)
+  Consultation_Fee                               Decimal?                  @db.Decimal(10, 2)
   hop_appointment                                hop_appointment[]
   sec_user_hop_doctor_CreatedByUserIDTosec_user  sec_user                  @relation("hop_doctor_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_CreatedBy")
   sec_user_hop_doctor_ModifiedByUserIDTosec_user sec_user?                 @relation("hop_doctor_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Doctor_ModifiedBy")

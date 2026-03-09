@@ -139,7 +139,9 @@ export default function DoctorListClient({
                             <div className="pt-4 mt-auto border-t border-industrial-100">
                                 <div className="flex items-center justify-between mb-4">
                                     <span className="text-[11px] font-bold tracking-widest text-industrial-400 uppercase">Consultation</span>
-                                    <span className="text-industrial-900 font-extrabold text-2xl leading-none">$50</span>
+                                    <span className="text-industrial-900 font-extrabold text-2xl leading-none">
+                                        {doc.Consultation_Fee ? `₹${Number(doc.Consultation_Fee).toFixed(0)}` : "Contact"}
+                                    </span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 relative z-10 mt-1">
                                     <Link

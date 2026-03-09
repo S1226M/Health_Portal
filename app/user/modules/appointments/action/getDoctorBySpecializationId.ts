@@ -13,5 +13,5 @@ export async function getDoctorBySpecializationId(specId: number) {
             hop_specialization: true,
         },
     });
-    return data;
+    return JSON.parse(JSON.stringify(data));
 }
