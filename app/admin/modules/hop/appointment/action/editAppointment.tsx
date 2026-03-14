@@ -35,7 +35,9 @@ export default async function editAppointment(formData: FormData) {
     where: { AppointmentID: id },
     data: {
       AppointmentNo: appointmentNo,
-      PatientID: parseInt(patientID),
+      // PatientID is not a valid field, UserID is used to link to sec_user.
+      // If patientID was passed from the form, it likely corresponds to UserID in the old admin form.
+      UserID: parseInt(patientID),
       DoctorID: parseInt(doctorID),
       AppointmentDate: new Date(appointmentDate),
       Status: status,

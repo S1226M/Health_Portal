@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { Search, ChevronRight, Stethoscope, Video, HeartPulse, Activity, Pill, Microscope, Stethoscope as SurgIcon, Star, CheckCircle2, ShieldAlert } from "lucide-react";
-import { getAllDoctor } from "@/app/user/modules/appointments/action/getAllDoctor";
-import { getAllSpecializations } from "@/app/user/modules/appointments/action/getAllSpecializations";
+import { getAllDoctor } from "@/app/user/modules/hop/appointment/action/getAllDoctor";
+import { getAllSpecializations } from "@/app/user/modules/hop/appointment/action/getAllSpecializations";
 
 export default async function Home() {
   const doctors = await getAllDoctor();
@@ -32,7 +32,7 @@ export default async function Home() {
           </p>
 
           {/* Functional Search Form */}
-          {/* <form action="/user/components/findDoctors" method="GET" className="max-w-2xl mx-auto bg-white p-2 rounded-lg shadow-sm border border-industrial-200 flex flex-col md:flex-row gap-2 relative z-20 group">
+          {/* <form action="/user/modules/hop/findDoctors" method="GET" className="max-w-2xl mx-auto bg-white p-2 rounded-lg shadow-sm border border-industrial-200 flex flex-col md:flex-row gap-2 relative z-20 group">
             <div className="flex-1 flex items-center px-4 bg-industrial-50 rounded-md border border-industrial-200 focus-within:ring-2 focus-within:ring-primary-600 focus-within:border-transparent transition-all">
               <Search className="w-5 h-5 text-industrial-400" />
               <input
@@ -56,7 +56,7 @@ export default async function Home() {
 
           {/* Card 1: Find Doctors (Active) */}
           <Link
-            href="/user/components/findDoctors"
+            href="/user/modules/hop/findDoctors"
             className="group flex flex-col items-center p-8 bg-white rounded-lg border border-industrial-200 shadow-sm hover:shadow-md hover:border-primary-600 transition-all duration-200"
           >
             <div className="w-14 h-14 rounded-md bg-primary-50 text-primary-600 flex items-center justify-center mb-5 group-hover:bg-primary-600 group-hover:text-white transition-colors">
@@ -78,29 +78,30 @@ export default async function Home() {
             <p className="text-[13px] text-industrial-400 mt-1 text-center font-medium">Talk in 15 mins</p>
           </div>
 
-          {/* Card 3: Lab Tests (Coming Soon) */}
-          <div className="flex flex-col items-center p-8 bg-industrial-50 rounded-lg border border-industrial-200 relative overflow-hidden group cursor-not-allowed hidden md:flex">
-            <div className="absolute top-4 right-4 bg-industrial-200 text-industrial-600 text-[10px] font-bold px-2 py-1 rounded-[4px] uppercase tracking-wide z-10">
-              Coming Soon
-            </div>
-            <div className="w-14 h-14 rounded-md bg-industrial-200 text-industrial-400 flex items-center justify-center mb-5 opacity-70">
+          {/* Card 3: Lab Tests */}
+          <Link
+            href="/user/modules/lab/testList"
+            className="group flex flex-col items-center p-8 bg-white rounded-lg border border-industrial-200 shadow-sm hover:shadow-md hover:border-primary-600 transition-all duration-200"
+          >
+            <div className="w-14 h-14 rounded-md bg-primary-50 text-primary-600 flex items-center justify-center mb-5 group-hover:bg-primary-600 group-hover:text-white transition-colors">
               <Microscope className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-industrial-500 text-center text-lg">Lab Tests</h3>
-            <p className="text-[13px] text-industrial-400 mt-1 text-center font-medium">Free home sample</p>
-          </div>
+            <h3 className="font-bold text-industrial-900 text-center text-lg">Lab Tests</h3>
+            <p className="text-[13px] text-industrial-500 mt-1 text-center font-medium">Home sample collection</p>
+          </Link>
 
-          {/* Card 4: Surgeries (Coming Soon) */}
-          <div className="flex flex-col items-center p-8 bg-industrial-50 rounded-lg border border-industrial-200 relative overflow-hidden group cursor-not-allowed hidden md:flex">
-            <div className="absolute top-4 right-4 bg-industrial-200 text-industrial-600 text-[10px] font-bold px-2 py-1 rounded-[4px] uppercase tracking-wide z-10">
-              Coming Soon
-            </div>
-            <div className="w-14 h-14 rounded-md bg-industrial-200 text-industrial-400 flex items-center justify-center mb-5 opacity-70">
+          {/* Card 4: Surgeries */}
+          <Link
+            href="/user/modules/sur/surgeryList"
+            className="group flex flex-col items-center p-8 bg-white rounded-lg border border-industrial-200 shadow-sm hover:shadow-md hover:border-primary-600 transition-all duration-200 hidden md:flex"
+          >
+            <div className="w-14 h-14 rounded-md bg-primary-50 text-primary-600 flex items-center justify-center mb-5 group-hover:bg-primary-600 group-hover:text-white transition-colors">
               <SurgIcon className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-industrial-500 text-center text-lg">Surgeries</h3>
-            <p className="text-[13px] text-industrial-400 mt-1 text-center font-medium">Safe and trusted</p>
-          </div>
+            <h3 className="font-bold text-industrial-900 text-center text-lg">Surgeries</h3>
+            <p className="text-[13px] text-industrial-500 mt-1 text-center font-medium">Expert surgical care</p>
+          </Link>
+
 
         </div>
       </div>
@@ -112,7 +113,7 @@ export default async function Home() {
             <h2 className="text-2xl font-bold text-industrial-900 tracking-tight">Explore Top Specialities</h2>
             <p className="text-[15px] font-medium text-industrial-600 mt-1">Consult with verified doctors based on their specialization.</p>
           </div>
-          <Link href="/user/components/hop/specialization" className="text-[14px] font-bold text-primary-600 hover:text-primary-800 flex items-center gap-1 group transition-colors">
+          <Link href="/user/modules/hop/specialization" className="text-[14px] font-bold text-primary-600 hover:text-primary-800 flex items-center gap-1 group transition-colors">
             View all <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
@@ -122,7 +123,7 @@ export default async function Home() {
             {specializations.slice(0, 6).map((spec, i) => (
               <Link
                 key={spec.SpecializationID}
-                href={`/user/components/findDoctors?specId=${spec.SpecializationID}`}
+                href={`/user/modules/hop/findDoctors?specId=${spec.SpecializationID}`}
                 className="bg-white rounded-lg border border-industrial-200 shadow-sm hover:border-primary-600 transition-all duration-200 flex flex-col items-center justify-center group p-6 aspect-square"
               >
                 <div className="w-12 h-12 rounded-md bg-industrial-50 border border-industrial-100 text-industrial-500 flex items-center justify-center mb-4 group-hover:bg-primary-50 group-hover:border-primary-100 group-hover:text-primary-600 transition-colors">

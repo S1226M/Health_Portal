@@ -9,7 +9,7 @@ import { cookies } from "next/headers";
 import { console } from "inspector";
 
 export default async function SaveAppointment(formData: FormData) {
-  
+
   const token = (await cookies()).get("auth_token")?.value;
   if (!token) {
     throw new Error("Unauthorized");
@@ -19,7 +19,7 @@ export default async function SaveAppointment(formData: FormData) {
     UserID?: number;
     role?: string;
   };
-  
+
   console.log("Decoded JWT:", decoded.UserID, decoded.role);
 
   const currentUserId = decoded.UserID as number;
@@ -31,10 +31,11 @@ export default async function SaveAppointment(formData: FormData) {
   const appointmentDate = formData.get("AppointmentDate") as string;
   const status = formData.get("Status") as string;
   const reason = formData.get("Reason") as string;
-  
+
   const data = {
     AppointmentNo: appointmentNo,
-    PatientID: decoded.UserID,
+    UserID: decoded.UserID as number,
+    PatientName: formData.get("PatientName") as string || "Unknown Patient",
     DoctorID: parseInt(doctorID),
     AppointmentDate: new Date(appointmentDate),
     Status: status,
