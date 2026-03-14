@@ -42,6 +42,15 @@ export default async function SaveDoctor(formData: FormData) {
   const addedData = await prisma.hop_doctor.create({ data });
 
   const addedID = addedData.DoctorID;
+
+  // AUTO-SEED: Generate default slots for the new doctor
+  try {
+    const { seedDoctorSlots } = await import("@/app/user/modules/hop/appointment/action/seedDoctorSlots");
+    await seedDoctorSlots(addedID);
+  } catch (error) {
+    console.error("Failed to seed slots for new doctor:", error);
+  }
+
   const newData = {
     DoctorID: addedID,
     IUD: "I",
@@ -49,6 +58,7 @@ export default async function SaveDoctor(formData: FormData) {
     CreatedByUserID: currentUserId,
   };
   await prisma.hop_log_doctor.create({ data: newData });
+
 
   revalidatePath("/admin/components/hop/doctor");
   redirect("/admin/components/hop/doctor");

@@ -3,32 +3,94 @@
 import { prisma } from "@/lib/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import fs from "fs";
+import path from "path";
 
 dayjs.extend(utc);
 
+const LOG_FILE = "d:/Health_Portal/slot_diagnostics.log";
+
+function log(message: string) {
+  const timestamp = new Date().toISOString();
+  fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
+}
+
 export async function getDoctorSlots(doctorId: number, dateStr: string) {
   try {
+    log(`--- NEW REQUEST: DocID=${doctorId}, Date=${dateStr} ---`);
+
+    if (!doctorId || !dateStr) {
+      log("Error: Missing doctorId or dateStr");
+      return { success: false, message: "Missing doctor or date" };
+    }
+
     const selectedDate = dayjs(dateStr);
-    const dayOfWeek = selectedDate.day(); // Sunday = 0, Monday = 1...
+    if (!selectedDate.isValid()) {
+      log(`Error: Invalid date ${dateStr}`);
+      return { success: false, message: "Invalid date selected" };
+    }
 
-    // 1. Get doctor's schedule for this weekday
-    console.log(`Fetching schedule for DoctorID: ${doctorId}, Day: ${dayOfWeek}`);
+    const dayOfWeek = selectedDate.day();
+    const normalizedDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
+    log(`DayJS Day Index: ${dayOfWeek}, ISO Day Index: ${normalizedDayOfWeek}`);
 
-    const schedule = await prisma.hop_doctor_slot_mapping.findMany({
+    // 1. Fetch mappings
+    let schedule = await prisma.hop_doctor_slot_mapping.findMany({
       where: {
         DoctorID: doctorId,
         IsActive: true,
         OR: [
           { DayOfWeek: dayOfWeek },
-          { DayOfWeek: null },       // NULL means available for all days
+          { DayOfWeek: normalizedDayOfWeek },
+          { DayOfWeek: null },
         ],
       },
       include: { hop_timeslot_master: true },
     });
 
-    console.log(`Found ${schedule.length} schedule entries.`);
+    log(`Primary query found ${schedule.length} slots.`);
 
-    // 2. Get existing appointments for this specific calendar date
+    // DIAGNOSTIC FALLBACK: If no slots found, check why
+    if (schedule.length === 0) {
+      const anyMappings = await prisma.hop_doctor_slot_mapping.findMany({
+        where: { DoctorID: doctorId },
+        take: 10
+      });
+      log(`Total mappings found for DocID ${doctorId} across ALL days: ${anyMappings.length}`);
+      if (anyMappings.length > 0) {
+        log(`Mappings found for days: ${anyMappings.map(m => m.DayOfWeek).join(", ")}`);
+      } else {
+        log(`CRITICAL: No mappings AT ALL for DocID ${doctorId}. This suggests the ID is wrong or the table is empty for this ID.`);
+
+        // Check if this doctor even exists
+        const doc = await prisma.hop_doctor.findUnique({ where: { DoctorID: doctorId } });
+        if (!doc) {
+          log(`CRITICAL: Doctor with ID ${doctorId} DOES NOT EXIST in hop_doctor table.`);
+        } else {
+          log(`Doctor ${doc.DoctorName} exists (ID ${doctorId}), but has no slots.`);
+        }
+      }
+
+      const totalMappingsCount = await prisma.hop_doctor_slot_mapping.count({
+        where: { DoctorID: doctorId }
+      });
+
+      if (totalMappingsCount === 0) {
+        log(`Triggering auto-seed for DocID ${doctorId}...`);
+        try {
+          const { seedDoctorSlots } = await import("./seedDoctorSlots");
+          const seedRes = await seedDoctorSlots(doctorId);
+          log(`Seed result: ${JSON.stringify(seedRes)}`);
+          if (seedRes.success) {
+            return getDoctorSlots(doctorId, dateStr);
+          }
+        } catch (seedErr: any) {
+          log(`Auto-seeding error: ${seedErr.message}`);
+        }
+      }
+    }
+
+    // 2. Fetch already booked appointments
     const bookings = await prisma.hop_appointment.findMany({
       where: {
         DoctorID: doctorId,
@@ -42,49 +104,43 @@ export async function getDoctorSlots(doctorId: number, dateStr: string) {
       select: { SlotID: true },
     });
 
-    const bookedSlotIds = bookings.map((b) => b.SlotID);
+    log(`Found ${bookings.length} existing bookings for this date.`);
+    const bookedSlotIds = new Set(bookings.map((b) => b.SlotID));
 
-    // Helper function to format time values (handles Time type from database)
-    // Use UTC mode to avoid local timezone shifting MySQL Time(0) values
-    const formatTime = (date: Date | string) => {
+    const formatWallClockTime = (date: Date | string | null) => {
       if (!date) return "";
       return dayjs.utc(date).format("hh:mm A");
     };
 
-    // 3. Prepare slot data for the dropdown
+    const getISOStartTime = (date: Date | string | null) => {
+      if (!date) return "00:00:00";
+      return dayjs.utc(date).format("HH:mm:ss");
+    };
+
+    // 3. Format and return available slots
     const slots = schedule
-      .filter((item) => item.hop_timeslot_master !== null) // Filter out null slots
+      .filter((item) => item.hop_timeslot_master !== null)
       .map((item) => {
-        const slot = item.hop_timeslot_master!; // Non-null assertion after filter
-        // Validate that StartTime and EndTime exist
-        if (!slot.StartTime || !slot.EndTime) {
-          return null;
-        }
-
-        // Format time for display and create ISO string for the appointment date
-        const startTimeStr = dayjs.utc(slot.StartTime).format("HH:mm:ss");
+        const sm = item.hop_timeslot_master!;
+        const displayTime = `${formatWallClockTime(sm.StartTime)} - ${formatWallClockTime(sm.EndTime)}`;
+        const startTimeStr = getISOStartTime(sm.StartTime);
         const fullDateTime = `${selectedDate.format("YYYY-MM-DD")}T${startTimeStr}`;
-
-        // Format times using the helper function
-        const startTimeFormatted = formatTime(slot.StartTime);
-        const endTimeFormatted = formatTime(slot.EndTime);
 
         return {
           slotId: item.SlotID,
-          displayTime: `${startTimeFormatted} - ${endTimeFormatted}`,
-          isBooked: bookedSlotIds.includes(item.SlotID),
+          displayTime: displayTime,
+          isBooked: bookedSlotIds.has(item.SlotID),
           fullDateTime: fullDateTime,
         };
-      })
-      .filter((slot) => slot !== null) as Array<{
-        slotId: number;
-        displayTime: string;
-        isBooked: boolean;
-        fullDateTime: string;
-      }>;
+      });
+
+    slots.sort((a, b) => a.fullDateTime.localeCompare(b.fullDateTime));
+    log(`Returning ${slots.length} formatted slots.`);
 
     return { success: true, slots };
-  } catch (error) {
-    return { success: false, message: "Error fetching slots" };
+  } catch (error: any) {
+    log(`TOP LEVEL ERROR: ${error.message}`);
+    console.error("getDoctorSlots Error:", error);
+    return { success: false, message: "Failed to load time slots." };
   }
 }

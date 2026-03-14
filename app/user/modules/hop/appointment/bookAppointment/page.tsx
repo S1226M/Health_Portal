@@ -161,8 +161,10 @@ function BookAppointmentContent() {
                   required
                   className="w-full bg-white border border-industrial-300 rounded-[4px] px-4 py-2.5 text-[15px] text-industrial-900 focus:ring-2 focus:ring-primary-600 focus:border-transparent transition-all outline-none disabled:bg-industrial-50 disabled:text-industrial-400 disabled:cursor-not-allowed"
                 >
-                  <option value="" disabled>Select a timeslot...</option>
-                  {availableSlots.length > 0 ? (
+                  <option value="" disabled>
+                    {loading ? "Loading slots..." : "Select a timeslot..."}
+                  </option>
+                  {!loading && availableSlots.length > 0 ? (
                     availableSlots.map((slot) => (
                       <option
                         key={slot.slotId}
@@ -173,8 +175,9 @@ function BookAppointmentContent() {
                       </option>
                     ))
                   ) : (
-                    selectedDate && <option value="" disabled>No slots available on this date</option>
+                    !loading && selectedDate && <option value="" disabled>No slots available on this date</option>
                   )}
+
                 </select>
               </div>
             </div>

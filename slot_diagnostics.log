@@ -1,0 +1,7 @@
+[2026-03-14T15:14:32.629Z] --- NEW REQUEST: DocID=1, Date=2026-03-21 ---
+[2026-03-14T15:14:32.631Z] DayJS Day Index: 6, ISO Day Index: 6
+[2026-03-14T15:14:33.028Z] Primary query found 0 slots.
+[2026-03-14T15:14:33.048Z] Total mappings found for DocID 1 across ALL days: 3
+[2026-03-14T15:14:33.049Z] Mappings found for days: 1, 1, 2
+[2026-03-14T15:14:33.102Z] Found 0 existing bookings for this date.
+[2026-03-14T15:14:33.102Z] Returning 0 formatted slots.

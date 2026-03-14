@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import Link from "next/link";
 import {
@@ -8,124 +7,157 @@ import {
   Science,
   LocalHospital,
   People,
+  ContentCut,
   Assignment,
 } from "@mui/icons-material";
+import {
+  getDashboardStats,
+  getRecentAppointments,
+  getUpcomingSurgeries
+} from "@/app/actions/dashboard";
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const stats = await getDashboardStats();
+  const recentAppointments = await getRecentAppointments();
+  const upcomingSurgeries = await getUpcomingSurgeries();
+
   return (
-    <div>
-      <div className="mb-8">
+    <div className="space-y-8">
+      <div>
         <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
         <p className="text-gray-500">Welcome back, Administrator.</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
-          title="Total Doctors"
-          value="124"
-          icon={<LocalHospital fontSize="large" />}
+          title="Doctors"
+          value={stats.doctorCount.toString()}
+          icon={<LocalHospital />}
           color="text-blue-600 bg-blue-50"
         />
         <StatCard
-          title="Total Patients"
-          value="8,432"
-          icon={<People fontSize="large" />}
+          title="Patients"
+          value={stats.patientCount.toLocaleString()}
+          icon={<People />}
           color="text-green-600 bg-green-50"
         />
         <StatCard
-          title="Appointments Today"
-          value="45"
-          icon={<Event fontSize="large" />}
+          title="Today's Appt."
+          value={stats.appointmentTodayCount.toString()}
+          icon={<Event />}
           color="text-purple-600 bg-purple-50"
         />
         <StatCard
-          title="Pending Lab Orders"
-          value="12"
-          icon={<Science fontSize="large" />}
+          title="Lab Orders"
+          value={stats.labOrderCount.toString()}
+          icon={<Science />}
           color="text-orange-600 bg-orange-50"
+        />
+        <StatCard
+          title="Surgeries"
+          value={stats.surgeryCount.toString()}
+          icon={<ContentCut />}
+          color="text-rose-600 bg-rose-50"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <Assignment className="text-gray-400" />
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <Link
+          <div className="grid grid-cols-2 gap-3 flex-grow">
+            <QuickActionLink
               href="/admin/components/hop/doctor/add"
-              className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all group no-underline"
-            >
-              <span className="mb-2 group-hover:scale-110 transition-transform text-blue-600">
-                <PersonAdd fontSize="large" />
-              </span>
-              <span className="text-sm font-medium text-gray-600">
-                Add Doctor
-              </span>
-            </Link>
-            <Link
+              icon={<PersonAdd />}
+              label="Add Doctor"
+              color="blue"
+            />
+            <QuickActionLink
               href="/admin/components/hop/patient/add"
-              className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-green-300 transition-all group no-underline"
-            >
-              <span className="mb-2 group-hover:scale-110 transition-transform text-green-600">
-                <Group fontSize="large" />
-              </span>
-              <span className="text-sm font-medium text-gray-600">
-                Register Patient
-              </span>
-            </Link>
-            <Link
+              icon={<Group />}
+              label="Register Patient"
+              color="green"
+            />
+            <QuickActionLink
               href="/admin/components/lab/labtest/add"
-              className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-orange-300 transition-all group no-underline"
-            >
-              <span className="mb-2 group-hover:scale-110 transition-transform text-orange-600">
-                <Science fontSize="large" />
-              </span>
-              <span className="text-sm font-medium text-gray-600">
-                Add Lab Test
-              </span>
-            </Link>
-            <Link
+              icon={<Science />}
+              label="Add Lab Test"
+              color="orange"
+            />
+            <QuickActionLink
               href="/admin/components/hop/appointment"
-              className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-purple-300 transition-all group no-underline"
-            >
-              <span className="mb-2 group-hover:scale-110 transition-transform text-purple-600">
-                <Event fontSize="large" />
-              </span>
-              <span className="text-sm font-medium text-gray-600">
-                View Appointments
-              </span>
-            </Link>
+              icon={<Event />}
+              label="Appointments"
+              color="purple"
+            />
           </div>
         </div>
 
-        {/* Recent Activity Mock */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        {/* Recent Appointments */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Recent Appointments
           </h3>
           <ul className="divide-y divide-gray-100">
-            {[1, 2, 3, 4].map((i) => (
-              <li key={i} className="py-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs">
-                    P{i}
+            {recentAppointments.length > 0 ? (
+              recentAppointments.map((appt) => (
+                <li key={`appt-${appt.id}`} className="py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">
+                      {appt.initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">
+                        {appt.patientName}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate max-w-[150px]">Dr. {appt.doctorName}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">
-                      Patient Name {i}
-                    </p>
-                    <p className="text-xs text-gray-500">Dr. Smith • Cardio</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-600">
-                  10:30 AM
-                </span>
-              </li>
-            ))}
+                  <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                    {appt.time}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">No recent appointments.</p>
+            )}
           </ul>
+          <Link href="/admin/components/hop/appointment" className="text-xs text-blue-600 mt-4 block hover:underline no-underline">View all appointments &rarr;</Link>
+        </div>
+
+        {/* Upcoming Surgeries */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Upcoming Surgeries
+          </h3>
+          <ul className="divide-y divide-gray-100">
+            {upcomingSurgeries.length > 0 ? (
+              upcomingSurgeries.map((s) => (
+                <li key={`sur-${s.id}`} className="py-3">
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="text-sm font-medium text-gray-800">{s.surgeryName}</p>
+                    <span className="text-[10px] uppercase font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                      Scheduled
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>Patient: {s.patientName}</span>
+                    <span className="flex items-center gap-1">
+                      <Event sx={{ fontSize: 12 }} />
+                      {s.dateTime}
+                    </span>
+                  </div>
+                </li>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">No upcoming surgeries.</p>
+            )}
+          </ul>
+          <Link href="/admin/components/sur/surgerybooking" className="text-xs text-blue-600 mt-4 block hover:underline no-underline">View all surgery bookings &rarr;</Link>
         </div>
       </div>
     </div>
@@ -144,16 +176,39 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
       <div>
-        <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{title}</p>
         <h3 className="text-2xl font-bold text-gray-800">{value}</h3>
       </div>
       <div
-        className={`w-12 h-12 rounded-lg flex items-center justify-center ${color}`}
+        className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}
       >
-        {icon}
+        {React.cloneElement(icon as React.ReactElement, { sx: { fontSize: 20 } })}
       </div>
     </div>
+  );
+}
+
+function QuickActionLink({ href, icon, label, color }: { href: string, icon: React.ReactNode, label: string, color: string }) {
+  const colorMap: Record<string, string> = {
+    blue: "text-blue-600 hover:border-blue-300",
+    green: "text-green-600 hover:border-green-300",
+    orange: "text-orange-600 hover:border-orange-300",
+    purple: "text-purple-600 hover:border-purple-300",
+  };
+
+  return (
+    <Link
+      href={href}
+      className={`flex flex-col items-center justify-center p-3 border border-dashed border-gray-200 rounded-lg hover:bg-gray-50 transition-all group no-underline ${colorMap[color] || ""}`}
+    >
+      <span className="mb-1 group-hover:scale-110 transition-transform">
+        {React.cloneElement(icon as React.ReactElement, { fontSize: "medium" })}
+      </span>
+      <span className="text-[11px] font-medium text-gray-600 text-center">
+        {label}
+      </span>
+    </Link>
   );
 }
