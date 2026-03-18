@@ -2,25 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Autocomplete,
-  Button,
-  Avatar,
-  Box,
-  Divider,
-  Rating,
-  Stack,
-  CircularProgress,
-} from "@mui/material";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import SchoolIcon from "@mui/icons-material/School";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import SearchIcon from "@mui/icons-material/Search";
+  Search,
+  MapPin,
+  Star,
+  Activity,
+  ChevronRight,
+  ShieldCheck,
+  Stethoscope,
+  HeartPulse,
+  FilterX
+} from "lucide-react";
 import Link from "next/link";
 import { getAllDoctor } from "@/app/user/modules/hop/appointment/action/getAllDoctor";
 
@@ -29,8 +20,8 @@ export default function AppointmentPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     doctorName: '',
-    specialization: null as string | null,
-    city: null as string | null,
+    specialization: '',
+    city: '',
   });
   const [filteredDoctors, setFilteredDoctors] = useState<any[]>([]);
 
@@ -69,248 +60,164 @@ export default function AppointmentPage() {
   const resetFilters = () => {
     setFilters({
       doctorName: '',
-      specialization: null,
-      city: null,
+      specialization: '',
+      city: '',
     });
     setFilteredDoctors(doctors);
   };
 
-  console.log("Fetched Doctors:", doctors);
-
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* --- Filter Card --- */}
-      <Card
-        sx={{
-          mb: 4,
-          borderRadius: 3,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-        }}
-      >
-        <CardContent sx={{ p: 3 }}>
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            gutterBottom
-            sx={{ color: "#1976d2", mb: 2 }}
-          >
+    <div className="min-h-screen bg-slate-50 font-sans pb-24 text-slate-900">
+      {/* Hero */}
+      <div className="relative overflow-hidden mb-10">
+        <div className="absolute inset-0 gradient-hero" />
+        <div className="absolute top-10 right-20 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl animate-float" />
+        
+        <div className="container mx-auto px-6 relative z-10 pt-16 pb-20 text-center animate-slideUpFade">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 text-[13px] font-bold text-primary-200 bg-white/10 rounded-full border border-white/10 uppercase tracking-widest backdrop-blur-sm">
+            <HeartPulse className="w-4 h-4" />
+            Book Your Consultation
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
             Find Your Specialist
-          </Typography>
+          </h1>
+          <p className="text-slate-300 max-w-2xl mx-auto font-medium text-[15px]">
+            Filter by name, specialization, or location to find the right healthcare professional for your needs.
+          </p>
+        </div>
+      </div>
 
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField
-                label="Doctor Name"
-                size="small"
-                value={filters.doctorName}
-                onChange={(e) => setFilters({ ...filters, doctorName: e.target.value })}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Autocomplete
-                options={specializationOptions}
+      <div className="container mx-auto px-6 max-w-6xl -mt-16 relative z-20 animate-slideUpFade" style={{ animationDelay: "0.1s" }}>
+        {/* Filters Box */}
+        <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 mb-10 glass">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">Search Name</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Doctor Name..."
+                  value={filters.doctorName}
+                  onChange={(e) => setFilters({ ...filters, doctorName: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-[14px] focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">Specialization</label>
+              <select
                 value={filters.specialization}
-                onChange={(_, value) => setFilters({ ...filters, specialization: value })}
-                renderInput={(params) => (
-                  <TextField {...params} label="Specialization" size="small" />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Autocomplete
-                options={cityOptions}
-                value={filters.city}
-                onChange={(_, value) => setFilters({ ...filters, city: value })}
-                renderInput={(params) => (
-                  <TextField {...params} label="City" size="small" />
-                )}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
-                <Button
-                  variant="outlined"
-                  startIcon={<RestartAltIcon />}
-                  onClick={resetFilters}
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Reset
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<SearchIcon />}
-                  onClick={applyFilters}
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: "bold",
-                    px: 4,
-                  }}
-                >
-                  Apply Filters
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-
-      {/* --- Doctor List --- */}
-      <Stack spacing={3}>
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-            <CircularProgress />
-          </Box>
-        ) : filteredDoctors.length === 0 ? (
-          <Box
-            sx={{
-              textAlign: "center",
-              py: 8,
-              bgcolor: "#f5f5f5",
-              borderRadius: 3,
-            }}
-          >
-            <Typography color="text.secondary">No doctors found matching the filters.</Typography>
-          </Box>
-        ) : (
-          filteredDoctors.map((doc) => (
-            <Card
-              key={doc.DoctorID}
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                borderRadius: 3,
-                overflow: "hidden",
-                width: "100%",
-                "&:hover": { boxShadow: 6 },
-              }}
-            >
-              {/* Profile Image Section */}
-              <Box
-                sx={{
-                  bgcolor: "#42a5f5",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  p: 3,
-                  minWidth: { sm: 220 },
-                }}
+                onChange={(e) => setFilters({ ...filters, specialization: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[14px] focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-700"
               >
-                <Avatar
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    fontSize: "2.5rem",
-                    bgcolor: "#1565c0",
-                    boxShadow: 3,
-                  }}
-                >
-                  {doc.DoctorName ? doc.DoctorName.charAt(0) : "D"}
-                </Avatar>
-              </Box>
+                <option value="">All Specializations</option>
+                {specializationOptions.map((opt: any) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">City</label>
+              <select
+                value={filters.city}
+                onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[14px] focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-700"
+              >
+                <option value="">All Cities</option>
+                {cityOptions.map((opt: any) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end gap-2 h-full pt-6 md:pt-0">
+              <button
+                onClick={resetFilters}
+                className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-all text-[14px]"
+              >
+                <FilterX className="w-4 h-4" /> Reset
+              </button>
+              <button
+                onClick={applyFilters}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-2.5 gradient-primary text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all text-[14px]"
+              >
+                <Search className="w-4 h-4" /> Apply
+              </button>
+            </div>
+          </div>
+        </div>
 
-              {/* Information Section - Mapping Real Data */}
-              <CardContent sx={{ flex: 1, p: 3 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="h5"
-                      fontWeight="bold"
-                      sx={{ color: "#333" }}
-                    >
-                      {doc.DoctorName}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        mt: 0.5,
-                        color: "primary.main",
-                      }}
-                    >
-                      <SchoolIcon fontSize="small" />
-                      <Typography variant="body2" fontWeight="600">
-                        {/* Correct mapping for hop_specialization */}
+        {/* Results */}
+        {loading ? (
+          <div className="flex justify-center p-12">
+            <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          </div>
+        ) : filteredDoctors.length === 0 ? (
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center shadow-sm">
+            <ShieldCheck className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+            <h3 className="text-xl font-bold text-slate-800 mb-2">No Doctors Found</h3>
+            <p className="text-slate-500 font-medium text-[15px]">Try adjusting your filters to find available specialists.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredDoctors.map((doc) => (
+              <div key={doc.DoctorID} className="card-premium gradient-card-hover flex flex-col sm:flex-row items-center sm:items-stretch overflow-hidden group">
+                {/* Image Section */}
+                <div className="w-full sm:w-48 bg-slate-100 flex items-center justify-center p-6 border-b sm:border-b-0 sm:border-r border-slate-200 shrink-0 group-hover:bg-primary-50 transition-colors">
+                  <div className="w-24 h-24 rounded-2xl gradient-primary text-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
+                    <span className="text-4xl font-extrabold">{doc.DoctorName?.charAt(0) || "D"}</span>
+                  </div>
+                </div>
+
+                {/* Info Section */}
+                <div className="flex-1 p-6 flex flex-col justify-between">
+                  <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4">
+                    <div>
+                      <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-primary-700 transition-colors mb-1">
+                        {doc.DoctorName}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 text-[14px] font-bold text-primary-600">
+                        <Stethoscope className="w-4 h-4" />
                         {doc.hop_specialization?.Name || "General Physician"}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {/* Static Rating as it's likely not in your schema yet */}
-                  <Rating value={4.5} precision={0.5} readOnly size="small" />
-                </Box>
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 px-3 py-1.5 bg-amber-50 rounded-lg border border-amber-200 items-center">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span className="text-amber-700 font-bold text-[13px]">4.5 Avg</span>
+                    </div>
+                  </div>
 
-                <Divider sx={{ my: 1.5 }} />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-[14px] text-slate-600 font-medium mb-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      {doc.hop_hospital?.HospitalName || "Unknown Hospital"}
+                    </div>
+                  </div>
 
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mb: 1.5,
-                  }}
-                >
-                  <LocalHospitalIcon
-                    sx={{ color: "text.secondary", fontSize: 20 }}
-                  />
-                  <Typography variant="body2" fontWeight="500">
-                    {/* Correct mapping for hop_hospital */}
-                    {doc.hop_hospital?.HospitalName || "Unknown Hospital"}
-                  </Typography>
-                </Box>
+                  <p className="text-slate-500 text-[14px] italic line-clamp-2 mb-6 font-medium">
+                    "{doc.Description || "No detailed description available."}"
+                  </p>
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 3, fontStyle: "italic" }}
-                >
-                  {/* Mapping the Description field from your prisma model */}"
-                  {doc.Description || "No description available."}"
-                </Typography>
-
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Button
-                    component={Link}
-                    href={`/user/modules/hop/appointment/bookAppointment?doctorId=${doc.DoctorID}`}
-                    variant="contained"
-                    disableElevation
-                    sx={{
-                      borderRadius: 2,
-                      px: 4,
-                      textTransform: "none",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Book Appointment
-                  </Button>
-                  <Button
-                    component={Link}
-                    href={`/user/modules/hop/findDoctors/${doc.DoctorID}`}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    View Profile
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          ))
+                  <div className="flex flex-wrap gap-3 mt-auto">
+                    <Link
+                      href={`/user/modules/hop/appointment/bookAppointment?doctorId=${doc.DoctorID}`}
+                      className="flex-1 sm:flex-none flex items-center justify-center px-6 py-2.5 gradient-primary text-white rounded-xl font-bold text-[14px] shadow-sm hover:shadow-md transition-all no-underline"
+                    >
+                      Book Appointment
+                    </Link>
+                    <Link
+                      href={`/user/modules/hop/findDoctors/${doc.DoctorID}`}
+                      className="flex-1 sm:flex-none flex items-center justify-center px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[14px] transition-all no-underline"
+                    >
+                      View Profile
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </Stack>
-    </Container>
+      </div>
+    </div>
   );
 }

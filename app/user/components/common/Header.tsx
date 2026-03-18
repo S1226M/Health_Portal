@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { BellIcon, Menu, X } from "lucide-react";
+import { BellIcon, Menu, X, HeartPulse, ChevronDown } from "lucide-react";
 import { logout } from "@/app/actions/logout";
 import { getFutureAppointments } from "../../modules/hop/appointment/getFutureAppointments";
 
@@ -112,6 +112,7 @@ export default function Header({
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   /* 🔔 Notification states */
   const [totalCount, setTotalCount] = useState(0);
@@ -121,6 +122,7 @@ export default function Header({
   const [showNotification, setShowNotification] = useState(false);
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
   const profileImageSrc = userProfile?.profileUrl || "/profile.svg";
   const userName = userProfile?.fullName || "User";
 
@@ -130,6 +132,13 @@ export default function Header({
     { label: "Find Doctors", href: "/user/modules/hop/findDoctors" },
     { label: "Order Medicines", href: "/user/modules/phm/medicines" },
   ];
+
+  /* Scroll detection for glassmorphism */
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   /* 🔔 Fetch future appointments */
   useEffect(() => {
@@ -185,245 +194,356 @@ export default function Header({
       ) {
         setShowNotification(false);
       }
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
     };
 
-    if (showNotification) {
+    if (showNotification || open) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showNotification]);
+  }, [showNotification, open]);
 
   return (
-    <header className="sticky top-0 bg-white border-b border-industrial-200 z-50 shadow-[0_1px_3px_rgb(0,0,0,0.05)]">
-      <nav className="container mx-auto px-4 h-16">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white/80 backdrop-blur-xl shadow-[0_1px_20px_rgba(0,0,0,0.06)] border-b border-slate-200/60"
+          : "bg-white border-b border-slate-100"
+      }`}
+    >
+      <nav className="container mx-auto px-6 h-[68px]">
         <div className="flex justify-between items-center h-full">
-
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-industrial-900 tracking-tight no-underline">
-            Health Portal
+          <Link href="/" className="flex items-center gap-2.5 no-underline group">
+            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+              <HeartPulse className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-extrabold tracking-tight text-slate-900">
+              Health<span className="gradient-text">Portal</span>
+            </span>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex gap-8">
+          <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
-              <Link key={item.label} href={item.href} className="text-[15px] font-medium text-industrial-600 hover:text-primary-600 transition-colors duration-200 no-underline">
+              <Link
+                key={item.label}
+                href={item.href}
+                className="relative px-4 py-2 text-[14px] font-semibold text-slate-600 hover:text-primary-700 transition-colors duration-200 no-underline rounded-lg hover:bg-primary-50/60"
+              >
                 {item.label}
               </Link>
             ))}
           </div>
 
           {/* Right Section */}
-          <div className="hidden md:flex items-center gap-5 relative">
+          <div className="hidden md:flex items-center gap-3 relative">
             {!isLogin ? (
-              <Link href="/login" className="bg-industrial-900 text-white px-6 py-2.5 rounded-md text-sm font-medium hover:bg-industrial-800 transition-colors shadow-sm no-underline active:scale-[0.98]">
+              <Link
+                href="/login"
+                className="gradient-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-sm hover:shadow-md no-underline active:scale-[0.97]"
+              >
                 Login / Signup
               </Link>
             ) : (
               <>
                 {/* 🔔 Bell Icon */}
-                <button
-                  onClick={() => setShowNotification(!showNotification)}
-                  className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  aria-label="Notifications"
-                >
-                  <BellIcon
-                    className={`w-5 h-5 ${totalCount > 0 ? "text-primary-600" : "text-industrial-500"
-                      }`}
-                  />
-                  {totalCount > 0 && (
-                    <>
-                      <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                      <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full" />
-                    </>
-                  )}
-                </button>
-
-                {/* 🔔 Notification Panel */}
-                {showNotification && (
-                  <div
-                    ref={notificationRef}
-                    className="absolute right-0 top-12 w-96 bg-white border border-industrial-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-slideUpFade"
+                <div ref={notificationRef} className="relative">
+                  <button
+                    onClick={() => setShowNotification(!showNotification)}
+                    className={`relative p-2.5 rounded-xl transition-all duration-200 ${
+                      showNotification
+                        ? "bg-primary-50 text-primary-700"
+                        : "hover:bg-slate-100 text-slate-500 hover:text-slate-700"
+                    }`}
+                    aria-label="Notifications"
                   >
-                    <div className="p-4 border-b border-industrial-100 bg-industrial-50/50">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-industrial-900 text-sm">
-                          Upcoming Tasks & Bookings
-                        </h3>
-                        {totalCount > 0 && (
-                          <span className="px-2 py-0.5 text-xs font-semibold bg-primary-50 text-primary-700 rounded-md border border-primary-100">
-                            {totalCount}
-                          </span>
+                    <BellIcon className="w-5 h-5" />
+                    {totalCount > 0 && (
+                      <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
+                    )}
+                  </button>
+
+                  {/* 🔔 Notification Panel */}
+                  {showNotification && (
+                    <div className="absolute right-0 top-14 w-[400px] bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] border border-slate-200 z-50 max-h-[440px] overflow-hidden animate-slideDownFade">
+                      {/* Header */}
+                      <div className="gradient-hero px-5 py-4">
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-bold text-white text-[15px]">
+                            Upcoming Bookings
+                          </h3>
+                          {totalCount > 0 && (
+                            <span className="px-2.5 py-1 text-xs font-bold bg-white/20 text-white rounded-lg backdrop-blur-sm">
+                              {totalCount} Active
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="overflow-y-auto max-h-[340px] divide-y divide-slate-100">
+                        {/* Appointments */}
+                        {apptNotifications.length > 0 && (
+                          <div className="p-3">
+                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">
+                              Appointments
+                            </p>
+                            {apptNotifications.map((appt) => (
+                              <div
+                                key={`appt-${appt.AppointmentID}`}
+                                className="px-3 py-3 hover:bg-primary-50/60 rounded-xl transition-colors cursor-pointer group"
+                                onClick={() => {
+                                  setShowNotification(false);
+                                  router.push("/user/modules/hop/appointment/viewBookedAppointment");
+                                }}
+                              >
+                                <div className="flex justify-between items-start mb-1.5">
+                                  <div className="font-semibold text-slate-800 text-sm group-hover:text-primary-700 transition-colors">
+                                    {appt.hop_doctor?.DoctorName || "Doctor Appointment"}
+                                  </div>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-lg">
+                                    APPT
+                                  </span>
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  {formatDate(appt.AppointmentDate)} at {formatTime(appt.AppointmentDate)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Lab Tests */}
+                        {labNotifications.length > 0 && (
+                          <div className="p-3">
+                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">
+                              Lab Tests
+                            </p>
+                            {labNotifications.map((lab) => (
+                              <div
+                                key={`lab-${lab.LabTestOrderID}`}
+                                className="px-3 py-3 hover:bg-primary-50/60 rounded-xl transition-colors cursor-pointer group"
+                                onClick={() => {
+                                  setShowNotification(false);
+                                  router.push("/user");
+                                }}
+                              >
+                                <div className="flex justify-between items-start mb-1.5">
+                                  <div className="font-semibold text-slate-800 text-sm group-hover:text-primary-700 transition-colors">
+                                    {lab.lab_labtest?.LabTestName || "Diagnostic Test"}
+                                  </div>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 bg-violet-50 text-violet-600 rounded-lg">
+                                    LAB
+                                  </span>
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  Ordered for: {lab.hop_patient?.PatientName || "Self"}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Surgeries */}
+                        {surNotifications.length > 0 && (
+                          <div className="p-3">
+                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2 mb-2">
+                              Surgeries
+                            </p>
+                            {surNotifications.map((sur) => (
+                              <div
+                                key={`sur-${sur.SurgeryBookingID}`}
+                                className="px-3 py-3 hover:bg-primary-50/60 rounded-xl transition-colors cursor-pointer group"
+                                onClick={() => {
+                                  setShowNotification(false);
+                                  router.push("/user");
+                                }}
+                              >
+                                <div className="flex justify-between items-start mb-1.5">
+                                  <div className="font-semibold text-slate-800 text-sm group-hover:text-primary-700 transition-colors">
+                                    {sur.sur_surgery?.SurgeryName || "Surgery"}
+                                  </div>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 bg-amber-50 text-amber-600 rounded-lg">
+                                    SURG
+                                  </span>
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  {sur.Status} – {formatDate(sur.SurgeryDateTime)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {totalCount === 0 && (
+                          <div className="px-6 py-12 text-center">
+                            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                              <BellIcon className="w-6 h-6 text-slate-300" />
+                            </div>
+                            <p className="text-sm text-slate-500 font-medium">No upcoming bookings</p>
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    <div className="divide-y divide-gray-100">
-                      {/* Appointments */}
-                      {apptNotifications.length > 0 && (
-                        <div className="p-2 bg-gray-50/30">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mb-1">Appointments</p>
-                          {apptNotifications.map((appt) => (
-                            <div
-                              key={`appt-${appt.AppointmentID}`}
-                              className="px-2 py-3 hover:bg-white rounded-md transition-colors cursor-pointer group"
-                              onClick={() => {
-                                setShowNotification(false);
-                                router.push("/user/modules/hop/appointment/viewBookedAppointment");
-                              }}
-                            >
-                              <div className="flex justify-between items-start mb-1">
-                                <div className="font-semibold text-industrial-900 text-sm group-hover:text-primary-600">
-                                  {appt.hop_doctor?.DoctorName || "Doctor Appointment"}
-                                </div>
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">APPT</span>
-                              </div>
-                              <div className="text-xs text-gray-600">
-                                {formatDate(appt.AppointmentDate)} at {formatTime(appt.AppointmentDate)}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Lab Tests */}
-                      {labNotifications.length > 0 && (
-                        <div className="p-2 bg-gray-50/30">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mb-1">Lab Tests</p>
-                          {labNotifications.map((lab) => (
-                            <div
-                              key={`lab-${lab.LabTestOrderID}`}
-                              className="px-2 py-3 hover:bg-white rounded-md transition-colors cursor-pointer group"
-                              onClick={() => {
-                                setShowNotification(false);
-                                router.push("/user");
-                              }}
-                            >
-                              <div className="flex justify-between items-start mb-1">
-                                <div className="font-semibold text-industrial-900 text-sm group-hover:text-primary-600">
-                                  {lab.lab_labtest?.LabTestName || "Diagnostic Test"}
-                                </div>
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-purple-50 text-purple-600 rounded">LAB</span>
-                              </div>
-                              <div className="text-xs text-gray-600">
-                                Ordered for: {lab.hop_patient?.PatientName || "Self"}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Surgeries */}
-                      {surNotifications.length > 0 && (
-                        <div className="p-2 bg-gray-50/30">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mb-1">Surgeries</p>
-                          {surNotifications.map((sur) => (
-                            <div
-                              key={`sur-${sur.SurgeryBookingID}`}
-                              className="px-2 py-3 hover:bg-white rounded-md transition-colors cursor-pointer group"
-                              onClick={() => {
-                                setShowNotification(false);
-                                router.push("/user");
-                              }}
-                            >
-                              <div className="flex justify-between items-start mb-1">
-                                <div className="font-semibold text-industrial-900 text-sm group-hover:text-primary-600">
-                                  {sur.sur_surgery?.SurgeryName || "Surgery"}
-                                </div>
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 bg-orange-50 text-orange-600 rounded">SURG</span>
-                              </div>
-                              <div className="text-xs text-gray-600">
-                                {sur.Status} - {formatDate(sur.SurgeryDateTime)}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {totalCount === 0 && (
-                        <div className="px-4 py-8 text-center text-gray-500">
-                          <BellIcon className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-                          <p className="text-sm">No upcoming bookings</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Profile */}
-                <div onClick={() => setOpen(!open)} className="cursor-pointer flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Image
-                    src={profileImageSrc}
-                    alt={userName}
-                    width={36}
-                    height={36}
-                    className="rounded-md ring-1 ring-industrial-200 object-cover"
-                    unoptimized
-                  />
-                  <span className="hidden lg:inline text-sm font-medium text-industrial-700">{userName}</span>
+                  )}
                 </div>
 
-                {open && (
-                  <div className="absolute right-0 top-14 w-48 bg-white border border-industrial-200 rounded-md shadow-lg py-1 animate-slideUpFade">
-                    <Link href="/user/modules/sec/userProfile/myProfile" className="block px-4 py-2.5 text-sm font-medium text-industrial-700 hover:bg-industrial-50 hover:text-primary-600 transition-colors no-underline">
-                      My Profile
-                    </Link>
-                    <Link href="/user/modules/hop/appointment/viewBookedAppointment" className="block px-4 py-2.5 text-sm font-medium text-industrial-700 hover:bg-industrial-50 hover:text-primary-600 transition-colors no-underline">
-                      My Appointments
-                    </Link>
-                    <div className="h-px bg-industrial-100 my-1"></div>
-                    <form action={logout}>
-                      <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
-                        Logout
-                      </button>
-                    </form>
-                  </div>
-                )}
+                {/* Profile */}
+                <div ref={profileRef} className="relative">
+                  <button
+                    onClick={() => setOpen(!open)}
+                    className={`flex items-center gap-2.5 px-2 py-1.5 rounded-xl transition-all duration-200 ${
+                      open ? "bg-primary-50" : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="relative">
+                      <Image
+                        src={profileImageSrc}
+                        alt={userName}
+                        width={36}
+                        height={36}
+                        className="rounded-xl ring-2 ring-primary-200 object-cover"
+                        unoptimized
+                      />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full ring-2 ring-white" />
+                    </div>
+                    <span className="hidden lg:inline text-sm font-semibold text-slate-700">
+                      {userName}
+                    </span>
+                    <ChevronDown
+                      className={`hidden lg:inline w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {open && (
+                    <div className="absolute right-0 top-14 w-56 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] border border-slate-200 py-2 animate-slideDownFade">
+                      <div className="px-4 py-3 border-b border-slate-100">
+                        <p className="text-sm font-bold text-slate-900">{userName}</p>
+                        <p className="text-xs text-slate-500">Manage your account</p>
+                      </div>
+                      <Link
+                        href="/user/modules/sec/userProfile/myProfile"
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary-50 hover:text-primary-700 transition-colors no-underline"
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        href="/user/modules/hop/appointment/viewBookedAppointment"
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-primary-50 hover:text-primary-700 transition-colors no-underline"
+                      >
+                        My Appointments
+                      </Link>
+                      <div className="h-px bg-slate-100 my-1" />
+                      <form action={logout}>
+                        <button className="w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors rounded-b-2xl">
+                          Logout
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
             {isLogin && (
               <button
                 onClick={() => setShowNotification(!showNotification)}
-                className="relative p-2"
+                className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-colors"
                 aria-label="Notifications"
               >
                 <BellIcon
-                  className={`w-6 h-6 ${totalCount > 0 ? "text-red-500" : "text-gray-500"
-                    }`}
+                  className={`w-5 h-5 ${totalCount > 0 ? "text-primary-600" : "text-slate-500"}`}
                 />
                 {totalCount > 0 && (
-                  <>
-                    <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                    <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full" />
-                  </>
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
                 )}
               </button>
             )}
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X /> : <Menu />}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2.5 rounded-xl hover:bg-slate-100 transition-colors text-slate-700"
+            >
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-[68px] left-0 right-0 bg-white border-b border-slate-200 shadow-lg animate-slideDownFade z-50">
+            <div className="px-4 py-3 space-y-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-primary-50 hover:text-primary-700 rounded-xl transition-colors no-underline"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {!isLogin && (
+                <Link
+                  href="/login"
+                  className="block gradient-primary text-center text-white px-4 py-3 rounded-xl text-sm font-bold no-underline mt-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login / Signup
+                </Link>
+              )}
+              {isLogin && (
+                <>
+                  <div className="h-px bg-slate-100 my-2" />
+                  <Link
+                    href="/user/modules/sec/userProfile/myProfile"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-primary-50 rounded-xl no-underline"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Image
+                      src={profileImageSrc}
+                      alt={userName}
+                      width={28}
+                      height={28}
+                      className="rounded-lg ring-1 ring-slate-200 object-cover"
+                      unoptimized
+                    />
+                    {userName}
+                  </Link>
+                  <form action={logout}>
+                    <button className="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                      Logout
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Mobile Notification Panel */}
         {isLogin && showNotification && (
           <div
             ref={notificationRef}
-            className="md:hidden absolute top-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 max-h-96 overflow-y-auto"
+            className="md:hidden absolute top-[68px] left-0 right-0 bg-white border-b border-slate-200 shadow-lg z-50 max-h-96 overflow-y-auto animate-slideDownFade"
           >
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="gradient-hero px-5 py-4">
               <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-gray-800">
-                  Upcoming Bookings
-                </h3>
+                <h3 className="font-bold text-white text-sm">Upcoming Bookings</h3>
                 {totalCount > 0 && (
-                  <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                  <span className="px-2.5 py-1 text-xs font-bold bg-white/20 text-white rounded-lg">
                     {totalCount}
                   </span>
                 )}
@@ -431,31 +551,32 @@ export default function Header({
             </div>
 
             {totalCount > 0 ? (
-              <div className="divide-y divide-gray-100 p-2">
-                {/* Simplified Mobile View */}
+              <div className="divide-y divide-slate-100 p-2">
                 {apptNotifications.map((appt) => (
                   <div key={`m-appt-${appt.AppointmentID}`} className="p-3 text-sm">
-                    <p className="font-bold">{appt.hop_doctor?.DoctorName}</p>
-                    <p className="text-xs text-gray-500">{formatDate(appt.AppointmentDate)}</p>
+                    <p className="font-bold text-slate-800">{appt.hop_doctor?.DoctorName}</p>
+                    <p className="text-xs text-slate-500 mt-1">{formatDate(appt.AppointmentDate)}</p>
                   </div>
                 ))}
                 {labNotifications.map((lab) => (
                   <div key={`m-lab-${lab.LabTestOrderID}`} className="p-3 text-sm">
-                    <p className="font-bold">{lab.lab_labtest?.LabTestName}</p>
-                    <p className="text-xs text-gray-500">Lab Test ordered</p>
+                    <p className="font-bold text-slate-800">{lab.lab_labtest?.LabTestName}</p>
+                    <p className="text-xs text-slate-500 mt-1">Lab Test ordered</p>
                   </div>
                 ))}
                 {surNotifications.map((sur) => (
                   <div key={`m-sur-${sur.SurgeryBookingID}`} className="p-3 text-sm">
-                    <p className="font-bold">{sur.sur_surgery?.SurgeryName}</p>
-                    <p className="text-xs text-gray-500">{sur.Status}</p>
+                    <p className="font-bold text-slate-800">{sur.sur_surgery?.SurgeryName}</p>
+                    <p className="text-xs text-slate-500 mt-1">{sur.Status}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="px-4 py-8 text-center text-gray-500">
-                <BellIcon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                <p>No upcoming appointments</p>
+              <div className="px-4 py-10 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <BellIcon className="w-5 h-5 text-slate-300" />
+                </div>
+                <p className="text-sm text-slate-500">No upcoming appointments</p>
               </div>
             )}
           </div>

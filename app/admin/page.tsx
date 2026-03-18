@@ -184,7 +184,7 @@ function StatCard({
       <div
         className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}
       >
-        {React.cloneElement(icon as React.ReactElement, { sx: { fontSize: 20 } })}
+        {React.cloneElement(icon as React.ReactElement<any>, { style: { fontSize: 20 } })}
       </div>
     </div>
   );
@@ -204,7 +204,7 @@ function QuickActionLink({ href, icon, label, color }: { href: string, icon: Rea
       className={`flex flex-col items-center justify-center p-3 border border-dashed border-gray-200 rounded-lg hover:bg-gray-50 transition-all group no-underline ${colorMap[color] || ""}`}
     >
       <span className="mb-1 group-hover:scale-110 transition-transform">
-        {React.cloneElement(icon as React.ReactElement, { fontSize: "medium" })}
+        {React.cloneElement(icon as React.ReactElement<any>, { fontSize: "medium" })}
       </span>
       <span className="text-[11px] font-medium text-gray-600 text-center">
         {label}

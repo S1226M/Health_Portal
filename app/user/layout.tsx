@@ -1,21 +1,24 @@
 import type React from "react";
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { Inter } from "next/font/google";
+import "../globals.css";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "Health Portal – Your Trusted Healthcare Partner",
+  description:
+    "Book appointments, consult doctors, order medicines, and manage your health records. A premium healthcare platform for you and your family.",
   icons: {
     icon: [
       {
@@ -70,7 +73,7 @@ export default async function RootLayout({
   return (
     <>
       <Header isLogin={isLogin} userProfile={userProfile} />
-      {children}
+      <div className={inter.variable}>{children}</div>
       <Footer />
       <Script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
