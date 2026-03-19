@@ -443,6 +443,12 @@ export default function Header({
                       >
                         My Appointments
                       </Link>
+                      <Link
+                        href="/user/modules/phm/medicines/orders"
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors no-underline"
+                      >
+                        Medicine Orders
+                      </Link>
                       <div className="h-px bg-slate-100 my-1" />
                       <form action={logout}>
                         <button className="w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors rounded-b-2xl">
@@ -521,6 +527,20 @@ export default function Header({
                       unoptimized
                     />
                     {userName}
+                  </Link>
+                  <Link
+                    href="/user/modules/hop/appointment/viewBookedAppointment"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-primary-50 rounded-xl no-underline"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Appointments
+                  </Link>
+                  <Link
+                    href="/user/modules/phm/medicines/orders"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-emerald-50 rounded-xl no-underline"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Medicine Orders
                   </Link>
                   <form action={logout}>
                     <button className="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">

@@ -17,7 +17,7 @@ function BookAppointmentContent() {
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
-  
+
   // Custom Toast State
   const [toast, setToast] = useState<{ open: boolean; message: string; type: 'success' | 'error' }>({
     open: false,
@@ -40,25 +40,17 @@ function BookAppointmentContent() {
       getDoctorSlots(Number(doctorId), selectedDate)
         .then((res) => {
           if (res.success) {
+            // LOG THE RESPONSE, NOT THE STATE
+            console.log("📡 Server Response Slots:", res.slots);
             setAvailableSlots(res.slots || []);
           } else {
-            setToast({
-              open: true,
-              message: res.message || "Failed to fetch slots",
-              type: "error",
-            });
+            setToast({ open: true, message: res.message || "Failed to fetch slots", type: "error" });
           }
-        })
-        .catch(() => {
-          setToast({
-            open: true,
-            message: "Error fetching slots",
-            type: "error",
-          });
         })
         .finally(() => setLoading(false));
     }
   }, [selectedDate, doctorId]);
+  console.log("availableSlots :  ", availableSlots);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -159,39 +151,39 @@ function BookAppointmentContent() {
               <div>
                 <label className="block text-[13px] font-bold text-slate-700 mb-2">Available Time Slots *</label>
                 <div className="relative">
-                    <select
-                        disabled={!selectedDate}
-                        value={selectedSlot?.slotId ?? ""}
-                        onChange={(e) =>
-                            setSelectedSlot(
-                            availableSlots.find(
-                                (s) => s.slotId === Number(e.target.value)
-                            )
-                            )
-                        }
-                        required
-                        className="w-full bg-slate-50 border border-slate-200 rounded-[12px] px-4 py-3 text-[15px] text-slate-900 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all outline-none hover:border-slate-300 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none"
-                    >
+                  <select
+                    disabled={!selectedDate}
+                    value={selectedSlot?.slotId ?? ""}
+                    onChange={(e) =>
+                      setSelectedSlot(
+                        availableSlots.find(
+                          (s) => s.slotId === Number(e.target.value)
+                        )
+                      )
+                    }
+                    required
+                    className="w-full bg-slate-50 border border-slate-200 rounded-[12px] px-4 py-3 text-[15px] text-slate-900 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all outline-none hover:border-slate-300 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none"
+                  >
                     <option value="" disabled>
-                        {loading ? "Loading slots..." : "Select a timeslot..."}
+                      {loading ? "Loading slots..." : "Select a timeslot..."}
                     </option>
                     {!loading && availableSlots.length > 0 ? (
-                        availableSlots.map((slot) => (
+                      availableSlots.map((slot) => (
                         <option
-                            key={slot.slotId}
-                            value={slot.slotId}
-                            disabled={slot.isBooked}
+                          key={slot.slotId}
+                          value={slot.slotId}
+                          disabled={slot.isBooked}
                         >
-                            {slot.displayTime} {slot.isBooked ? "(Booked)" : ""}
+                          {slot.displayTime} {slot.isBooked ? "(Booked)" : ""}
                         </option>
-                        ))
+                      ))
                     ) : (
-                        !loading && selectedDate && <option value="" disabled>No slots available on this date</option>
+                      !loading && selectedDate && <option value="" disabled>No slots available on this date</option>
                     )}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none disabled:opacity-50 text-slate-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none disabled:opacity-50 text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
                 </div>
               </div>
             </div>
@@ -276,10 +268,29 @@ function BookAppointmentContent() {
       {/* Custom Toast Notification */}
       {toast.open && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slideUpFade">
-          <div className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl shadow-xl font-bold text-[14px] border \${toast.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}>
-            {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : <AlertCircle className="w-5 h-5 text-rose-500" />}
+          <div
+            className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl shadow-xl font-bold text-[14px] border ${toast.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border-rose-200'
+              }`}
+          >
+            {/* Icon Color Fix: Changed text-white to text-emerald-500 */}
+            {toast.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-rose-500" />
+            )}
+
+            {/* The message text will now inherit text-emerald-800 from the parent div */}
             {toast.message}
-            <button onClick={() => setToast({ ...toast, open: false })} className={`ml-4 p-1 rounded-lg transition-colors \${toast.type === 'success' ? 'hover:bg-emerald-100 text-emerald-600' : 'hover:bg-rose-100 text-rose-600'}`}>
+
+            <button
+              onClick={() => setToast({ ...toast, open: false })}
+              className={`ml-4 p-1 rounded-lg transition-colors ${toast.type === 'success'
+                ? 'hover:bg-emerald-100 text-emerald-600'
+                : 'hover:bg-rose-100 text-rose-600'
+                }`}
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -292,9 +303,9 @@ function BookAppointmentContent() {
 export default function BookAppointmentPage() {
   return (
     <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
-            <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+      </div>
     }>
       <BookAppointmentContent />
     </Suspense>

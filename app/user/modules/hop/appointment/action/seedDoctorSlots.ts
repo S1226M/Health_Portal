@@ -12,22 +12,46 @@ export async function seedDoctorSlots(doctorId: number) {
         if (existingSlots.length === 0) {
             console.log("Creating default time slots...");
             const slots = [];
-            let currentTime = dayjs().hour(9).minute(0).second(0);
-            const endTime = dayjs().hour(17).minute(0).second(0);
 
-            while (currentTime.isBefore(endTime)) {
+            // Use a stable base date (1970-01-01) so MySQL TIME columns
+            // receive clean values like 09:00:00, 09:30:00, etc.
+            const baseDate = "1970-01-01";
+
+            let hour = 9;
+            let minute = 0;
+
+            while (hour < 17) {
+                const startH = String(hour).padStart(2, "0");
+                const startM = String(minute).padStart(2, "0");
+
+                let endMinute = minute + 30;
+                let endHour = hour;
+                if (endMinute >= 60) {
+                    endMinute -= 60;
+                    endHour += 1;
+                }
+                const endH = String(endHour).padStart(2, "0");
+                const endM = String(endMinute).padStart(2, "0");
+
                 slots.push({
-                    StartTime: currentTime.toDate(),
-                    EndTime: currentTime.add(30, "minute").toDate(),
-                    SlotName: currentTime.format("HH:mm"),
+                    StartTime: new Date(`${baseDate}T${startH}:${startM}:00.000Z`),
+                    EndTime: new Date(`${baseDate}T${endH}:${endM}:00.000Z`),
+                    SlotName: `${startH}:${startM}`,
                 });
-                currentTime = currentTime.add(30, "minute");
+
+                // Advance by 30 minutes
+                minute += 30;
+                if (minute >= 60) {
+                    minute -= 60;
+                    hour += 1;
+                }
             }
 
+            console.log(`Creating ${slots.length} time slots...`);
             await prisma.hop_timeslot_master.createMany({ data: slots });
         }
 
-        // 2. Map Slots to Doctor
+        // 2. Map Slots to Doctor for all 7 days (0=Sun to 6=Sat)
         const allSlots = await prisma.hop_timeslot_master.findMany();
         let createdCount = 0;
 

@@ -85,12 +85,14 @@ export default function Footer() {
                 { label: "Search for Doctors", href: "/user/modules/hop/findDoctors" },
                 { label: "Book Appointments", href: "/user/modules/hop/appointment/doctorListPage" },
                 { label: "Order Medicines", href: "/user/modules/phm/medicines" },
-                { label: "Health Records", href: "#" },
+                { label: "Book Surgery", href: "/user/modules/sur/surgeryList" },
+                { label: "Lab Tests", href: "/user/modules/lab/testList" },
+                { label: "My Orders", href: "/user/modules/phm/medicines/orders" },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-slate-400 hover:text-primary-400 transition-colors text-[14px] font-medium block no-underline"
+                    className="text-slate-400 hover:text-primary-400 transition-colors text-[14px] font-medium block"
                   >
                     {label}
                   </Link>
