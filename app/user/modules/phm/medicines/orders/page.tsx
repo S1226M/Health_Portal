@@ -132,6 +132,14 @@ export default async function MedicineOrdersPage() {
                                                     <div className="text-[14px] font-bold text-slate-800">{order.phm_medicineorderpaymenttype.MedicineOrderPaymentTypeName}</div>
                                                 </div>
                                             </div>
+                                            <div className="mt-4 flex justify-end">
+                                                <Link
+                                                    href={`/user/modules/phm/medicines/orders/${order.OrderOfMedicineID}`}
+                                                    className="px-5 py-2 bg-emerald-50 text-emerald-700 font-extrabold text-[13px] rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-sm flex items-center gap-2"
+                                                >
+                                                    View Details
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

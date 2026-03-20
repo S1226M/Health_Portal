@@ -796,6 +796,11 @@ model phm_orderofmedicine {
   CreatedByUserID                                         Int
   ModifiedByUserID                                        Int?
   IsDeleted                                               Boolean                      @default(false)
+  Address                                                 String                      @db.VarChar(255)
+  City                                                    String                      @db.VarChar(100)
+  PhoneNumber                                             String                      @db.VarChar(15)
+  TotalAmount                                             Decimal                     @db.Decimal(10, 2)
+  PaymentMethod                                           String                      @db.VarChar(50)
   sec_user_phm_orderofmedicine_CreatedByUserIDTosec_user  sec_user                     @relation("phm_orderofmedicine_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_OrderMed_CreatedBy")
   sec_user_phm_orderofmedicine_ModifiedByUserIDTosec_user sec_user?                    @relation("phm_orderofmedicine_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_PHM_OrderMed_ModifiedBy")
   phm_medicine                                            phm_medicine                 @relation(fields: [MedicineID], references: [MedicineID], onDelete: NoAction, onUpdate: NoAction, map: "phm_orderofmedicine_ibfk_1")

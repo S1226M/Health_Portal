@@ -15,6 +15,7 @@ export default async function SaveAppointment(formData: FormData) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       UserID?: number;
       role?: string;
+      email?: string;
     };
 
     const currentUserId = decoded.UserID as number;
@@ -126,6 +127,30 @@ export default async function SaveAppointment(formData: FormData) {
       CreatedByUserID: currentUserId,
     };
     await prisma.hop_log_appointment.create({ data: newData });
+
+    const doctor = await prisma.hop_doctor.findUnique({
+      where: { DoctorID: parseInt(doctorID) },
+      select: { DoctorName: true },
+    });
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    console.log("API call.")
+    const response = await fetch(`${baseUrl}/api/send-mail`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: decoded.email,
+        subject: "Appointment Confirmation",
+        message: `Your appointment with doctor ${doctor?.DoctorName} on ${appointmentDate} has been booked successfully.`,
+        doctorName: doctor?.DoctorName,
+        name: patientName,
+      }),
+    });
+    console.log("Fetch response status:", response.status);
+    const respData = await response.text();
+    console.log("Fetch response text:", respData);
 
     return { success: true, message: "Appointment booked successfully!" };
   } catch (error: any) {

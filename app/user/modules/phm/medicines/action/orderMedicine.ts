@@ -8,6 +8,11 @@ export async function orderMedicine(data: {
     medicineId: number;
     quantity: number;
     paymentTypeId: number;
+    address: string;
+    city: string;
+    phoneNumber: string;
+    totalAmount: number;
+    paymentMethod: string;
 }) {
     try {
         const cookieStore = await cookies();
@@ -43,6 +48,11 @@ export async function orderMedicine(data: {
                 MedicineID: data.medicineId,
                 MedicineOrderPaymentTypeID: data.paymentTypeId,
                 Quantity: data.quantity,
+                Address: data.address,
+                City: data.city,
+                PhoneNumber: data.phoneNumber,
+                TotalAmount: data.totalAmount,
+                PaymentMethod: data.paymentMethod,
                 OrderDateTime: new Date(),
                 CreatedByUserID: currentUserId,
                 Created: new Date(),

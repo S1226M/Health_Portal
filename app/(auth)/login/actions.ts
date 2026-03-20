@@ -23,6 +23,7 @@ export async function login(formData: FormData) {
       RoleID: true,
       UserID: true,
       Password: true,
+      Email: true,
     },
   });
 
@@ -46,6 +47,7 @@ export async function login(formData: FormData) {
   const token = createToken({
     UserID: data.UserID,
     role: role?.RoleName,
+    email: data.Email,
   });
 
   const cookieStore = await cookies();

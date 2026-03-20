@@ -76,6 +76,11 @@ export default function MedicineDetailClient({
                 medicineId: medicine.MedicineID,
                 quantity,
                 paymentTypeId: selectedPayment,
+                address: deliveryAddress,
+                city: deliveryCity,
+                phoneNumber: deliveryPhone,
+                totalAmount: totalPrice,
+                paymentMethod: selectedPaymentName,
             });
 
             if (result.success) {
