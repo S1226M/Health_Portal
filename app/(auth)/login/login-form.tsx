@@ -13,10 +13,16 @@ import {
 } from "@mui/material";
 import { Email, Lock } from "@mui/icons-material";
 import { login } from "./actions";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import sendOTP from "../actions/sendOTP";
 
 export default function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [sendingOTP, setSendingOTP] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (formData: FormData) => {
     setError("");
@@ -54,6 +60,8 @@ export default function LoginForm() {
             label="Email Address"
             placeholder="Enter your email address"
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -92,8 +100,32 @@ export default function LoginForm() {
       >
         <FormControlLabel control={<Checkbox />} label="Remember me" />
 
-        <Button variant="text" sx={{ textTransform: "none" }}>
-          Forgot Password?
+        <Button
+          variant="text"
+          onClick={async () => {
+            if (!email) {
+              setError("Please enter your email address first to reset your password.");
+              return;
+            }
+            setError("");
+            setSendingOTP(true);
+            try {
+              const res = await sendOTP({ email });
+              if (res.success) {
+                router.push(`/forgot-password?email=${encodeURIComponent(email)}`);
+              } else {
+                setError(res.message || "Failed to send OTP.");
+              }
+            } catch (err) {
+              setError("An error occurred. Please try again.");
+            } finally {
+              setSendingOTP(false);
+            }
+          }}
+          disabled={loading || sendingOTP}
+          sx={{ textTransform: "none" }}
+        >
+          {sendingOTP ? "Sending OTP..." : "Forgot Password?"}
         </Button>
       </Box>
 
@@ -103,7 +135,15 @@ export default function LoginForm() {
         variant="contained"
         size="large"
         disabled={loading}
-        sx={{ mt: 3, height: 48 }}
+        className="gradient-primary"
+        sx={{
+          mt: 3,
+          height: 48,
+          boxShadow: "0 4px 14px 0 rgba(13, 148, 136, 0.39)",
+          textTransform: "none",
+          fontWeight: 600,
+          fontSize: "1rem"
+        }}
       >
         {loading ? "Signing In..." : "Sign In"}
       </Button>

@@ -109,7 +109,21 @@ export default function RegisterForm() {
         </Grid>
 
         <Grid size={{ xs: 12 }}>
-          <Button type="submit" fullWidth variant="contained" size="large">
+          <Button 
+            type="submit" 
+            fullWidth 
+            variant="contained" 
+            size="large"
+            className="gradient-primary"
+            sx={{ 
+              mt: 1, 
+              height: 48,
+              boxShadow: "0 4px 14px 0 rgba(13, 148, 136, 0.39)",
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "1rem"
+            }}
+          >
             Create Account
           </Button>
         </Grid>
