@@ -14,7 +14,7 @@ import {
 import { Email, Lock } from "@mui/icons-material";
 import { login } from "./actions";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import sendOTP from "../actions/sendOTP";
 
 export default function LoginForm() {
@@ -23,6 +23,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [sendingOTP, setSendingOTP] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isUnauthorized = searchParams.get("unauthorized") === "true";
 
   const handleSubmit = async (formData: FormData) => {
     setError("");
@@ -46,6 +48,11 @@ export default function LoginForm() {
 
   return (
     <Box component="form" action={handleSubmit} sx={{ width: "100%" }}>
+      {isUnauthorized && (
+        <Alert severity="warning" sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}>
+          Unauthorized access! You do not have permission to view that page. Please login with the correct account.
+        </Alert>
+      )}
       {error && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}>
           {error}

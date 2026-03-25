@@ -2,16 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const PROTECTED_PATHS = [
-    '/admin',
-    '/user/modules/sec/userProfile',
-    '/user/modules/hop/appointment/bookAppointment',
-    '/user/modules/hop/appointment/viewBookedAppointment',
-    '/user/modules/lab/bookTest',
-    '/user/modules/sur/bookSurgery'
-];
+// Encode the secret for jose
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-export function middleware(request: NextRequest) {
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
+
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // ✅ Ignore Next.js internals & static files
@@ -23,36 +20,59 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Check if the path needs protection
-    const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path));
-
-    if (isProtectedPath) {
-        const token = request.cookies.get("auth_token")?.value;
-
-        if (!token) {
-            return redirectToLogin(request);
-        }
-
-        try {
-            // Edge runtime validation if secret is handled simply
-            // Since we can't do verify here easily without 'jose' if it was synchronous, 
-            // but middleware doesn't have to verify signature here, just checked presence.
-            // Full auth is on Server Components.
-            // Just return next if token present for simplicity in Edge Middleware.
-            return NextResponse.next();
-        } catch {
-            return redirectToLogin(request);
-        }
+    // Skip middleware for public routes
+    if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+        return NextResponse.next();
     }
 
-    return NextResponse.next();
+    // Skip middleware for the root page - it handles its own redirect
+    if (pathname === "/") {
+        return NextResponse.next();
+    }
+
+    // Get the auth token from cookies
+    const token = request.cookies.get("auth_token")?.value;
+
+    // No token on protected routes → redirect to login
+    if (!token) {
+        return redirectToLogin(request, true);
+    }
+
+    // Verify the token
+    try {
+        const { payload } = await jwtVerify(token, SECRET);
+        const role = payload.role as string | undefined;
+
+        // Admin routes: only Admin role allowed
+        if (pathname.startsWith("/admin")) {
+            if (role !== "Admin") {
+                return redirectToLogin(request, true);
+            }
+        }
+
+        // User routes: Patient role allowed (and potentially Doctor, but let's restrict to Patient per requirements)
+        if (pathname.startsWith("/user")) {
+            if (role !== "Patient") {
+                return redirectToLogin(request, true);
+            }
+        }
+
+        // Token is valid and role matches — allow the request
+        return NextResponse.next();
+    } catch {
+        // Invalid or expired token → redirect to login
+        return redirectToLogin(request, true);
+    }
 }
 
 export default middleware;
 
-function redirectToLogin(request: NextRequest) {
+function redirectToLogin(request: NextRequest, unauthorized = false) {
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login"; // Or /login based on your routes
+    url.pathname = "/login"; // App uses /login, not /auth/login
+    if (unauthorized) {
+        url.searchParams.set("unauthorized", "true");
+    }
     return NextResponse.redirect(url);
 }
 
