@@ -70,12 +70,19 @@ export async function sendMail({
 </body>
 </html>`;
   } else {
+    const isRejection = subject?.includes("Update") || subject?.includes("Rejected");
+    const headerColor = isRejection ? "#f44336" : "#4CAF50";
+    const headerTitle = isRejection ? "Appointment Update" : "Appointment Confirmed";
+    const introText = isRejection 
+      ? "There is an update regarding your appointment request:" 
+      : "Your appointment has been successfully booked. Here are the details:";
+
     emailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Appointment Confirmation</title>
+  <title>${headerTitle}</title>
 </head>
 <body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:20px;">
@@ -83,14 +90,14 @@ export async function sendMail({
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
           <tr>
-            <td style="background:#4CAF50; color:#ffffff; padding:20px; text-align:center;">
-              <h2 style="margin:0;">Appointment Confirmed</h2>
+            <td style="background:${headerColor}; color:#ffffff; padding:20px; text-align:center;">
+              <h2 style="margin:0;">${headerTitle}</h2>
             </td>
           </tr>
           <tr>
             <td style="padding:20px; color:#333;">
               <p style="font-size:16px;">Hello <strong>${name || 'Patient'}</strong>,</p>
-              <p>Your appointment has been successfully booked. Here are the details:</p>
+              <p>${introText}</p>
               <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse; margin-top:10px;">
                 <tr>
                   <td style="background:#f1f1f1; font-weight:bold;">Doctor</td>

@@ -69,32 +69,47 @@ export async function updateAppointmentStatus({
             },
         });
 
-        // If APPROVED, send confirmation email to the user
-        if (newStatus === "Approved") {
-            try {
-                // Get the user's email
-                const user = await prisma.sec_user.findUnique({
-                    where: { UserID: appointment.UserID },
-                    select: { Email: true, FullName: true },
-                });
+        // Send confirmation email to the user for both Approved and Rejected
+        try {
+            // Get the user's email
+            const user = await prisma.sec_user.findUnique({
+                where: { UserID: appointment.UserID },
+                select: { Email: true, FullName: true },
+            });
 
-                if (user?.Email) {
-                    const dateStr = appointment.AppointmentDate
-                        ? dayjs(appointment.AppointmentDate).format("dddd, MMMM D, YYYY")
-                        : "TBD";
+            if (user?.Email) {
+                const dateStr = appointment.AppointmentDate
+                    ? dayjs(appointment.AppointmentDate).format("dddd, MMMM D, YYYY")
+                    : "TBD";
 
+                let subject = "";
+                let message = "";
+
+                if (newStatus === "Approved") {
+                    subject = "Appointment Approved ✓";
+                    message = `Great news! Your appointment with Dr. ${doctor.DoctorName} on ${dateStr} has been approved.`;
+                } else if (newStatus === "Rejected") {
+                    subject = "Appointment Update ℹ️";
+                    message = `We write to inform you that your appointment request with Dr. ${doctor.DoctorName} on ${dateStr} could not be approved at this time.`;
+                    if (messageFromDoctor) {
+                        message += `<br><br><b>Doctor's Note:</b> ${messageFromDoctor}`;
+                    }
+                    message += `<br><br>Please visit our portal to book an alternative time slot.`;
+                }
+
+                if (subject && message) {
                     await sendMail({
                         to: user.Email,
-                        subject: "Appointment Approved ✓",
-                        message: `Great news! Your appointment with Dr. ${doctor.DoctorName} on ${dateStr} has been approved.`,
+                        subject,
+                        message,
                         doctorName: doctor.DoctorName,
                         name: user.FullName || appointment.PatientName,
                     });
                 }
-            } catch (emailErr) {
-                console.error("Failed to send approval email:", emailErr);
-                // Don't fail the action if email fails
             }
+        } catch (emailErr) {
+            console.error("Failed to send status update email:", emailErr);
+            // Don't fail the action if email fails
         }
 
         revalidatePath("/doctor");
