@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { sendMail } from "@/lib/sendMail";
+
 
 export default async function SaveAppointment(formData: FormData) {
+  console.log("formData", formData, "API CALL................");
   try {
     const token = (await cookies()).get("auth_token")?.value;
     if (!token) {
@@ -27,7 +28,7 @@ export default async function SaveAppointment(formData: FormData) {
     const appointmentNo = formData.get("AppointmentNo") as string;
     const doctorID = formData.get("DoctorID") as string;
     const appointmentDate = formData.get("AppointmentDate") as string;
-    const status = "Scheduled";
+    const status = "Pending";
     const reason = formData.get("Reason") as string;
     const slotId = formData.get("SlotID");
 
@@ -128,29 +129,6 @@ export default async function SaveAppointment(formData: FormData) {
       CreatedByUserID: currentUserId,
     };
     await prisma.hop_log_appointment.create({ data: newData });
-
-    const doctor = await prisma.hop_doctor.findUnique({
-      where: { DoctorID: parseInt(doctorID) },
-      select: { DoctorName: true },
-    });
-
-    console.log("Sending Appointment email via sendMail");
-    try {
-      if (decoded.email) {
-        await sendMail({
-          to: decoded.email,
-          subject: "Appointment Confirmation",
-          message: `Your appointment with doctor ${doctor?.DoctorName} on ${appointmentDate} has been booked successfully.`,
-          doctorName: doctor?.DoctorName,
-          name: patientName,
-        });
-        console.log("Appointment email sent successfully.");
-      } else {
-        console.log("No email found in token, skipping email confirmation.");
-      }
-    } catch (err) {
-      console.error("Failed to send appointment confirmation email:", err);
-    }
 
     return { success: true, message: "Appointment booked successfully!" };
   } catch (error: any) {

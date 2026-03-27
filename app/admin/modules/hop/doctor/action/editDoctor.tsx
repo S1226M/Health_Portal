@@ -28,6 +28,8 @@ export default async function editDoctor(formData: FormData) {
   const specializationID = formData.get("SpecializationID") as string;
   const description = formData.get("Description") as string;
   const userID = formData.get("UserID") as string;
+  const email = formData.get("Email") as string;
+  const password = formData.get("Password") as string;
   const id = parseInt(doctorID);
 
   await prisma.hop_doctor.update({
@@ -38,6 +40,8 @@ export default async function editDoctor(formData: FormData) {
       SpecializationID: specializationID ? parseInt(specializationID) : null,
       Description: description,
       UserID: parseInt(userID),
+      Email: email,
+      Password: password,
       Modified: new Date(),
       ModifiedByUserID: currentUserId,
     },

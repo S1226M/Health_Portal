@@ -27,13 +27,60 @@ export default async function SaveDoctor(formData: FormData) {
   const specializationID = formData.get("SpecializationID") as string;
   const description = formData.get("Description") as string;
   const userID = formData.get("UserID") as string;
+  const email = formData.get("Email") as string;
+  const password = formData.get("Password") as string;
+
+  let finalUserID = parseInt(userID);
+
+  if (isNaN(finalUserID)) {
+    // If no UserID is provided, check if a sec_user with this email already exists
+    const existingUser = await prisma.sec_user.findFirst({
+      where: { Email: email },
+    });
+
+    const doctorRole = await prisma.sec_role.findFirst({
+      where: { RoleName: "Doctor" },
+      select: { RoleID: true },
+    });
+
+    if (existingUser) {
+      // User exists, just use their ID and make sure they are a doctor
+      finalUserID = existingUser.UserID;
+      
+      // Optionally update their role to Doctor if they aren't already
+      if (doctorRole && existingUser.RoleID !== doctorRole.RoleID) {
+        await prisma.sec_user.update({
+          where: { UserID: existingUser.UserID },
+          data: { RoleID: doctorRole.RoleID },
+        });
+      }
+    } else {
+      // Create new user
+      const newUser = await prisma.sec_user.create({
+        data: {
+          UserName: email.split("@")[0],
+          Password: password,
+          Email: email,
+          FullName: doctorName,
+          RoleID: doctorRole?.RoleID || 6,
+          IsActive: true,
+          Created: new Date(),
+          CreatedByUserID: currentUserId,
+          Modified: new Date(),
+        },
+      });
+      finalUserID = newUser.UserID;
+    }
+  }
 
   const data = {
     DoctorName: doctorName,
     HospitalID: parseInt(hospitalID),
     SpecializationID: specializationID ? parseInt(specializationID) : null,
     Description: description,
-    UserID: parseInt(userID),
+    UserID: finalUserID,
+    Email: email,
+    Password: password,
     Created: new Date(),
     CreatedByUserID: currentUserId,
     Modified: new Date(),

@@ -10,8 +10,11 @@ import {
   Checkbox,
   FormControlLabel,
   Alert,
+  Radio,
+  RadioGroup,
+  FormControl,
 } from "@mui/material";
-import { Email, Lock } from "@mui/icons-material";
+import { Email, Lock, Person, LocalHospital } from "@mui/icons-material";
 import { login } from "./actions";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,6 +25,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [sendingOTP, setSendingOTP] = useState(false);
+  const [loginType, setLoginType] = useState("user");
   const router = useRouter();
   const searchParams = useSearchParams();
   const isUnauthorized = searchParams.get("unauthorized") === "true";
@@ -58,6 +62,60 @@ export default function LoginForm() {
           {error}
         </Alert>
       )}
+
+      {/* Hidden input to pass login type to the server action */}
+      <input type="hidden" name="loginType" value={loginType} />
+
+      <FormControl component="fieldset" sx={{ width: "100%", mb: 3 }}>
+        <RadioGroup
+          row
+          name="loginTypeGroup"
+          value={loginType}
+          onChange={(e) => setLoginType(e.target.value)}
+          sx={{ display: 'flex', gap: 2 }}
+        >
+          <FormControlLabel
+            value="user"
+            control={<Radio color="primary" />}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Person fontSize="small" />
+                <span style={{ fontWeight: loginType === 'user' ? 700 : 500 }}>Patient / Admin</span>
+              </Box>
+            }
+            sx={{
+              margin: 0,
+              flex: 1,
+              border: '1px solid',
+              borderColor: loginType === 'user' ? 'primary.main' : 'divider',
+              borderRadius: 2,
+              padding: '8px 16px',
+              bgcolor: loginType === 'user' ? 'primary.50' : 'transparent',
+              transition: 'all 0.2s',
+            }}
+          />
+          <FormControlLabel
+            value="doctor"
+            control={<Radio color="primary" />}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <LocalHospital fontSize="small" />
+                <span style={{ fontWeight: loginType === 'doctor' ? 700 : 500 }}>Doctor</span>
+              </Box>
+            }
+            sx={{
+              margin: 0,
+              flex: 1,
+              border: '1px solid',
+              borderColor: loginType === 'doctor' ? '#059669' : 'divider',
+              borderRadius: 2,
+              padding: '8px 16px',
+              bgcolor: loginType === 'doctor' ? '#ecfdf5' : 'transparent',
+              transition: 'all 0.2s',
+            }}
+          />
+        </RadioGroup>
+      </FormControl>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12 }}>

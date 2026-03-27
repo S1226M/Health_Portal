@@ -45,6 +45,7 @@ export async function getViewBookedAppointments() {
                 AppointmentDate: true,
                 Status: true,
                 Reason: true,
+                MessageFromDoctor: true,
                 PatientName: true,
                 SlotID: true,
                 DoctorID: true,
@@ -77,13 +78,15 @@ export async function getViewBookedAppointments() {
             }
         });
 
-        // Add an "appointmentStatus" field: "Upcoming" or "Completed"
+        // Add an "appointmentStatus" field: "Upcoming", "Completed", "Cancelled", "Pending", "Rejected"
         const enrichedAppointments = appointments.map((appt) => {
             const apptDate = appt.AppointmentDate ? new Date(appt.AppointmentDate) : null;
             let appointmentStatus = "Upcoming";
 
-            if (appt.Status === "Cancelled") {
+            if (appt.Status === "Cancelled" || appt.Status === "Rejected") {
                 appointmentStatus = "Cancelled";
+            } else if (appt.Status === "Pending") {
+                appointmentStatus = "Upcoming";
             } else if (appt.Status === "Completed") {
                 appointmentStatus = "Completed";
             } else if (apptDate && apptDate < now) {

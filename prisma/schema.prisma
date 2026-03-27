@@ -76,6 +76,8 @@ model hop_doctor {
   SpecializationID                               Int?
   Description                                    String?                   @db.VarChar(250)
   UserID                                         Int
+  Email                                          String                    @db.VarChar(200)
+  Password                                       String                    @db.VarChar(250)
   Created                                        DateTime                  @default(now()) @db.DateTime(0)
   Modified                                       DateTime                  @default(now()) @db.DateTime(0)
   CreatedByUserID                                Int
