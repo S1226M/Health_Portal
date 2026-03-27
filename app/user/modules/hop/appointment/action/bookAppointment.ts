@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { sendMail } from "@/lib/sendMail";
 
 export default async function SaveAppointment(formData: FormData) {
   try {
@@ -133,24 +134,23 @@ export default async function SaveAppointment(formData: FormData) {
       select: { DoctorName: true },
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    console.log("API call.")
-    const response = await fetch(`${baseUrl}/api/send-mail`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: decoded.email,
-        subject: "Appointment Confirmation",
-        message: `Your appointment with doctor ${doctor?.DoctorName} on ${appointmentDate} has been booked successfully.`,
-        doctorName: doctor?.DoctorName,
-        name: patientName,
-      }),
-    });
-    console.log("Fetch response status:", response.status);
-    const respData = await response.text();
-    console.log("Fetch response text:", respData);
+    console.log("Sending Appointment email via sendMail");
+    try {
+      if (decoded.email) {
+        await sendMail({
+          to: decoded.email,
+          subject: "Appointment Confirmation",
+          message: `Your appointment with doctor ${doctor?.DoctorName} on ${appointmentDate} has been booked successfully.`,
+          doctorName: doctor?.DoctorName,
+          name: patientName,
+        });
+        console.log("Appointment email sent successfully.");
+      } else {
+        console.log("No email found in token, skipping email confirmation.");
+      }
+    } catch (err) {
+      console.error("Failed to send appointment confirmation email:", err);
+    }
 
     return { success: true, message: "Appointment booked successfully!" };
   } catch (error: any) {

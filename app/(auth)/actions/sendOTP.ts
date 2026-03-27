@@ -1,5 +1,6 @@
 "use server";
 import { prisma } from "@/lib/prisma";
+import { sendMail } from "@/lib/sendMail";
 
 export default async function sendOTP({ email }: { email: string }) {
     const user = await prisma.sec_user.findFirst({
@@ -20,19 +21,17 @@ export default async function sendOTP({ email }: { email: string }) {
         data: { otp: otp }
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    console.log("API call.");
-    const response = await fetch(`${baseUrl}/api/send-mail`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            email: email,
+    console.log("Sending OTP via sendMail");
+    try {
+        await sendMail({
+            to: email,
             subject: "Password Reset OTP",
             message: `Your OTP for password reset is: ${otp}`,
-        }),
-    });
-
-    return { success: true, message: "OTP sent successfully!" };
+            otp: otp.toString(),
+        });
+        return { success: true, message: "OTP sent successfully!" };
+    } catch (error: any) {
+        console.error("Error sending OTP email:", error);
+        return { success: false, message: "Failed to send OTP email." };
+    }
 }

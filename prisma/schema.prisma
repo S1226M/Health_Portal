@@ -15,6 +15,7 @@ model hop_appointment {
   UserID                                              Int
   DoctorID                                            Int
   Status                                              String               @db.VarChar(50)
+  MessageFromDoctor                                   String?              @db.VarChar(500)
   Reason                                              String?              @db.VarChar(250)
   Created                                             DateTime             @default(now()) @db.DateTime(0)
   Modified                                            DateTime             @default(now()) @db.DateTime(0)
@@ -29,6 +30,7 @@ model hop_appointment {
   Country                                             String?              @db.VarChar(100)
   SlotID                                              Int?
   AppointmentDate                                     DateTime?            @db.DateTime(0)
+  IsVideoConsultant                                   Boolean              @default(false)
   hop_timeslot_master                                 hop_timeslot_master? @relation(fields: [SlotID], references: [SlotID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Appt_Slot")
   sec_user_hop_appointment_CreatedByUserIDTosec_user  sec_user             @relation("hop_appointment_CreatedByUserIDTosec_user", fields: [CreatedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_CreatedBy")
   sec_user_hop_appointment_ModifiedByUserIDTosec_user sec_user?            @relation("hop_appointment_ModifiedByUserIDTosec_user", fields: [ModifiedByUserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "FK_HOP_Appt_ModifiedBy")
@@ -857,7 +859,7 @@ model sec_user {
   FullName                                                                             String                         @db.VarChar(250)
   Password                                                                             String                         @db.VarChar(250)
   RoleID                                                                               Int                            @default(6)
-  Email                                                                                String?                        @db.VarChar(250)
+  Email                                                                                String?                        @unique(map: "unique_email") @db.VarChar(250)
   MobileNo                                                                             String?                        @db.VarChar(20)
   IsActive                                                                             Boolean                        @default(true)
   Created                                                                              DateTime                       @default(now()) @db.DateTime(0)
