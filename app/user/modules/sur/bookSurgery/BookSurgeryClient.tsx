@@ -26,6 +26,7 @@ export default function BookSurgeryClient() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // 
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
