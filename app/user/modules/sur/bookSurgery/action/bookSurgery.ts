@@ -84,15 +84,15 @@ export async function requestSurgeryBooking(formData: FormData) {
         doctorId = existingDoc.DoctorID;
     } else {
         // Create a dummy doctor if completely empty
-        const dummyDoc = await prisma.hop_doctor.create({
-            data: {
-                DoctorName: "Assigned Surgeon",
-                HospitalID: hospitalId,
-                CreatedByUserID: 1,
-                UserID: currentUserId,
-            }
-        });
-        doctorId = dummyDoc.DoctorID;
+        // const dummyDoc = await prisma.hop_doctor.create({
+        //     data: {
+        //         DoctorName: "Assigned Surgeon",
+        //         HospitalID: hospitalId,
+        //         CreatedByUserID: 1,
+        //         UserID: currentUserId,
+        //     }
+        // });
+        // doctorId = dummyDoc.DoctorID;
     }
 
     // Generate a mock booking number

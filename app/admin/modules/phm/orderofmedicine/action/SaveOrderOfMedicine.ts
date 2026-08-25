@@ -27,16 +27,16 @@ export default async function SaveOrderOfMedicine(formData: FormData) {
   );
   const Quantity = parseInt(formData.get("Quantity") as string);
 
-  await prisma.phm_orderofmedicine.create({
-    data: {
-      MedicineID,
-      MedicineOrderPaymentTypeID,
-      Quantity,
-      OrderDateTime: new Date(),
-      CreatedByUserID: currentUserId,
-      IsDeleted: false,
-    },
-  });
+  // await prisma.phm_orderofmedicine.create({
+  //   // data: {
+  //   //   MedicineID,
+  //   //   MedicineOrderPaymentTypeID,
+  //   //   Quantity,
+  //   //   OrderDateTime: new Date(),
+  //   //   CreatedByUserID: currentUserId,
+  //   //   IsDeleted: false,
+  //   // },
+  // });
 
   revalidatePath("/admin/components/phm/orderofmedicine");
   redirect("/admin/components/phm/orderofmedicine");
